@@ -1,0 +1,28 @@
+{
+    "questionType" : "POPULAR",
+    "categoryId" : "0b4b643b-8a44-410b-bccb-8cffcdd374c7",
+    "gameId" : "3039b9c0-afb8-43ef-a9f2-af75fdd32771",
+    "number" : 4,
+    "id" : 1532565525920,
+    "question" : "Which is a type of fungus?",
+    "secondsToRespond" : 13,
+    "total" : 12,
+    "choices" : [
+        {
+            "id" : "4fab6acc-9069-11e8-a386-a360d0f5d6bf",
+            "choice" : "Chevrotain",
+            "questionId" : "4fab6acb-9069-11e8-a386-a360d0f5d6bf"
+        },
+        {
+            "id" : "4fab6acd-9069-11e8-a386-a360d0f5d6bf",
+            "choice" : "Morel",
+            "questionId" : "4fab6acb-9069-11e8-a386-a360d0f5d6bf"
+        },
+        {
+            "id" : "4fab6ace-9069-11e8-a386-a360d0f5d6bf",
+            "choice" : "Dugong",
+            "questionId" : "4fab6acb-9069-11e8-a386-a360d0f5d6bf"
+        }
+    ],
+    "questionId" : "4fab6acb-9069-11e8-a386-a360d0f5d6bf"
+}

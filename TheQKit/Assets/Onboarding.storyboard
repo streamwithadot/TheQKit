@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SourceSansPro-Semibold.ttf">
+            <string>SourceSansPro-Semibold</string>
+        </array>
+    </customFonts>
+    <scenes>
+        <!--iPhone 8 Copy-->
+        <scene sceneID="av5-HF-dYX">
+            <objects>
+                <viewController storyboardIdentifier="selectName" useStoryboardIdentifierAsRestorationIdentifier="YES" id="rt9-gg-bRf" userLabel="iPhone 8 Copy" customClass="SelectNameVC" customModule="theq" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="lKw-lN-3On">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xIk-xi-Zmb">
+                                <rect key="frame" x="32" y="595" width="311" height="48"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="8FC-SJ-r6u"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
+                                <state key="normal" title="Confirm Username">
+                                    <color key="titleColor" red="0.90380668639999995" green="0.20585265759999999" blue="0.38462328909999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="confrimName:" destination="rt9-gg-bRf" eventType="touchUpInside" id="H2x-nn-h7Y"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="qTriviaNetworkLogo" translatesAutoresizingMaskIntoConstraints="NO" id="q1b-Ye-WF5" userLabel="TheQ Logo">
+                                <rect key="frame" x="16" y="30" width="201" height="60"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="Qbe-7r-9wN"/>
+                                    <constraint firstAttribute="width" constant="201" id="Uyi-Es-Ze6"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CHOOSE A USERNAME" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bEv-xf-oKs">
+                                <rect key="frame" x="16" y="253.5" width="343" height="20"/>
+                                <fontDescription key="fontDescription" name="SourceSansPro-Semibold" family="Source Sans Pro" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder=" Username" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6za-Mo-xbM">
+                                <rect key="frame" x="16" y="281.5" width="339" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="Nbk-ec-sJr"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <textInputTraits key="textInputTraits" enablesReturnKeyAutomatically="YES"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Have a Referral or Promo Code?" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="mBX-we-UR5">
+                                <rect key="frame" x="16" y="337.5" width="247.5" height="20"/>
+                                <fontDescription key="fontDescription" name="SourceSansPro-Semibold" family="Source Sans Pro" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="These can come from other players or advertisements" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Kdd-9O-HkQ">
+                                <rect key="frame" x="16" y="364.5" width="339" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Optional*" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tJE-dU-zjM">
+                                <rect key="frame" x="285.5" y="338.5" width="66.5" height="18"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
+                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Referrer's Username or Promo Code" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="svc-3z-Fjy">
+                                <rect key="frame" x="16" y="389.5" width="339" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="4tR-YH-ghp"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <textInputTraits key="textInputTraits" enablesReturnKeyAutomatically="YES"/>
+                            </textField>
+                        </subviews>
+                        <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <constraints>
+                            <constraint firstItem="Kdd-9O-HkQ" firstAttribute="leading" secondItem="mBX-we-UR5" secondAttribute="leading" id="5xI-Qf-p2N"/>
+                            <constraint firstItem="6za-Mo-xbM" firstAttribute="leading" secondItem="lKw-lN-3On" secondAttribute="leadingMargin" id="9tv-0b-k0P"/>
+                            <constraint firstItem="6za-Mo-xbM" firstAttribute="top" secondItem="bEv-xf-oKs" secondAttribute="bottom" constant="8" symbolic="YES" id="DZo-Dv-KOO"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="xIk-xi-Zmb" secondAttribute="trailing" constant="16" id="ErZ-rU-6he"/>
+                            <constraint firstItem="tJE-dU-zjM" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="mBX-we-UR5" secondAttribute="trailing" constant="10" id="FnQ-3X-AIl"/>
+                            <constraint firstItem="6za-Mo-xbM" firstAttribute="centerY" secondItem="lKw-lN-3On" secondAttribute="centerY" constant="-28" id="FrS-ft-Wrr"/>
+                            <constraint firstItem="mBX-we-UR5" firstAttribute="top" secondItem="6za-Mo-xbM" secondAttribute="bottom" constant="8" id="HZX-yV-hn6"/>
+                            <constraint firstItem="r8z-KA-iAH" firstAttribute="trailing" secondItem="Kdd-9O-HkQ" secondAttribute="trailing" constant="20" id="Hyb-6v-aE6"/>
+                            <constraint firstItem="r8z-KA-iAH" firstAttribute="trailing" secondItem="6za-Mo-xbM" secondAttribute="trailing" constant="20" id="NxY-vA-Edk"/>
+                            <constraint firstItem="xIk-xi-Zmb" firstAttribute="leading" secondItem="lKw-lN-3On" secondAttribute="leadingMargin" constant="16" id="NzV-Yb-Eaw"/>
+                            <constraint firstItem="svc-3z-Fjy" firstAttribute="leading" secondItem="mBX-we-UR5" secondAttribute="leading" id="TL7-vo-YOA"/>
+                            <constraint firstItem="q1b-Ye-WF5" firstAttribute="top" secondItem="r8z-KA-iAH" secondAttribute="top" constant="10" id="VAG-kn-ESo"/>
+                            <constraint firstItem="r8z-KA-iAH" firstAttribute="trailing" secondItem="tJE-dU-zjM" secondAttribute="trailing" constant="23" id="XDb-LU-OMQ"/>
+                            <constraint firstItem="svc-3z-Fjy" firstAttribute="top" secondItem="Kdd-9O-HkQ" secondAttribute="bottom" constant="8" id="Y5P-Rj-a3p"/>
+                            <constraint firstItem="q1b-Ye-WF5" firstAttribute="leading" secondItem="r8z-KA-iAH" secondAttribute="leading" constant="16" id="YJr-bm-Ign"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="6za-Mo-xbM" secondAttribute="trailing" id="bVW-Do-hXJ"/>
+                            <constraint firstItem="Kdd-9O-HkQ" firstAttribute="top" secondItem="mBX-we-UR5" secondAttribute="bottom" constant="7" id="c36-pB-59p"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="bEv-xf-oKs" secondAttribute="trailing" id="jF8-3b-QRJ"/>
+                            <constraint firstItem="svc-3z-Fjy" firstAttribute="leading" secondItem="6za-Mo-xbM" secondAttribute="leading" id="m68-Lf-ZYs"/>
+                            <constraint firstAttribute="bottom" secondItem="xIk-xi-Zmb" secondAttribute="bottom" constant="24" id="qag-V8-8qk"/>
+                            <constraint firstItem="tJE-dU-zjM" firstAttribute="centerY" secondItem="mBX-we-UR5" secondAttribute="centerY" id="rrE-SL-bL3"/>
+                            <constraint firstItem="bEv-xf-oKs" firstAttribute="leading" secondItem="lKw-lN-3On" secondAttribute="leadingMargin" id="ton-J2-tHd"/>
+                            <constraint firstItem="r8z-KA-iAH" firstAttribute="trailing" secondItem="svc-3z-Fjy" secondAttribute="trailing" constant="20" id="ugM-1D-tXo"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="r8z-KA-iAH"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <connections>
+                        <outlet property="confirmButton" destination="xIk-xi-Zmb" id="jy3-Yh-BXA"/>
+                        <outlet property="referralTextField" destination="svc-3z-Fjy" id="Nxq-Co-DgZ"/>
+                        <outlet property="userNameTextField" destination="6za-Mo-xbM" id="Rql-GV-mzE"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iwj-Yt-uMT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3988.4057971014495" y="-2261.3839285714284"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="qTriviaNetworkLogo" width="1695" height="648"/>
+    </resources>
+</document>
