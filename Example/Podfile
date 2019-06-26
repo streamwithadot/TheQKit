@@ -1,0 +1,49 @@
+use_frameworks!
+platform :ios, '10.0'
+
+target 'TheQKit_Example' do
+  pod 'TheQKit', :path => '../'
+  pod 'MBProgressHUD'
+  pod 'FirebaseUI'
+end
+
+pre_install do |installer|
+    Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+end
+
+#bitcodeTargets = ['ijkplayer']
+#swift4Targets = ['TheQKit', 'Kingfisher', 'PopupDialog', 'DynamicBlurView', 'lottie-ios', 'Mixpanel-swift']
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        
+        
+        target.build_configurations.each do |config|
+            
+#            if swift4Targets.include? target.name
+#                config.build_settings['SWIFT_VERSION'] = '4.2'
+#                else
+#                config.build_settings['SWIFT_VERSION'] = '4.0'
+#            end
+
+            config.build_settings['ENABLE_BITCODE'] = 'NO'
+
+            
+            
+                # Ensure 32 bit symbols aren't included when building
+            config.build_settings['ARCHS'] = '$(ARCHS_STANDARD_64_BIT)'
+             
+            
+#            if bitcodeTargets.include? target.name
+#              cflags = config.build_settings['OTHER_CFLAGS'] || ['$(inherited)']
+#              cflags << '-fembed-bitcode'
+#              config.build_settings['OTHER_CFLAGS'] = cflags
+#            end
+
+        end
+        
+    end
+end
+
+
+
+

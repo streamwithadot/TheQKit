@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UseHeartViewController">
+            <connections>
+                <outlet property="dontUseButton" destination="ffk-0O-dXZ" id="HqO-AU-LfQ"/>
+                <outlet property="useButton" destination="2V1-Dp-mBh" id="1dK-hp-Hu4"/>
+                <outlet property="view" destination="6Jn-B9-V7E" id="mvI-oz-IHo"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="6Jn-B9-V7E">
+            <rect key="frame" x="0.0" y="0.0" width="290" height="303"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="y6l-v0-XHw">
+                    <rect key="frame" x="-4" y="0.0" width="298" height="303"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use an Extra Life?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mEh-xF-kDy">
+                            <rect key="frame" x="28" y="20" width="242" height="47"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="47" id="5v8-e1-cY9"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                            <color key="textColor" red="0.89983850720000003" green="0.20594853160000001" blue="0.38475859169999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You have an avaliable Extra Life!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vt5-gH-tkf">
+                            <rect key="frame" x="28" y="169" width="242" height="33"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="33" id="0rM-MM-u7D"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heartContainer_LG_Full" translatesAutoresizingMaskIntoConstraints="NO" id="LIh-Gn-cow">
+                            <rect key="frame" x="91" y="75" width="117" height="102"/>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use it to stay in the Game!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eOo-j8-SCc">
+                            <rect key="frame" x="28" y="192" width="242" height="33"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="33" id="jtY-xY-aT5"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <stackView opaque="NO" contentMode="scaleToFill" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="Is0-zR-9rc">
+                            <rect key="frame" x="14" y="233" width="270" height="52"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffk-0O-dXZ">
+                                    <rect key="frame" x="0.0" y="0.0" width="120" height="52"/>
+                                    <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="120" id="Vtt-XZ-nhs"/>
+                                        <constraint firstAttribute="height" constant="52" id="f5M-OW-23P"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                    <state key="normal" title="Don't Use It!">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="dontPressed:" destination="-1" eventType="touchUpInside" id="go3-UK-m1K"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2V1-Dp-mBh">
+                                    <rect key="frame" x="150" y="0.0" width="120" height="52"/>
+                                    <color key="backgroundColor" red="0.90196078430000004" green="0.20392156859999999" blue="0.38431372549999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="52" id="0mK-9b-TuZ"/>
+                                        <constraint firstAttribute="width" constant="120" id="1i5-Bx-i8e"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                    <state key="normal" title="Use It!">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="useItPressed:" destination="-1" eventType="touchUpInside" id="nAF-Ad-LQj"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="mEh-xF-kDy" firstAttribute="trailing" secondItem="vt5-gH-tkf" secondAttribute="trailing" id="GIV-hu-Qdf"/>
+                        <constraint firstItem="Is0-zR-9rc" firstAttribute="top" secondItem="vt5-gH-tkf" secondAttribute="bottom" constant="31" id="N8E-2r-kGo"/>
+                        <constraint firstAttribute="bottom" secondItem="Is0-zR-9rc" secondAttribute="bottom" constant="18" id="NgD-RE-xBl"/>
+                        <constraint firstItem="vt5-gH-tkf" firstAttribute="trailing" secondItem="eOo-j8-SCc" secondAttribute="trailing" id="NtE-fF-g6e"/>
+                        <constraint firstItem="mEh-xF-kDy" firstAttribute="top" secondItem="y6l-v0-XHw" secondAttribute="top" constant="20" id="UHr-3a-BuY"/>
+                        <constraint firstItem="eOo-j8-SCc" firstAttribute="centerX" secondItem="Is0-zR-9rc" secondAttribute="centerX" id="cPF-lM-iGv"/>
+                        <constraint firstItem="mEh-xF-kDy" firstAttribute="centerX" secondItem="y6l-v0-XHw" secondAttribute="centerX" id="e3P-tS-PjK"/>
+                        <constraint firstItem="Is0-zR-9rc" firstAttribute="leading" secondItem="y6l-v0-XHw" secondAttribute="leading" constant="14" id="gUY-Wl-dyG"/>
+                        <constraint firstItem="Is0-zR-9rc" firstAttribute="top" secondItem="eOo-j8-SCc" secondAttribute="bottom" constant="8" symbolic="YES" id="hQp-N2-Ifw"/>
+                        <constraint firstItem="mEh-xF-kDy" firstAttribute="leading" secondItem="vt5-gH-tkf" secondAttribute="leading" id="hvg-4r-Oz0"/>
+                        <constraint firstItem="LIh-Gn-cow" firstAttribute="centerX" secondItem="vt5-gH-tkf" secondAttribute="centerX" id="k2X-yM-RoR"/>
+                        <constraint firstItem="mEh-xF-kDy" firstAttribute="leading" secondItem="y6l-v0-XHw" secondAttribute="leading" constant="28" id="lQf-ai-Bq2"/>
+                        <constraint firstItem="eOo-j8-SCc" firstAttribute="top" secondItem="LIh-Gn-cow" secondAttribute="bottom" constant="15" id="rp9-a3-5bt"/>
+                        <constraint firstItem="LIh-Gn-cow" firstAttribute="top" secondItem="mEh-xF-kDy" secondAttribute="bottom" constant="8" symbolic="YES" id="tKj-Zf-qcw"/>
+                        <constraint firstItem="vt5-gH-tkf" firstAttribute="leading" secondItem="eOo-j8-SCc" secondAttribute="leading" id="tNB-9g-wO8"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="y6l-v0-XHw" firstAttribute="bottom" secondItem="fEX-Ix-UIp" secondAttribute="bottom" id="Eqh-iB-4Lq"/>
+                <constraint firstItem="y6l-v0-XHw" firstAttribute="centerX" secondItem="6Jn-B9-V7E" secondAttribute="centerX" id="JEj-Ls-psm"/>
+                <constraint firstItem="y6l-v0-XHw" firstAttribute="leading" secondItem="6Jn-B9-V7E" secondAttribute="leading" constant="-4" id="lc1-98-Wkw"/>
+                <constraint firstItem="y6l-v0-XHw" firstAttribute="top" secondItem="fEX-Ix-UIp" secondAttribute="top" id="rRr-Ue-U5S"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="fEX-Ix-UIp"/>
+            <point key="canvasLocation" x="-166" y="-84.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="heartContainer_LG_Full" width="117" height="102"/>
+    </resources>
+</document>

@@ -1,0 +1,1861 @@
+//
+//  GameViewController.swift
+//  theq
+//
+//  Created by Will Jamieson on 10/25/17.
+//  Copyright © 2017 Stream Live. All rights reserved.
+//
+
+import UIKit
+import AVFoundation
+import VideoToolbox
+
+import IJKMediaFramework
+
+import Toast_Swift
+import Alamofire
+import PopupDialog
+import UIColor_Hex_Swift 
+import ObjectMapper
+import SwiftyJSON
+import Lottie
+
+//test
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// MARK: - Class
+
+protocol HeartDelegate {
+    func useHeart()
+}
+
+protocol GameDelegate {
+    func submitAnswer(questionId: String, responseId: String, choiceText: String?)
+    func getColorForID(catId: String) -> UIColor
+    
+    func beginAudio()
+    func stopAudio()
+    
+    var userSubmittedAnswer : Bool { get }
+    var isQuestionActive : Bool { get }
+//    var leaderboardDelegate : LeaderboardDelegate { get }
+//    var colorArray : Dictionary<String, String> { get }
+}
+
+class GameViewController: UIViewController, HeartDelegate, GameDelegate {
+    
+    func getColorForID(catId: String) -> UIColor {
+        if(colorOverride != nil){
+            return UIColor.init(colorOverride!, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+        }
+        let colorIndex = colorDict.index(forKey: catId)
+        if colorIndex != nil {
+            return UIColor.init(colorDict[colorIndex!].value, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+        } else {
+            return UIColor.init(TQKConstants.GEN_COLOR_CODE, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+        }
+    }
+    
+    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    // MARK: - Properties
+    var colorOverride : String?
+    var colorDict : Dictionary = ["815b2a99-e94b-4bcd-912c-6c0338bf6efa" : "#32C274",
+                                    "c25df7d4-8c06-426c-8cb3-40d30c7ad095" : "#26D8B0",
+                                    "01fb6f5a-eaa7-4e70-98e8-d1bd467b3f2c" : "#F24EBC",
+                                    "3e58c238-0fb0-4625-9d7a-f3010a5c4290" : "#E32C42",
+                                    "c43c7b30-613d-4e5d-8a90-8e975492f3bc" : "#E63462",
+                                    "e081c916-8bf5-4632-9ded-c5ce2e6d3253" : "#00CCCC",
+                                    "cb356359-a861-41da-9f77-65f0b7dcfb05" : "#F5A623",
+                                    "0d9264c0-fb8d-4f25-93fa-fefe36114677" : "#DA5650",
+                                    "0c1d2089-4fa7-4755-a0d5-b5ba1a869142" : "#8B34D8",
+                                    "b31613fe-e175-4fbd-b329-ba6dc0bf7f55" : "#D2D8F4",
+                                    "9ad53f44-fe4b-4c97-93fe-7376385ae02d" : "#4A90E2",
+                                    "37aefe58-1b3e-41e9-8202-f5c763fbf8d9" : "#8B34D8",
+                                    "af1849ef-360b-44af-84e1-a24b9c27f52d" : "#E32C42",
+                                    "2cfa4ff4-8ecc-4d21-81cc-a61facd640f3" : "#F5A623",
+                                    "99ea7424-80ae-46fc-8958-b44274c92b4d" : "#DA5650",
+                                    "02016318-bcc4-4337-a7e0-2479a94821e4" : "#F24EBC",
+                                    "79ef9fe5-8a1f-4786-beb1-f91a8033ae47" : "#32C274",
+                                    "0b4b643b-8a44-410b-bccb-8cffcdd374c7" : "#26D8B0",
+                                    "0efde751-aca2-4c8a-8a2a-c92af3ff7b88" : "#4A90E2"]
+    
+    
+    private var _orientations = UIInterfaceOrientationMask.portrait
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        get { return self._orientations }
+        set { self._orientations = newValue }
+    }
+    
+    
+    @IBOutlet weak var spinnerView: SpinnerView!
+    
+    @IBOutlet weak var previewView: UIView!
+    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    // MARK: - Setup
+    
+    var player: IJKFFMoviePlayerController!
+
+
+    @IBOutlet weak var viewCount: UILabel!
+    
+    var myGameId:String?
+    var host:String?
+    var sseHost:String?
+    
+    var useLongTimer:Bool = false
+   
+    var selectionChoiceText: String?
+    
+    var currentQuestion: TQKQuestion!
+    var currentResult: TQKResult!
+    var currentEndQuestion : TQKResult?
+    var videoView: UIView!
+    var gameLocked: Bool!
+    var userEliminated: Bool = false
+    var myAnswerId: String!
+    var userSubmittedAnswer: Bool = false
+    var rtmpUrl: String!
+    var isQuestionActive: Bool = false
+    var hideIn2Timer:Timer!
+    var hideIn5Timer:Timer!
+    var countDownTimer:Timer!
+    var timerIsOn = false
+    var timeRemaining: Int!
+    @IBOutlet weak var countdownLabel: UILabel!
+
+    
+    var hasJoined = false
+    var playbackStarted = false
+    var maxdelay = 1
+    private var playbackDelay = 0
+    private var lastBufferStart = 0
+    var reloadVideoTimer:Timer!
+    var lastPlayerTimeStamp : TimeInterval = 0.0
+    var reconnectTimer : Timer!
+    var shouldReconnect : Bool = false
+    
+    var joinedLate : Bool = false
+
+    
+    @IBOutlet weak var exitButton: UIButton!
+
+    
+    var eSource: EventSource?
+    
+    var lastBufferDate : NSDate?
+    var currentBufferDate : NSDate?
+    var bufferTimer : Timer!
+    var bufferTime : Double = 0
+    
+    @IBOutlet weak var currentQuestionNumberLabel: UILabel!
+
+    @IBOutlet weak var eliminatedLabel: UILabel!
+    
+    @IBOutlet weak var getReadyView: UIView!
+    @IBOutlet weak var countdownView: UIView!
+    @IBOutlet weak var gameWarnCountdownLabel: UILabel!
+    
+    var gameWarnTimer : Timer!
+    var gameWarnTimerLimit : TimeInterval!
+    
+    var reward: String?
+
+    var gameWinnersViewController : GameWinnersViewController?
+    var fullScreenTriviaViewController : FullScreenTriviaViewController?
+    var ssQuestionViewController : SSQuestionViewController?
+    var ssResultsViewController : SSResultViewController?
+    
+    var didOfferFreeTrial: Bool = false
+    
+    
+//    let linearBar : LinearProgressBar = LinearProgressBar()
+    
+    
+    var shouldUseHeart : Bool = false
+    var didUseHeart : Bool = false
+    var lastQuestionHeartEligible : Int = 0
+    var heartsEnabled : Bool = false
+    
+    @IBOutlet weak var heartContainerView: UIView!
+    var heartPopup : PopupDialog?
+//    var heartAnimationView : LOTAnimationView?
+    var gameStatusReceivedCount : Int = 0
+    
+    var theGame : TQKGame?
+    var didPurchaseSubscriptionFromApple : Bool = false
+    
+    var start : CFTimeInterval?
+    var version : String?
+
+    var isAudioSessionUsingAirplayOutputRoute: Bool {
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        let currentRoute = audioSession.currentRoute
+        
+        for outputPort in currentRoute.outputs {
+            if convertFromAVAudioSessionPort(outputPort.portType) == convertFromAVAudioSessionPort(AVAudioSession.Port.airPlay) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        
+        self.setupUI()
+        // self.setUpAV()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
+        
+        if #available(iOS 11.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(checkIFScreenIsCapture), name: UIScreen.capturedDidChangeNotification, object: nil)
+        }
+        if #available(iOS 10.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(callDisconnected), name: NSNotification.Name("DISCONNECTED_CALL"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(callConnected), name: NSNotification.Name("CONNECTED_CALL"), object: nil)
+        }
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidEnterBackground(_:)),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillEnterForeground(_:)),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillResignActive(_:)),
+            name: UIApplication.willResignActiveNotification,
+            object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil)
+        
+        
+    }
+    
+    @objc func callConnected(){
+        self.player.playbackVolume = 0.0
+    }
+    
+    @objc func callDisconnected(){
+        self.player.playbackVolume = 1.0
+    }
+    
+    @objc func checkIFScreenIsCapture(notification:Notification){
+        guard let screen = notification.object as? UIScreen else { return }
+        
+        let userDefaults = UserDefaults.standard
+        if userDefaults.object(forKey: "myUser") != nil {
+            let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+        
+            if #available(iOS 11.0, *) {
+                if screen.isCaptured == true && myUser.admin == false {
+                    //screen is being captured by non admin
+                    self.blockScreen()
+                }else{
+                    self.unblockScreen()
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+    }
+    
+    func checkIfScreenIsCapturedNoNotification(){
+        let userDefaults = UserDefaults.standard
+        if userDefaults.object(forKey: "myUser") != nil {
+            let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+            if #available(iOS 11.0, *) {
+                if UIScreen.screens[0].isCaptured == true && myUser.admin == false {
+                    //screen is being captured by non admin
+                    self.blockScreen()
+                }else{
+                    self.unblockScreen()
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+    }
+    
+    func unblockScreen(){
+        if(self.view.viewWithTag(888) != nil){
+            self.view.viewWithTag(888)?.removeFromSuperview()
+            self.player.playbackVolume = 1.0
+        }
+    }
+    
+    func blockScreen(){
+        
+        //double check if airplay is the cause
+        if(!isAudioSessionUsingAirplayOutputRoute){
+        
+            let fullScreenView = UIView.init(frame: self.view.frame)
+            fullScreenView.backgroundColor = .black
+            fullScreenView.tag = 888
+            
+            let label = UILabel()
+            label.text = "Screen Recording Not Allowed"
+            label.textColor = .white
+            label.textAlignment = .center
+            label.translatesAutoresizingMaskIntoConstraints = false
+            
+            fullScreenView.addSubview(label)
+            
+            label.widthAnchor.constraint(equalToConstant: 250).isActive = true
+            label.heightAnchor.constraint(equalToConstant: 100).isActive = true
+            label.centerXAnchor.constraint(equalTo: fullScreenView.centerXAnchor).isActive = true
+            label.centerYAnchor.constraint(equalTo: fullScreenView.centerYAnchor).isActive = true
+            
+            self.view.addSubview(fullScreenView)
+            self.view.bringSubviewToFront(fullScreenView)
+            
+            self.player.playbackVolume = 0.0
+            
+            let userDefaults = UserDefaults.standard
+            if userDefaults.object(forKey: "myUser") != nil {
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+                let object : [String:Any] = ["gameID" : self.theGame?.id,
+                                             "userID" : myUser.id!,
+                                             "username" : myUser.username!,
+                                             "numberOfScreens" : "\(UIScreen.screens.count)" ]
+                NotificationCenter.default.post(name: .screenRecordingDetected, object: object)
+            }
+        }else{
+            let userDefaults = UserDefaults.standard
+            if userDefaults.object(forKey: "myUser") != nil {
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+                let object : [String:Any] = ["gameID" : self.theGame?.id,
+                                             "userID" : myUser.id!,
+                                             "username" : myUser.username!]
+                NotificationCenter.default.post(name: .airplayDetected, object: object)
+            }
+        }
+    }
+    
+    @objc func applicationWillResignActive(_ notification: NSNotification) {
+
+    }
+    @objc func applicationDidBecomeActive(_ notification: NSNotification) {
+
+    }
+    
+    @objc func applicationDidEnterBackground(_ notification: NSNotification) {
+        self.dismiss(animated: false, completion: nil)
+    }
+    
+    @objc func applicationWillEnterForeground(_ notification: NSNotification) {
+        // Reconnect
+        spinnerView.animate()
+        
+        self.stopStreamAndReset()
+    }
+    
+    @objc func reconnectTimerCheck() {
+        
+        //        if(player.isPlaying()){
+        
+        //            if(lastPlayerTimeStamp == 0.0){
+        //                lastPlayerTimeStamp = player.currentPlaybackTime
+        //            }else{
+        //
+        if(lastPlayerTimeStamp == player.currentPlaybackTime && shouldReconnect){
+            //they haven't moved - reconnect if not buffering
+            lastPlayerTimeStamp = 0.0
+            self.stopStreamAndReset()
+        }else{
+            //they have moved
+            lastPlayerTimeStamp = player.currentPlaybackTime
+        }
+    }
+    
+    
+    @IBAction func close(_ sender: UIButton) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
+    
+    func handleQuestionEnd() {
+        
+        self.isQuestionActive = false
+//        self.linearBar.stopAnimation()
+        
+        DispatchQueue.main.async(execute: {
+            
+            if(self.heartPopup != nil){
+                self.heartPopup?.dismiss()
+            }
+            
+            if(self.currentEndQuestion != nil && (self.currentEndQuestion?.selection == nil || (self.currentEndQuestion?.selection.isEmpty)! || self.currentEndQuestion?.selection == "") && self.userSubmittedAnswer == true){
+                // A selection was not made for this game despite submitting a question - tell the user so
+                // Prepare the popup assets
+                let title = "Answer submission timed out"
+                let message = "We did not receive your answer in time due to a network issue. Please use wifi if it is avaliable! You may keep playing to increase your score on the Leaderboard!"
+                // Create the dialog
+                let popup = PopupDialog(title: title, message: message)
+                // This button will not the dismiss the dialog
+                let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                    
+                }
+                
+                // Add buttons to dialog
+                // Alternatively, you can use popup.addButton(buttonOne)
+                // to add a single button
+                popup.buttonAlignment = .horizontal
+                popup.addButtons([buttonTwo])
+                
+                // Present dialog
+                self.present(popup, animated: true, completion: nil)
+            }
+        })
+        
+    }
+    
+    func setProgressBarFill(bar: UIProgressView, totalResponses: Float, responses: Float )
+    {
+        let percent:Float = Float(responses/totalResponses)
+        if percent.isInfinite {
+            bar.setProgress(0, animated: true)
+        }
+        else {
+            if(percent <= 0.13){
+                bar.setProgress(0.13, animated: true)
+            }else{
+                bar.setProgress(percent, animated: true)
+            }
+        }
+    }
+    
+    func handleViewCountUpdate() {
+        
+    }
+    func stopShortTimer()
+    {
+        if hideIn2Timer != nil {
+            hideIn2Timer!.invalidate()
+            hideIn2Timer = nil
+        }
+    }
+    
+    func stopCountDownTimer () {
+        if countDownTimer != nil {
+            countDownTimer.invalidate()
+            countDownTimer = nil
+        }
+    }
+    
+    func stopVideoTimer()
+    {
+        if reloadVideoTimer != nil {
+            reloadVideoTimer!.invalidate()
+            reloadVideoTimer = nil
+        }
+    }
+    
+    func stopLongTimer()
+    {
+        if hideIn5Timer != nil {
+            hideIn5Timer!.invalidate()
+            hideIn5Timer = nil
+        }
+    }
+    
+    func handleQuestionResult() {
+        
+        self.currentEndQuestion = nil
+        self.isQuestionActive = false
+        
+        DispatchQueue.main.async(execute: {
+            // update label here
+            var totalResponse = 0
+            if(self.currentResult.choices != nil){
+                for choice in self.currentResult.choices! {
+                    totalResponse += choice.responses!
+                }
+            }
+           
+            if( self.currentResult.active == false ){
+                //if question tells me user is still active
+                if(self.currentResult.canRedeemHeart){
+                    self.eliminateAndShowHeartOption()
+                }else{
+                    self.eliminateUser()
+                }
+            }
+            
+            if ((self.currentResult.selection != nil && !(self.currentResult.selection?.isEmpty)!) && (self.currentResult.answerId == self.currentResult.selection ||  self.currentResult.correctResponse == self.currentResult.selection)) {
+                
+                //Launch full screen trivia view with correct style
+               self.launchFullScreenTrivia(.Correct)
+                
+                if(self.currentQuestion != nil && !self.currentQuestion.wasMarkedIneligibleForTracking){
+                    
+                    let object : [String:Any] = ["gameID" : self.myGameId!,
+                                                 "questionID" : self.currentResult.questionId!,
+                                                 "choiceID" : self.currentResult.selection!,
+                                                 "eliminatedFlag": self.userEliminated,
+                                                 "questionNumber" : self.currentQuestion.number,
+                                                 "questionText" : self.currentQuestion.question!,
+                                                 "choiceText": self.selectionChoiceText ?? ""]
+                    
+                    NotificationCenter.default.post(name: .correctAnswerSubmitted, object: object)
+
+                }else{
+                    let object : [String:Any] = ["gameID" : self.myGameId!,
+                                                 "questionID" : self.currentResult.questionId!,
+                                                 "choiceID" : self.currentResult.selection!,
+                                                 "eliminatedFlag": self.userEliminated]
+                    NotificationCenter.default.post(name: .correctAnswerSubmitted, object: object)
+
+                }
+                
+                
+            }else {
+
+                //Check here to launch the game sub offer
+                
+                let userDefaults = UserDefaults.standard
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+                let heartCount = myUser.heartPieceCount
+
+                if(self.currentResult.canUseSubscription && !self.didOfferFreeTrial && heartCount < 4){
+                    //show offer for free trial
+                    self.launchFullScreenTrivia(.Incorrect)
+
+                    var currentQuestionNum = 0
+                    var currentQuestionTotal = 0
+                    
+                    if(self.currentQuestion == nil){
+                        currentQuestionNum = 0
+                        currentQuestionTotal = 0
+                    }else{
+                        currentQuestionNum = self.currentQuestion.number
+                        currentQuestionTotal = self.currentQuestion.total
+                    }
+                    
+                    //TODO: notify the notification center that the app should present the subscriptions dialogue
+                    let object: [String: Any] = ["gameID": self.theGame?.id,
+                                                 "hostUrl": self.theGame?.host,
+                                                 "currentQuestionNumber":currentQuestionNum,
+                                                 "currentQuestionTotal":currentQuestionTotal]
+                    
+                    NotificationCenter.default.post(name: .showGameSubs, object: object)
+                    
+                    self.didOfferFreeTrial = true
+                }else{
+                    self.launchFullScreenTrivia(.Incorrect)
+                }
+                
+                self.launchFullScreenTrivia(.Incorrect)
+
+                
+                if(self.currentResult.selection != nil){
+                    if(self.currentQuestion != nil){
+                        
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                                                     "questionID" : self.currentResult.questionId!,
+                                                     "choiceID" : self.currentResult.selection!,
+                                                     "eliminatedFlag": self.userEliminated,
+                                                     "questionNumber" : self.currentQuestion.number,
+                                                     "questionText" : self.currentQuestion.question!,
+                                                     "choiceText": self.selectionChoiceText ?? ""]
+                        
+                        NotificationCenter.default.post(name: .incorrectAnswerSubmitted, object: object)
+
+                    }else{
+                        
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                                                     "questionID" : self.currentResult.questionId!,
+                                                     "choiceID" : self.currentResult.selection!,
+                                                     "eliminatedFlag": self.userEliminated]
+                        
+                        NotificationCenter.default.post(name: .incorrectAnswerSubmitted, object: object)
+
+                    }
+                }
+            }
+            
+        })
+        
+    }
+    
+    @objc func appleSubscriptionSuccess(_ notification: NSNotification) {
+        self.didPurchaseSubscriptionFromApple = true
+        self.shouldUseHeart = true
+    }
+    
+    @objc func subscriptionSuccess(_ notification: NSNotification) {
+        //Handle the subscription being made
+        self.didPurchaseSubscriptionFromApple = true
+        
+        NotificationCenter.default.post(name: .removeGameSubs, object: nil)
+
+        //set the user to use a heart
+        self.useHeart()
+    }
+    
+    func showPlusOneFor(view : UIView){
+        let frame = self.view.convert(view.frame, from: view.superview)
+        let correctLabel = UILabel(frame: CGRect(x: frame.width, y: frame.origin.y, width: 30, height: 30))
+        correctLabel.text = "+1"
+        correctLabel.textAlignment = .center
+        correctLabel.textColor = UIColor.white
+       
+        correctLabel.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE)
+        
+        correctLabel.layer.cornerRadius = 15
+        correctLabel.clipsToBounds = true
+        
+        self.view.addSubview(correctLabel)
+        
+        //                    correctLabel.transform = CGAffineTransform(scaleX: 0, y: 0)
+        UIView.animateKeyframes(withDuration: 2.0, delay: 0, options: .calculationModeLinear, animations: {
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 2.0, animations: {
+                //                            correctLabel.transform = .identity
+                correctLabel.frame.origin =  CGPoint(x: correctLabel.frame.origin.x, y: correctLabel.frame.origin.y - 50)
+                correctLabel.alpha = 0.0
+            })
+        }, completion: {_ in
+            correctLabel.removeFromSuperview()
+        })
+    }
+    
+    fileprivate func launchFullScreenTrivia(_ type: FullScreenType){
+        
+        if(type == .Question){
+            if(self.currentQuestion.questionType == "POPULAR"){
+                self.showPopularChoiceQuestion()
+            }else{ // trivia
+                self.showTriviaScreen(withType: type)
+            }
+        }else{ // we are a result
+            if(self.currentResult.questionType == "POPULAR"){
+                self.showPopularChoiceResult(withType: type)
+            }else{
+                self.showTriviaScreen(withType: type)
+            }
+        }
+    }
+    
+    fileprivate func showPopularChoiceQuestion(){
+        
+        let podBundle = Bundle(for: TheQKit.self)
+        let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+        let bundle = Bundle(url: bundleURL!)!
+        let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+        
+        self.ssQuestionViewController = sb.instantiateViewController(withIdentifier: "SSQuestionViewController") as? SSQuestionViewController
+        self.ssQuestionViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
+        self.ssQuestionViewController?.view.alpha = 1.0
+        self.ssQuestionViewController?.gameDelegate = self
+        self.ssQuestionViewController?.question = self.currentQuestion
+       
+        self.addChild(self.ssQuestionViewController!)
+        self.view.insertSubview(self.ssQuestionViewController!.view, belowSubview: self.exitButton)
+        self.ssQuestionViewController?.didMove(toParent: self)
+    }
+    
+    func beginAudio(){
+//        //TODO - make atTime work
+////        var startTime = 15 - self.currentQuestion!.secondsToRespond!
+////        if startTime < 0 { startTime = 0 }
+//        audioPlayer?.volume = 0.3
+//        DispatchQueue.global(qos: .background).async {
+//            self.audioPlayer?.play()//(atTime: TimeInterval(startTime))
+//        }
+    }
+    
+    func stopAudio(){
+//        audioPlayer?.pause()
+//        audioPlayer?.stop()
+    }
+    
+    fileprivate func showPopularChoiceResult(withType type:FullScreenType){
+        
+        let podBundle = Bundle(for: TheQKit.self)
+        let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+        let bundle = Bundle(url: bundleURL!)!
+        let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+        
+        self.ssResultsViewController = sb.instantiateViewController(withIdentifier: "SSResultViewController") as? SSResultViewController
+        self.ssResultsViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
+        self.ssResultsViewController?.view.alpha = 1.0
+        self.ssResultsViewController?.gameDelegate = self
+        self.ssResultsViewController?.type = type
+        self.ssResultsViewController?.result = self.currentResult
+        self.ssResultsViewController?.question = self.currentQuestion
+        
+        self.addChild(self.ssResultsViewController!)
+        self.view.insertSubview(self.ssResultsViewController!.view, belowSubview: self.exitButton)
+        self.ssResultsViewController?.didMove(toParent: self)
+    }
+    
+    fileprivate func showTriviaScreen(withType type:FullScreenType){
+        //Ne game mode - check for Question vs result then proceeds
+        let podBundle = Bundle(for: TheQKit.self)
+        let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+        let bundle = Bundle(url: bundleURL!)!
+        let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+        
+        self.fullScreenTriviaViewController = sb.instantiateViewController(withIdentifier: "FullScreenTriviaViewController") as? FullScreenTriviaViewController
+        self.fullScreenTriviaViewController!.useLongTimer = self.useLongTimer
+        self.fullScreenTriviaViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
+        self.fullScreenTriviaViewController?.view.alpha = 1.0
+        self.fullScreenTriviaViewController?.gameDelegate = self
+        self.fullScreenTriviaViewController?.type = type
+        switch type {
+        case .Correct:
+            self.fullScreenTriviaViewController?.result = self.currentResult
+            self.fullScreenTriviaViewController?.question = self.currentQuestion
+        case .Incorrect:
+            self.fullScreenTriviaViewController?.result = self.currentResult
+            self.fullScreenTriviaViewController?.question = self.currentQuestion
+        case .Question:
+            self.fullScreenTriviaViewController?.question = self.currentQuestion
+        case .NoSelect:
+            self.fullScreenTriviaViewController?.result = nil
+            self.fullScreenTriviaViewController?.question = nil
+        }
+        
+        self.addChild(self.fullScreenTriviaViewController!)
+        self.view.insertSubview(self.fullScreenTriviaViewController!.view, belowSubview: self.exitButton)
+        self.fullScreenTriviaViewController?.didMove(toParent: self)
+    }
+    
+    func setUpEventSource() {
+        
+        //        let gameUrl = Constants.EVENT_FEED_URL //+ "/event-feed/games/" + (myGameId!)
+        let baseUrl:String = "https://\(self.sseHost!)/v2/"
+        let gameUrl = baseUrl + "event-feed/games/" + (myGameId!)
+        guard let newUrl = URL(string: gameUrl) else {
+            self.dismiss(animated: true, completion: nil)
+            return
+        }
+        
+        if(eSource != nil){
+            eSource?.close()
+            eSource = nil
+        }
+        
+        eSource = EventSource.init(url: newUrl, timeoutInterval: 15)
+        
+        eSource?.onError({ (event) in
+            print("error")
+        })
+        
+        eSource?.onOpen({ (event) in
+            print("onOpen")
+
+        })
+        
+        eSource?.onReadyStateChanged({ (event) in
+            print("onReadyStateChanged")
+
+        })
+        
+        eSource?.addEventListener("QuestionStart") { (e) in
+            var json = JSON.init(parseJSON: e!.data)
+            
+            NotificationCenter.default.post(name: .removeGameSubs, object: nil)
+            
+            self.start = CACurrentMediaTime()
+            
+            self.currentQuestion = TQKQuestion(JSONString: (e?.data)!)
+            
+            self.currentEndQuestion = nil
+            self.userSubmittedAnswer = false
+            self.isQuestionActive = true
+            
+            
+            DispatchQueue.main.async(execute: {
+                let num : String = String(describing: self.currentQuestion.number)
+                let total : String = String(describing: self.currentQuestion.total)
+                if(self.currentQuestion.total != 0){
+                    self.currentQuestionNumberLabel.text = "\(num) / \(total)"
+                    self.currentQuestionNumberLabel.isHidden = false
+                    //                self.currentQuestionNumberLabel.sizeToFit()
+                    
+                }else{
+                    self.currentQuestionNumberLabel.text = "Q \(num)"
+                    self.currentQuestionNumberLabel.isHidden = false
+                    //                self.currentQuestionNumberLabel.sizeToFit()
+                }
+            })
+            
+            if(self.currentQuestion.number >= self.lastQuestionHeartEligible){
+                //                self.heartAnimationView?.removeFromSuperview()
+                //                UIView.animate(withDuration: 1.0, animations: {
+                for views in self.heartContainerView.subviews {
+                    views.removeFromSuperview()
+                }
+                
+                DispatchQueue.main.async(execute: {
+                    let heartImageView = UIImageView(image: UIImage(named: "heartUnavaliable", in: TheQKit.bundle, compatibleWith: nil))
+                    heartImageView.contentMode = .scaleAspectFit
+                    heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
+                    self.heartContainerView.addSubview(heartImageView)
+                })
+            }
+            
+            DispatchQueue.main.async(execute: {
+                
+                self.launchFullScreenTrivia(.Question)
+                
+            })
+        }
+        
+        eSource?.addEventListener("QuestionEnd") { (e) in
+            var json = JSON.init(parseJSON: e!.data)
+            self.currentEndQuestion =  TQKResult(JSONString: (e?.data)!)
+            self.handleQuestionEnd()
+            
+            /*
+             QuestionEnd %@ {
+             "gameId" : "3499d74d-b825-4b96-8dcd-60805a9bfbf2",
+             "selection" : "c29c883d-2c59-11e8-870e-ed96b952a681",
+             "id" : 1521563873051,
+             "questionId" : "c29c883c-2c59-11e8-870e-ed96b952a681"
+             }
+             
+             QuestionEnd %@ {
+             "gameId" : "3499d74d-b825-4b96-8dcd-60805a9bfbf2",
+             "selection" : null,
+             "id" : 1521563890552,
+             "questionId" : "c29c8840-2c59-11e8-870e-ed96b952a681"
+             }
+             */
+        }
+        
+        eSource?.addEventListener("QuestionResult") { (e) in
+            var json = JSON.init(parseJSON: e!.data)
+            self.currentResult = TQKResult(JSONString: (e?.data)!)
+            self.stopCountDownTimer()
+            self.stopShortTimer()
+            self.handleQuestionResult()
+        }
+        
+        eSource?.addEventListener("GameEnded") { (e) in
+            var json = JSON.init(parseJSON: e!.data)
+            self.eSource?.close()
+            self.eSource = nil
+            self.dismiss(animated: true, completion: { })
+        }
+        
+        eSource?.addEventListener("ViewCountUpdate") { (e) in
+            var json = JSON.init(parseJSON: e!.data)
+            DispatchQueue.main.async(execute: {
+                self.viewCount.text = json["viewCnt"].stringValue
+                
+            })
+        }
+        
+        eSource?.addEventListener("GameWarn") { (e) in
+            //            var json = JSON.parse((e?.data)!)
+            let seconds : TimeInterval = 20 //TimeInterval(json["duration"].doubleValue).truncatingRemainder(dividingBy: 60)
+            let interval = seconds / 5
+            
+            DispatchQueue.main.async(execute: {
+                //vibrate 5 times over 20 seconds
+                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
+                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
+                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
+                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
+                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
+                
+                
+                //show "get ready" screen for 1 x interval
+                //                self.getReadyView.isHidden = false
+                self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
+                
+                //show "countdown" screen for 4 x interval
+                let secondsToShow = Int(seconds) - 5
+                self.gameWarnCountdownLabel.text = String(secondsToShow)
+                self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
+            })
+        }
+        
+        eSource?.addEventListener("GameWinners") { (e) in
+            //show winners screen
+            var json = JSON.init(parseJSON: e!.data)
+            let gameWinners = GameWinners(JSONString: (e?.data)!)
+            
+            DispatchQueue.main.async(execute: {
+                
+                //gonna setup the leaderboards to swipe up here
+                // I'm using a storyboard.
+                let podBundle = Bundle(for: TheQKit.self)
+                let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+                let bundle = Bundle(url: bundleURL!)!
+                let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)                // I have identified the view inside my storyboard.
+                self.gameWinnersViewController = sb.instantiateViewController(withIdentifier: "GameWinnersViewController") as? GameWinnersViewController
+                
+                // These values can be played around with, depending on how much you want the view to show up when it starts.
+                self.gameWinnersViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
+                self.gameWinnersViewController?.view.alpha = 1.0
+                
+                self.gameWinnersViewController?.reward = self.reward
+                self.gameWinnersViewController?.gameWinners = gameWinners
+                
+                self.addChild(self.gameWinnersViewController!)
+                
+                self.view.insertSubview(self.gameWinnersViewController!.view, belowSubview: self.exitButton)
+                
+                self.gameWinnersViewController?.didMove(toParent: self)
+                
+                self.gameWinnersViewController?.gameWinnerTableView.reloadData()
+                
+            })
+        }
+        
+        eSource?.addEventListener("GameWon", handler: { (e) in
+            //listen for gamewon event
+            DispatchQueue.main.async(execute: {
+                
+                var json = JSON.init(parseJSON: e!.data)
+
+                NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
+
+                let amount = json["amount"]
+                let formatter = NumberFormatter()              // Cache this, NumberFormatter creation is expensive.
+                formatter.locale = Locale(identifier: TQKConstants.LOCALE) // Here indian locale with english language is used
+                formatter.numberStyle = .currency               // Change to `.currency` if needed
+                let asd = formatter.string(from: NSNumber(value: amount.floatValue)) // "10,00,000"
+                
+                let title =  NSLocalizedString("Winner!", comment: "")
+
+                var message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), "\(asd ?? " ")")
+                if(self.useLongTimer){
+                    message = "You WON \(asd ?? " ") voucher! Congrats and thanks for playing \(TQKConstants.appName)! Your balance usually updates within 5 minutes."
+                }
+
+                let popup = PopupDialog(title: title, message: message)
+                let buttonTwo = DefaultButton(title: "Okay!", dismissOnTap: true) {
+                    
+                }
+                popup.buttonAlignment = .horizontal
+                popup.addButtons([buttonTwo])
+                
+                // Present dialog
+                self.present(popup, animated: true, completion: nil)
+                
+                
+            })
+        })
+        
+        eSource?.addEventListener("GameStatus") { (e) in
+            
+            var json = JSON.init(parseJSON: e!.data)
+            let gameStatus = TQKGameStatus(JSONString: (e?.data)!)
+            
+            //Always keep heart status up to date
+            self.heartsEnabled = (gameStatus?.heartEligible)!
+            if(gameStatus?.active == true && self.heartsEnabled){
+                
+                DispatchQueue.main.async(execute: {
+                    let heartImageView = UIImageView(image: UIImage(named: "heartAvaliable", in: TheQKit.bundle, compatibleWith: nil))
+                    heartImageView.contentMode = .scaleAspectFit
+                    heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
+                    self.heartContainerView.addSubview(heartImageView)
+                    UIView.animate(withDuration: 1.0, animations: {
+                        self.heartContainerView.alpha = 1.0
+                    })
+                })
+                
+                //see if we have left the game and came back and used the heart - may not be needed anymore with question result event tracking - TODO
+                let userDefaults = UserDefaults.standard
+                self.didUseHeart = userDefaults.bool(forKey: "usedHeartFor\(self.myGameId!)")
+            }else{
+                //eliminated or hearts disabled - either way this variable keeps it from being used by accident
+                self.didUseHeart = true
+            }
+
+            //TODO add - don't make this happen on a reconnect (maybe count how many times per games we recieve this)
+            self.gameStatusReceivedCount += 1
+            if(self.gameStatusReceivedCount > 1){
+                //case for reconnect
+                if(gameStatus?.question != nil && self.isQuestionActive == false ){
+                    //show question to user maybe?
+                    self.currentQuestion = gameStatus?.question
+                    self.currentEndQuestion = nil
+                    if(self.currentQuestion.questionId == nil){
+                        self.currentQuestion.questionId = gameStatus?.question?.id
+                    }
+                    
+                    DispatchQueue.main.async(execute: {
+                        self.isQuestionActive = true
+                        self.start = CACurrentMediaTime()
+
+                        self.launchFullScreenTrivia(.Question)
+                    })
+
+                }
+            }else{
+                //case for initial state
+                
+                if(gameStatus?.active == false){
+                    DispatchQueue.main.async(execute: {
+                        
+                        let userDefaults = UserDefaults.standard
+                        let answersSaved = userDefaults.object(forKey: self.myGameId!) as? String
+                        if (answersSaved != "eliminated"){
+                            // Prepare the popup assets
+                            let title = "Sorry, you've joined late, or were previously eliminated"
+                            let message = "Either you joined late or missed a question due to network issues. You are not able to win this game, but keep playing to increase your score on the Leaderboards!"
+                            let popup = PopupDialog(title: title, message: message)
+                            let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                                
+                            }
+                            popup.buttonAlignment = .horizontal
+                            popup.addButtons([buttonTwo])
+                            
+                            // Present dialog
+                            self.present(popup, animated: true, completion: nil)
+                        }
+                        
+                        self.eliminateUser()
+                        
+                    })
+                    
+                }
+                
+                if(gameStatus?.question != nil && self.isQuestionActive == false ){
+                    //show question to user maybe?
+                    self.currentQuestion = gameStatus?.question
+                    self.currentEndQuestion = nil
+                    if(self.currentQuestion.questionId == nil){
+                        self.currentQuestion.questionId = gameStatus?.question?.id
+                    }
+                    
+                    DispatchQueue.main.async(execute: {
+                        self.isQuestionActive = true
+                        self.start = CACurrentMediaTime()
+                        self.launchFullScreenTrivia(.Question)
+                    })
+
+                }
+            }
+        }
+    }
+    
+    //    func testGameWarn(){
+    //        let seconds : TimeInterval = 20
+    //        let interval = seconds / 5
+    //
+    //        DispatchQueue.main.async(execute: {
+    //            //vibrate 5 times over 20 seconds
+    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
+    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
+    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
+    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
+    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
+    //
+    //
+    //            //show "get ready" screen for 1 x interval
+    //            self.getReadyView.isHidden = false
+    //            self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
+    //
+    //            //show "countdown" screen for 4 x interval
+    //            let secondsToShow = Int(seconds) - 5
+    //            self.gameWarnCountdownLabel.text = String(secondsToShow)
+    //            self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
+    //        })
+    //    }
+    
+    @objc func countdownGameWarn(){
+        let currentTime = (self.gameWarnCountdownLabel.text! as NSString).integerValue
+        
+        self.gameWarnCountdownLabel.text = String(currentTime - 1)
+        
+        if(currentTime - 1 <= 0){
+            self.gameWarnTimer.invalidate()
+            self.gameWarnTimer = nil
+        }
+    }
+    
+    @objc func hideCountdownView(){
+        self.countdownView.isHidden = true
+    }
+    
+    @objc func hideGetReadyView(){
+        self.getReadyView.isHidden = true
+        self.countdownView.isHidden = false
+        
+        if(self.gameWarnTimer != nil){
+            self.gameWarnTimer.invalidate()
+            self.gameWarnTimer = nil
+        }
+        self.gameWarnTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.countdownGameWarn), userInfo: nil, repeats: true)
+        
+    }
+    
+    @objc func vibrate(){
+        if #available(iOS 10.0, *) {
+            let generator = UINotificationFeedbackGenerator()
+            //            generator.prepare()
+            generator.notificationOccurred(.error)
+            
+            let feedback = UIDevice.current.value(forKey: "_feedbackSupportLevel") as! Int
+            if (feedback == 0 || feedback == 1){
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
+            
+        }else{
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        }
+    }
+    
+    @IBAction func showExitDialog(_ sender: Any) {
+        
+        // Prepare the popup assets
+        let title = "Are You Sure?"
+        let message = "The game is in progress are you sure you want to leave?"
+        
+        // Create the dialog
+        let popup = PopupDialog(title: title, message: message)
+        
+        // Create buttons
+        let buttonOne = CancelButton(title: "Cancel") {
+            
+        }
+        
+        // This button will not the dismiss the dialog
+        let buttonTwo = DefaultButton(title: "Yes", dismissOnTap: true) {
+            self.dismiss(animated: true, completion: nil)
+        }
+        
+        // Add buttons to dialog
+        // Alternatively, you can use popup.addButton(buttonOne)
+        // to add a single button
+        popup.buttonAlignment = .horizontal
+        popup.addButtons([buttonOne, buttonTwo])
+        
+        // Present dialog
+        self.present(popup, animated: true, completion: nil)
+        
+    }
+    
+    
+    fileprivate func setupUI() {
+        
+        if(self.useLongTimer == true){
+            //swap out exist button
+            exitButton.setImage(UIImage(named: "qTriviaNetworkLogo"), for: .normal)
+            exitButton.layer.cornerRadius = 5.0
+            exitButton.clipsToBounds = true
+            exitButton.imageView?.contentMode = .scaleAspectFit
+
+        }else{
+        
+            exitButton.imageView?.contentMode = .scaleAspectFit
+        }
+        
+        currentQuestionNumberLabel.layer.cornerRadius = currentQuestionNumberLabel.frame.size.height / 2
+        currentQuestionNumberLabel.clipsToBounds = true
+        currentQuestionNumberLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        
+        eliminatedLabel.layer.cornerRadius = eliminatedLabel.frame.size.height / 2
+        eliminatedLabel.clipsToBounds = true
+        
+        eliminatedLabel.text = NSLocalizedString("Eliminated", comment: "")
+        
+        spinnerView.animate()
+        self.spinnerView.isHidden = false
+        
+        initializePlayer(url: self.rtmpUrl)
+        
+        currentQuestionNumberLabel.isHidden = true
+        getReadyView.isHidden = true
+        countdownView.isHidden = true
+    }
+    
+    func initializePlayer(url: String) {
+        
+        player = nil
+        player = IJKFFMoviePlayerController(contentURLString: url, with: IJKFFOptions.byDefault())
+        IJKFFMoviePlayerController.setLogLevel(k_IJK_LOG_ERROR)
+        //        IJKFFMonitor
+//        if(TQKConstants.SHOULD_SHOW_HUD){
+//            player.shouldShowHudView = true
+//        }else{
+            player.shouldShowHudView = false
+//        }
+        player.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        player.scalingMode = .aspectFill;
+        player.view.frame = previewView.bounds
+       
+        previewView.addSubview(player.view)
+
+        
+        player.prepareToPlay()
+        print("Player is preparing to play")
+        print("player is going to play again")
+        
+        self.initObservers()
+        
+        playStream()
+    }
+    
+    @objc func playStream() {
+        print("reloading the video to buffering")
+        
+        player.play()
+        shouldReconnect = true
+        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+    }
+    
+    func initObservers(){
+        NotificationCenter.default.addObserver(forName: NSNotification.Name.IJKMPMoviePlayerLoadStateDidChange, object: player, queue: OperationQueue.main, using: { [weak self] notification in
+            
+            guard let this = self else {
+                return
+            }
+            
+            //I have no idea why this case happens - TODO
+            if(this.player == nil){
+                return
+            }
+            
+            let state = this.player.loadState
+            
+            switch state {
+            case IJKMPMovieLoadState.playable:
+                print("Playable")
+                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+                self?.bufferTimer?.invalidate()
+                self?.bufferTimer = nil
+                self?.player.play()
+            case IJKMPMovieLoadState.playthroughOK:
+                self?.spinnerView.isHidden = true
+                print( "Playing")
+                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+                self?.bufferTimer?.invalidate()
+                self?.bufferTimer = nil
+                self?.player.play()
+                
+            case IJKMPMovieLoadState.stalled:
+                print("Buffering in load state")
+                //                self?.playStream()
+                self?.spinnerView.isHidden = false
+                
+                if(self?.bufferTimer != nil){
+                    self?.bufferTimer?.invalidate()
+                    self?.bufferTimer = nil
+                }
+                self?.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self!, selector: #selector(self?.timerAction), userInfo: nil, repeats: true)
+                //                self?.bufferTimer?.fire()
+                //reset after 2 seconds unless default is hit
+                //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
+                
+                
+            default:
+                self?.spinnerView.isHidden = true
+                print("Playing")
+                
+                //Kill the operation
+                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+                self?.bufferTimer?.invalidate()
+                self?.bufferTimer = nil
+                self?.player.play()
+            }
+        })
+    }
+    
+    @objc func timerAction(){
+        bufferTime += 0.01
+        
+        print("current buffer accumulation: " + String(bufferTime))
+        
+        if(bufferTime > 1.5){
+            bufferTimer?.invalidate()
+            bufferTimer = nil
+            bufferTime = 0
+            stopStreamAndReset()
+        }
+        
+    }
+    
+    func stopStreamAndReset() {
+        print("stopping the stream")
+        
+        
+        if(self.reconnectTimer != nil){
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+        }
+        shouldReconnect = false
+        
+        player.stop()
+        
+        NotificationCenter.default.removeObserver(player)
+        
+        print("resetting the stream")
+        player.view.removeFromSuperview()
+        
+        player.shutdown()
+        
+        self.initializePlayer(url: self.rtmpUrl)
+        
+    }
+    
+    
+    
+    func playTimer(_ timer: AnyObject) {
+        print("play timer called")
+        
+        self.view.makeToast("3 Seconds Remaining", duration: 2.0, position: .center)
+        
+        
+    }
+    
+    func reloadVideo() {
+        playbackStarted = false
+        playbackDelay = 0
+        lastBufferStart = 0
+        
+        if reloadVideoTimer == nil {
+            reloadVideoTimer = Timer.scheduledTimer(timeInterval: 2,
+                                                    target: self,
+                                                    selector: #selector(self.playStream),
+                                                    userInfo: nil,
+                                                    repeats: false)
+        }
+        
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //        eliminatedLabel.isHidden = true
+        
+        print("viewWillAppear")
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        print("player is shutting down")
+        print("viewWillDisappear")
+        
+        if(self.gameWinnersViewController != nil){
+            self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
+        }
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
+        
+        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.removeObserver(player)
+        
+        if(self.eSource != nil){
+            self.eSource?.close()
+            self.eSource = nil
+        }
+        
+        if(self.countDownTimer != nil){
+            self.countDownTimer.invalidate()
+            self.countDownTimer = nil
+        }
+        
+        if(self.reconnectTimer != nil){
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+        }
+        
+        if(self.bufferTimer != nil){
+            self.bufferTimer?.invalidate()
+            self.bufferTimer = nil
+        }
+        
+        if(self.player != nil){
+            self.player.stop()
+            self.player.shutdown()
+            self.player = nil
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        print("viewDidDisappear")
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.checkIfScreenIsCapturedNoNotification()
+        
+        if (myGameId != nil && !(myGameId?.isEmpty)!) {
+            print("loading event source")
+            self.setUpEventSource()
+            
+            let userDefaults = UserDefaults.standard
+            let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
+            if (!alreadyJoined){
+                
+                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
+                
+                let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+                let joinedCount = i + 1
+                userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+                userDefaults.synchronize()
+                
+                let object : [String:Any] = ["gameID" : myGameId!,
+                                             "gameTitle": theGame?.theme.displayName,
+                                             "scheduled": String(format:"%f", (theGame?.scheduled)!),
+                                             "count" : joinedCount]
+                
+                NotificationCenter.default.post(name: .enteredGame, object: object)
+            }
+            //.generalTrackWith("Entered Game", props:props)
+        }else{
+            //get a game ID and join
+//            self.getGameId()
+            self.dismiss(animated: true, completion: nil)
+        }
+        
+        //Test the game countdown without SSE event
+        //        self.perform(#selector(self.testGameWarn), with: nil, afterDelay: 0.0)
+    }
+    
+//    func getGameId()
+//    {
+//
+//        let gameHeaders : HTTPHeaders = [
+//            "Accept": "application/json"
+//        ]
+//
+//        let preferences = UserDefaults.standard
+//        let userId:String = (preferences.string(forKey: "userId")!)
+//        let params : Parameters = [
+//            "userId":userId,
+//            "uid":userId
+//        ]
+//        let url:String = TQKConstants.baseUrl + "games"
+//
+//        //        Alamofire.request(url, method: .get).responseJSON
+//
+//        Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
+//            print("Request: \(String(describing: response.request))")   // original url request
+//            print("Response: \(String(describing: response.response))") // http url response
+//            print("Result: \(response.result)")                         // response serialization result
+//
+//
+//            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+//                print("Data: \(utf8Text)") // original server data as UTF8 string
+//                if(utf8Text == "Token validation error."){
+//                    self.dismiss(animated: true, completion: nil)
+//                    return
+//                }
+//            }
+//
+//            response.result.ifFailure {
+//                self.getGameId()
+//
+//            }
+//
+//            response.result.ifSuccess {
+//                if var json = response.result.value as? [String: Any] {
+//                    if ( !(json["success"] as! Bool) ) {
+//                        self.getGameId()
+//                    }else{
+//                        do{
+//                            let json = JSON(data: response.data!)
+//                            print("JSON: \(json)") // serialized json response
+//                            self.myGameId = json["games"][0]["id"].stringValue
+//                            self.host = json["games"][0]["host"].stringValue
+//                            self.sseHost = json["games"][0]["sseHost"].stringValue
+//
+//                            if (json["games"][0]["active"] == true) {
+//                                //                        print("loading event source")
+//                                self.setUpEventSource()
+//
+//                                //keep track of this incase we exist the game and rejoin
+//                                let userDefaults = UserDefaults.standard
+//                                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
+//                                userDefaults.synchronize()
+//                            }else{
+//                                self.dismiss(animated: true, completion: nil)
+//                            }
+//                        }catch{
+//                            self.dismiss(animated: true, completion: nil)
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//
+//        }
+//    }
+    
+    
+    func submitAnswer(questionId: String, responseId: String, choiceText: String?){
+        
+        print("submitted answer")
+        print(questionId)
+        print(responseId)
+        self.userSubmittedAnswer = true
+        
+        if(self.currentQuestion.questionType == "POPULAR"){
+            self.selectionChoiceText = responseId
+        }else{
+            self.selectionChoiceText = choiceText
+        }
+        
+        var submitUrl:String
+        let baseURL: String = "https://\(self.host!)/v2/games/\(self.myGameId!)"
+        submitUrl = baseURL + "/questions/" + questionId + "/responses"
+        
+        //print(submitUrl)
+        
+        let preferences = UserDefaults.standard
+        let key = "token"
+        let bearerToken = preferences.string(forKey: key)
+        let userId = preferences.string(forKey: "userId")
+        let finalBearerToken:String = "Bearer " + (bearerToken as! String)
+        let headers: HTTPHeaders = [
+            "Authorization": finalBearerToken,
+            "Accept": "application/json"
+        ]
+        
+        let params : Parameters = [
+            "userId":(userId)!,
+            "uid":(userId)!
+        ]
+        
+//        let answerType = "response"
+        
+        var answerType = "response"
+//        if(self.currentQuestion.questionType == "POPULAR"){
+//            answerType = "response"
+//        }else{
+//            answerType = "choiceId"
+//        }
+        
+        let allowedCharacterSet = (CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted)
+        let escapedString = responseId.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+        
+        if(self.shouldUseHeart){
+            submitUrl = baseURL + "/questions/" + questionId + "/responses?\(answerType)=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
+        }else{
+            submitUrl = baseURL + "/questions/" + questionId + "/responses?\(answerType)=\(escapedString!)"
+        }
+        
+        var object : [String:Any] = ["gameID" : self.myGameId!,
+                                     "questionID" : questionId,
+                                     "choiceID" : responseId,
+                                     "questionNumber" : self.currentQuestion.number,
+                                     "questionText" : self.currentQuestion.question!,
+                                     "choiceText": choiceText!,
+                                     "eliminatedFlag": self.userEliminated,
+                                     "usedHeart" : self.shouldUseHeart]
+        
+        NotificationCenter.default.post(name: .choiceSelected, object: object)
+        
+//        Alamofire.request(submitUrl, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+        Alamofire.request(submitUrl, method: .post, parameters: params, headers: headers).responseJSON
+        { response in
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+            
+            response.result.ifFailure {
+                //let them select again?
+                var style = ToastStyle()
+                style.backgroundColor = .red
+                self.view.makeToast("Network Failure - Try Submitting Again!", duration: 1.0, position: .bottom, style: style)
+                
+                self.userSubmittedAnswer = false
+                self.isQuestionActive = true
+                
+                if(self.currentQuestion.questionType == "TRIVIA"){
+                    DispatchQueue.main.async(execute: {
+
+                        self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+                        self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+                        self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                        
+                    })
+                }else{
+                    DispatchQueue.main.async(execute: {
+
+                        self.ssQuestionViewController?.submitButton.alpha = 1.0
+                        self.ssQuestionViewController?.answerTextField.alpha = 1.0
+                        self.ssQuestionViewController?.answerTextField.isEnabled = true
+                        
+                        self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
+                        self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
+                        
+                    })
+                }
+            }
+            
+            response.result.ifSuccess{
+                if let json = response.result.value as? [String: Any] {
+                    print("JSON: \(json)") // serialized json response
+                    
+                    //failure
+                    if ( !(json["success"] as! Bool) ) {
+                        
+                        /*
+                         Possible error messages
+                         QUESTION_NOT_ACTIVE
+                         USER_NOT_PARTICIPANT
+                         USER_ELIMINATED
+                         USER_ALREADY_ANSWERED
+                         INVALID_CHOICE
+                         */
+                        var errorMessage:String
+                        if (String(describing: json["errorCode"]!) == "QUESTION_NOT_ACTIVE") {
+                            errorMessage = "We did not receive your answer in time. This may be caused by a poor network connection. Please use wifi if it is avaliable!"
+                            print("An error has occured QUESTION_NOT_ACTIVE")
+                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            
+                        }else if (String(describing: json["errorCode"]!) == "USER_ALREADY_ANSWERED") {
+                            errorMessage = "You have already answered this question. Only one answer per account is allowed."
+                            print("You have already answered from this account USER_ALREADY_ANSWERED")
+                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            
+                        }else if (String(describing: json["errorCode"]!) == "INVALID_CHOICE") {
+                            errorMessage = "This choice was invalid."
+                            print("This choice was invalid INVALID_CHOICE")
+                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            
+                        }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
+                            errorMessage = "Please choose a shorter answer."
+                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion.questionType == "TRIVIA"){
+                                DispatchQueue.main.async(execute: {
+                                    
+                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                                    
+                                })
+                            }else{
+                                DispatchQueue.main.async(execute: {
+                                    
+                                    self.ssQuestionViewController?.submitButton.alpha = 1.0
+                                    self.ssQuestionViewController?.answerTextField.alpha = 1.0
+                                    self.ssQuestionViewController?.answerTextField.isEnabled = true
+                                    
+                                    self.ssQuestionViewController?.answerTextField.text = ""
+
+                                    self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
+                                    self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
+                                    
+                                })
+                            }
+                        }else{
+                            errorMessage = "An error occured recording your answer."
+                            print("An error occured recording your answer.")
+                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                        }
+                        
+                        //                        self.eliminateUser()
+                        
+                        // Prepare the popup assets
+                        let title = "Sorry, an error has occured"
+                        let message = errorMessage + " You may keep playing to increase your score on the Leaderboard!"
+                        
+                        // Create the dialog
+                        let popup = PopupDialog(title: title, message: message)
+                        
+                        
+                        // This button will not the dismiss the dialog
+                        let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                            
+                        }
+                        
+                        // Add buttons to dialog
+                        // Alternatively, you can use popup.addButton(buttonOne)
+                        // to add a single button
+                        popup.buttonAlignment = .horizontal
+                        popup.addButtons([buttonTwo])
+                        
+                        // Present dialog
+                        if(self.currentEndQuestion == nil && self.isQuestionActive != false){
+                            self.present(popup, animated: true, completion: nil)
+                        }
+                        
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                                                     "questionID" : questionId,
+                                                     "choiceID" : responseId,
+                                                     "errorCode" : String(describing: json["errorCode"]!),
+                                                     "questionNumber" : self.currentQuestion.number,
+                                                     "questionText" : self.currentQuestion.question!,
+                                                     "choiceText": choiceText!,
+                                                     "eliminatedFlag": self.userEliminated]
+                        NotificationCenter.default.post(name: .errorSubmittingAnswer, object: object)
+                        
+                    }else{
+                        //Was success
+                        self.currentQuestion.wasMarkedIneligibleForTracking = false
+                        
+                        UIView.animate(withDuration: 1.0, animations: {
+
+                            if(self.currentQuestion.questionType == "TRIVIA"){
+                                self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+                                self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+                                self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                            }
+//                                self.linearBar.stopAnimation()
+                        })
+                        
+                        //check if we used a heart
+                        let usedHeart = (json["usedHeart"] as? Bool) ?? false
+                        self.didUseHeart = usedHeart
+                        if(!usedHeart && self.shouldUseHeart){
+                            //Heart redemption failed - let user know heart wasn't used
+                            let title = "Heart Redemption Failed"
+                            let message = "Looks like you tried to redeem a heart but a network error occured - Your heart was not used and is avaliable for use in the next game."
+                            let popup = PopupDialog(title: title, message: message)
+                            let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                                
+                            }
+                            popup.buttonAlignment = .horizontal
+                            popup.addButtons([buttonTwo])
+                            self.present(popup, animated: true, completion: nil)
+                        }
+                        
+                        
+                        if(self.shouldUseHeart){
+                            //TODO what really needs to happen here?
+                            self.shouldUseHeart = false
+                            self.didUseHeart = true
+                            
+                            //track this user defaults
+                            let userDefaults = UserDefaults.standard
+                            userDefaults.set(true, forKey: "usedHeartFor\(self.myGameId!)") // fill data
+                            userDefaults.synchronize()
+                        }
+                        
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    func useHeart(){
+        
+        let animationView = AnimationView(name: "heartUse", bundle: TheQKit.bundle)
+        animationView.frame = self.view.bounds
+        animationView.contentMode = .scaleAspectFill
+        self.view.addSubview(animationView)
+        animationView.play { (true) in
+            animationView.removeFromSuperview()
+//            self.heartAnimationView?.play(completion: { (true) in
+//                self.heartAnimationView?.removeFromSuperview()
+//            })
+            UIView.animate(withDuration: 1.0, animations: {
+                self.heartContainerView.alpha = 0
+            })
+        }
+        
+        self.shouldUseHeart = true
+        //        self.didUseHeart = true
+        self.eliminatedLabel.isHidden = true
+        self.userEliminated = false
+        
+        //No longer eliminated
+        let userDefaults = UserDefaults.standard
+        userDefaults.removeObject(forKey: self.myGameId!)
+        userDefaults.synchronize()
+        
+        //track this user defaults
+        userDefaults.set(true, forKey: "usedHeartFor\(self.myGameId!)") // fill data
+        userDefaults.synchronize()
+        
+    }
+    
+    fileprivate func eliminateAndShowHeartOption(){
+        
+//        let myUser = User(dictionary: UserDefaults.standard.object(forKey: "myUser") as! [String : Any])!
+//        let heartPieces = myUser.heartPieceCount
+//        let remainder = heartPieces! % 4
+//        let wholePieces = (heartPieces! - remainder) / 4
+        self.eliminateUser()
+        //check if already eliminated, if not then this is the first time and check to see if they can use a heart and present that dialogue
+            //show heart use dialogue
+        let useHeartViewController = UseHeartViewController(nibName: "UseHeartView", bundle: TheQKit.bundle)
+        useHeartViewController.heartDelegate = self
+        self.heartPopup = PopupDialog(viewController: useHeartViewController, buttonAlignment: .vertical, transitionStyle: .bounceDown, preferredWidth: 290, tapGestureDismissal: false, hideStatusBar: true) {
+            //someting
+        }
+        self.present(self.heartPopup!, animated: true, completion: nil)
+        
+    }
+    
+    fileprivate func eliminateUser(){
+        self.userEliminated = true
+        self.eliminatedLabel.isHidden = false
+        
+        //keep track of this incase we exist the game and rejoin
+        let userDefaults = UserDefaults.standard
+        userDefaults.setValue("eliminated", forKey: self.myGameId!) // fill data
+        userDefaults.synchronize()
+        
+        UIView.animate(withDuration: 1.0, animations: {
+            self.heartContainerView.alpha = 0
+        })
+    }
+    
+}
+
+extension UIView {
+    func rotate360Degrees(duration: CFTimeInterval = 1.0, completionDelegate: AnyObject? = nil) {
+        let rotateAnimation = CABasicAnimation(keyPath: "transform.rotation")
+        rotateAnimation.fromValue = 0.0
+        rotateAnimation.toValue = CGFloat(M_PI * 2.0)
+        rotateAnimation.duration = duration
+        
+        if let delegate: AnyObject = completionDelegate {
+            rotateAnimation.delegate = delegate as! CAAnimationDelegate
+        }
+        self.layer.add(rotateAnimation, forKey: nil)
+    }
+    
+    func setAnchorPoint(_ point: CGPoint) {
+        var newPoint = CGPoint(x: bounds.size.width * point.x, y: bounds.size.height * point.y)
+        var oldPoint = CGPoint(x: bounds.size.width * layer.anchorPoint.x, y: bounds.size.height * layer.anchorPoint.y);
+        
+        newPoint = newPoint.applying(transform)
+        oldPoint = oldPoint.applying(transform)
+        
+        var position = layer.position
+        
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+        
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+        
+        layer.position = position
+        layer.anchorPoint = point
+    }
+}
+
+
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVAudioSessionPort(_ input: AVAudioSession.Port) -> String {
+	return input.rawValue
+}
