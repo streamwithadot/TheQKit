@@ -1580,7 +1580,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 //let them select again?
                 var style = ToastStyle()
                 style.backgroundColor = .red
-                self.view.makeToast("Network Failure - Try Submitting Again!", duration: 1.0, position: .bottom, style: style)
+                self.view.makeToast(NSLocalizedString("Network Failure - Try Submitting Again!", comment: ""), duration: 1.0, position: .bottom, style: style)
                 
                 self.userSubmittedAnswer = false
                 self.isQuestionActive = true
@@ -1624,22 +1624,22 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                          */
                         var errorMessage:String
                         if (String(describing: json["errorCode"]!) == "QUESTION_NOT_ACTIVE") {
-                            errorMessage = "We did not receive your answer in time. This may be caused by a poor network connection. Please use wifi if it is avaliable!"
+                            errorMessage = NSLocalizedString("We did not receive your answer in time. This may be caused by a poor network connection. Please use wifi if it is avaliable!", comment: "")
                             print("An error has occured QUESTION_NOT_ACTIVE")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                             
                         }else if (String(describing: json["errorCode"]!) == "USER_ALREADY_ANSWERED") {
-                            errorMessage = "You have already answered this question. Only one answer per account is allowed."
+                            errorMessage = NSLocalizedString("You have already answered this question. Only one answer per account is allowed.", comment: "")
                             print("You have already answered from this account USER_ALREADY_ANSWERED")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_CHOICE") {
-                            errorMessage = "This choice was invalid."
+                            errorMessage = NSLocalizedString("This choice was invalid.", comment: "")
                             print("This choice was invalid INVALID_CHOICE")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
-                            errorMessage = "Please choose a shorter answer."
+                            errorMessage = NSLocalizedString("Please choose a shorter answer.", comment: "")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                             if(self.currentQuestion.questionType == "TRIVIA"){
                                 DispatchQueue.main.async(execute: {
@@ -1664,7 +1664,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                                 })
                             }
                         }else{
-                            errorMessage = "An error occured recording your answer."
+                            errorMessage = NSLocalizedString("An error occured recording your answer.", comment: "")
                             print("An error occured recording your answer.")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                         }
@@ -1672,15 +1672,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         //                        self.eliminateUser()
                         
                         // Prepare the popup assets
-                        let title = "Sorry, an error has occured"
-                        let message = errorMessage + " You may keep playing to increase your score on the Leaderboard!"
+                        let title = NSLocalizedString("Sorry, an error has occured", comment: "")
+                        let message = errorMessage + NSLocalizedString(" You may keep playing to increase your score on the Leaderboard!", comment: "")
                         
                         // Create the dialog
                         let popup = PopupDialog(title: title, message: message)
                         
                         
                         // This button will not the dismiss the dialog
-                        let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                        let buttonTwo = DefaultButton(title: "Continue", dismissOnTap: true) {
                             
                         }
                         
@@ -1724,10 +1724,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         self.didUseHeart = usedHeart
                         if(!usedHeart && self.shouldUseHeart){
                             //Heart redemption failed - let user know heart wasn't used
-                            let title = "Heart Redemption Failed"
-                            let message = "Looks like you tried to redeem a heart but a network error occured - Your heart was not used and is avaliable for use in the next game."
+                            let title = NSLocalizedString("Heart Redemption Failed", comment: "")
+                            let message = NSLocalizedString("Looks like you tried to redeem a heart but a network error occured - Your heart was not used and is avaliable for use in the next game.", comment: "")
                             let popup = PopupDialog(title: title, message: message)
-                            let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
+                            let buttonTwo = DefaultButton(title: NSLocalizedString("Continue", comment: ""), dismissOnTap: true) {
                                 
                             }
                             popup.buttonAlignment = .horizontal
