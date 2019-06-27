@@ -160,5 +160,4 @@ Spohn, spohn@stre.am and the lovely people at Stream Live, Inc.
 
 ## License
 
-TheQKit is available under the MIT license. See the LICENSE file for more info
-
+Copyright (c) 2019 Stream Live, Inc.
