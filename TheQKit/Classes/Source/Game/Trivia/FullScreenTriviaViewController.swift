@@ -142,14 +142,18 @@ class FullScreenTriviaViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.post(name: .stopQuestionAUuio, object: nil)
+        if(self.type == .Question){
+            NotificationCenter.default.post(name: .stopQuestionAUuio, object: nil)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         
         super.viewDidAppear(animated)
         
-        NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
+        if(self.type == .Question){
+            NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
+        }
 
         if(type == .Question){
             let aGesture = UITapGestureRecognizer(target: self, action: #selector(self.aTapped(_:)))
