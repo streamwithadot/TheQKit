@@ -46,7 +46,7 @@ class TheQManager {
 //    }
     
     func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, mixpanelToken : String? = nil) {
-        TheQManager.sharedInstance.apiToken = apiToken
+        TheQManager.sharedInstance.apiToken = apiToken ?? ""
         UserDefaults.standard.set(baseURL, forKey: "TQK_BASE_URL")
         UserDefaults.standard.set(locale, forKey: "TQK_LOCALE")
         UserDefaults.standard.set(moneySymbol, forKey: "TQK_MONEY_SYMBOL")

@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Game Info View Controller-->
+        <!--Cards View Controller-->
         <scene sceneID="8bC-Jy-g8O">
             <objects>
-                <viewController id="uTz-yy-bRh" customClass="GameInfoViewController" customModule="theq" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TQKCardsViewController" id="uTz-yy-bRh" customClass="TQKCardsViewController" customModule="TheQKit" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="3Ml-mZ-B2u"/>
                         <viewControllerLayoutGuide type="bottom" id="Gq0-CP-yb6"/>
@@ -32,7 +32,7 @@
                                     <inset key="sectionInset" minX="15" minY="0.0" maxX="5" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CardCollectionViewCell" id="JjD-6k-Pi5" customClass="CardCollectionViewCell" customModule="theq" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CardCollectionViewCell" id="JjD-6k-Pi5" customClass="CardCollectionViewCell" customModule="TheQKit" customModuleProvider="target">
                                         <rect key="frame" x="15" y="132" width="410" height="631.66666666666663"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -44,7 +44,7 @@
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </imageView>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="j2s-kv-aLd">
-                                                    <rect key="frame" x="-2" y="199.5" width="414" height="232.5"/>
+                                                    <rect key="frame" x="-2" y="207.5" width="414" height="217"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P6a-LX-1R4">
                                                             <rect key="frame" x="0.0" y="0.0" width="414" height="50"/>
@@ -80,7 +80,7 @@
                                                             </variation>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RyX-6A-xmd">
-                                                            <rect key="frame" x="0.0" y="150" width="414" height="32.5"/>
+                                                            <rect key="frame" x="0.0" y="150" width="414" height="17"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -91,7 +91,7 @@
                                                             </variation>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l9e-hc-Bn0">
-                                                            <rect key="frame" x="0.0" y="182.5" width="414" height="50"/>
+                                                            <rect key="frame" x="0.0" y="167" width="414" height="50"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                             <color key="textColor" red="0.08235294118" green="0.12941176469999999" blue="0.27058823529999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <nil key="highlightedColor"/>
@@ -112,7 +112,7 @@
                                                     <rect key="frame" x="225.5" y="15" width="184.5" height="95"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TRIVIA" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wC8-SE-E61">
-                                                            <rect key="frame" x="46" y="36" width="128" height="48"/>
+                                                            <rect key="frame" x="109" y="18" width="65" height="24"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                             <color key="textColor" red="0.95767384769999997" green="0.9727960229" blue="0.99322921040000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <nil key="highlightedColor"/>
@@ -121,7 +121,7 @@
                                                             </variation>
                                                         </label>
                                                         <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PREMIUM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YeX-eJ-hCh">
-                                                            <rect key="frame" x="37.5" y="84" width="136.5" height="36"/>
+                                                            <rect key="frame" x="103.5" y="42" width="70.5" height="18"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                             <color key="textColor" red="1" green="0.90980392160000001" blue="0.60784313729999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <nil key="highlightedColor"/>
@@ -130,7 +130,7 @@
                                                             </variation>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GAME TYPE:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aCm-PR-i8C">
-                                                            <rect key="frame" x="0.0" y="0.0" width="174" height="36"/>
+                                                            <rect key="frame" x="83.5" y="0.0" width="90.5" height="18"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                             <color key="textColor" red="0.62745098040000002" green="0.63136225940000001" blue="0.62721210719999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <nil key="highlightedColor"/>
@@ -160,7 +160,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="143.5" height="95"/>
                                                 </imageView>
                                                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kxq-gR-trX">
-                                                    <rect key="frame" x="147" y="437" width="116" height="48"/>
+                                                    <rect key="frame" x="173" y="429.5" width="64" height="30"/>
                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                     <state key="normal" title="   Share   ">
                                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -210,7 +210,7 @@
                                             <outlet property="triviaLabel" destination="wC8-SE-E61" id="5UY-vG-rzw"/>
                                         </connections>
                                     </collectionViewCell>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AdCardCell" id="b5R-xa-sIo" customClass="AdCardCell" customModule="theq" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AdCardCell" id="b5R-xa-sIo" customClass="AdCardCell" customModule="TheQKit" customModuleProvider="target">
                                         <rect key="frame" x="435" y="132" width="410" height="631.66666666666663"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -270,7 +270,7 @@
                         <viewLayoutGuide key="safeArea" id="wBR-7Q-0oF"/>
                     </view>
                     <connections>
-                        <outlet property="cardsCollectionView" destination="9a9-jD-bc1" id="sIT-lm-k87"/>
+                        <outlet property="cardsCollectionView" destination="9a9-jD-bc1" id="QEg-mX-7MV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="goA-Or-y75" userLabel="First Responder" sceneMemberID="firstResponder"/>

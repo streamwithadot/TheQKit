@@ -13,6 +13,10 @@ import Firebase
 
 class ViewController: UIViewController {
     
+    
+    @IBOutlet weak var containerView: UIView!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -21,7 +25,6 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
     
     @IBAction func AKLogin(_ sender: Any) {
         //TODO replace ID and Token

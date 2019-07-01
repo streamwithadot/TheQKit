@@ -13,6 +13,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		7DFB30EB2E37F27EF68FCED7 /* Pods_TheQKit_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77D9251F43488863B13075D4 /* Pods_TheQKit_Example.framework */; };
+		984C125222CA780400480434 /* CardsTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984C125122CA780400480434 /* CardsTestViewController.swift */; };
 		989D18532270B36D00B56FBB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 989D18522270B36D00B56FBB /* UIKit.framework */; };
 		989D18562270B37800B56FBB /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 989D18542270B37800B56FBB /* CoreVideo.framework */; };
 		989D18572270B37800B56FBB /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 989D18552270B37800B56FBB /* VideoToolbox.framework */; };
@@ -38,6 +39,7 @@
 		6E43CA1D36AC1153B7438649 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		77D9251F43488863B13075D4 /* Pods_TheQKit_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TheQKit_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9829E0A72232DA7A00B3AEB3 /* TheQKit_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TheQKit_Example.entitlements; sourceTree = "<group>"; };
+		984C125122CA780400480434 /* CardsTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsTestViewController.swift; sourceTree = "<group>"; };
 		989D18522270B36D00B56FBB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		989D18542270B37800B56FBB /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		989D18552270B37800B56FBB /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -109,6 +111,7 @@
 				98C9B1292200A21A0048F361 /* cat_ic_gen.png */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
+				984C125122CA780400480434 /* CardsTestViewController.swift */,
 			);
 			name = "Example for TheQKit";
 			path = TheQKit;
@@ -384,6 +387,7 @@
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				984C125222CA780400480434 /* CardsTestViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

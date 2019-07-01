@@ -72,6 +72,21 @@ public class TheQKit {
        TheQManager.sharedInstance.playTest()
     }
     
+    public class func showCardsController(fromViewController viewController : UIViewController){
+        let podBundle = Bundle(for: TheQKit.self)
+        let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+        let bundle = Bundle(url: bundleURL!)!
+        let storyboard = UIStoryboard(name: "TQKStoryboard", bundle: bundle)
+        
+        let vc = storyboard.instantiateViewController(withIdentifier: "TQKCardsViewController") as! TQKCardsViewController
+        
+        vc.view.bounds = CGRect(x: 0, y: 0, width: viewController.view.frame.width, height: viewController.view.frame.height)
+        
+        viewController.addChild(vc)
+        viewController.view.addSubview(vc.view)
+        vc.didMove(toParent: viewController)
+    }
+    
     public class func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
         return TheQManager.sharedInstance.CheckForTestGames(completionHandler: completionHandler)
     }

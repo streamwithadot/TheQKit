@@ -14,31 +14,53 @@ protocol CardCollectionViewCellDelegate {
 
 class TQKCardsViewController : UIViewController, CardCollectionViewCellDelegate {
     
+    // MARK: variables and outlets
+    
     @IBOutlet weak var cardsCollectionView: UICollectionView!
     
-    var gameInfoGames : TQKGames? {
-        didSet {
-            print("didset gameinfogames")
-            if(didFail){
-                var noGameFound = TQKGame()
-                noGameFound.title = "Failed"
-//                noGameFound.theme.networkBadgeUrl =  TQKConstants.themeNetworkBadgeUrl
-                gameInfoGames?.games?.append(noGameFound)
-            }else if(gameInfoGames?.games?.count == 0){
-                //create no games scheduled card
-                var noGameFound = TQKGame()
-                noGameFound.title = "No Game Scheduled"
-//                noGameFound.theme.networkBadgeUrl =  TQKConstants.themeNetworkBadgeUrl
-                gameInfoGames?.games?.append(noGameFound)
-            }
-            
-            cardsCollectionView.reloadData()
-        }
-    }
+    
+    var games : [TQKGame]?
     
     
     var didFail : Bool = false
-
+    var myTimer:Timer!
+    
+    // MARK: Polling from old lobby
+    @objc func run(_ timer: AnyObject) {
+        self.getGameId()
+    }
+    
+    func getGameId()
+    {
+        TheQKit.CheckForGames { (active, gamesArray) in
+//            if(active){
+//                let game = gamesArray?.first
+//                //Checked for games and we know we have an active game
+//                let userDefaults = UserDefaults.standard
+//                let answersSaved = userDefaults.bool(forKey: (game?.id!)! + "joined")
+//                if (answersSaved){
+//                    //TODO: Do nothing for now
+//
+//                }else{
+//                    TheQKit.LaunchGame(theGame: game!)
+//                }
+//            }else{
+            
+                //checked for games and see we have no active games
+                if(gamesArray != nil && gamesArray!.count > 0){
+                    //reload cards
+                    self.games = gamesArray
+                    self.cardsCollectionView.reloadData()
+                }else{
+                    //no cards to show
+//                    self.gameInfoGames?.games?.removeAll()
+//                    self.cardsCollectionView.reloadData()
+                }
+//            }
+        }
+    }
+    
+    // MARK: TQKCardsController
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +75,17 @@ class TQKCardsViewController : UIViewController, CardCollectionViewCellDelegate 
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        if (myTimer == nil) {
+            myTimer = Timer.scheduledTimer(timeInterval: 15,
+                                           target: self,
+                                           selector: #selector(self.run(_:)),
+                                           userInfo: nil,
+                                           repeats: true)
+            myTimer.fire()
+        }else{
+            myTimer.fire()
+        }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -97,10 +130,8 @@ extension TQKCardsViewController : UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if( self.gameInfoGames != nil && self.gameInfoGames?.games != nil  && !(self.gameInfoGames?.games?.isEmpty)! ){
-            guard let game = self.gameInfoGames?.games![indexPath.item] else {
-                return
-            }
+        if( self.games != nil  && !(self.games?.isEmpty)! ){
+            let game = self.games![indexPath.item]
             
             if((game.active)){
 //                self.lobbyDelegate?.joinGame(game,manualJoin: true)
@@ -118,7 +149,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        if let listOfGames = gameInfoGames?.games {
+        if let listOfGames = self.games {
             return listOfGames.count
         }
         return 0
@@ -127,7 +158,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         
-        let game = gameInfoGames?.games![indexPath.item]
+        let game = self.games?[indexPath.item]
         
 //        if(game?.nativeAd != nil){
 //
@@ -195,12 +226,6 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             //
             if let logoUrl = URL(string: (game!.theme.networkBadgeUrl ?? "" )) {
                 cell.logoImageView.contentMode = .scaleAspectFit
-                #if NEWSCORPUK
-                cell.logoImageView.layer.shadowColor = UIColor.black.cgColor
-                cell.logoImageView.layer.shadowOffset = CGSize(width: 5, height: 5)
-                cell.logoImageView.layer.shadowRadius = 5
-                cell.logoImageView.layer.shadowOpacity = 0.5
-                #endif
                 cell.logoImageView.kf.setImage(with: logoUrl,
                                                placeholder: nil,
                                                options: [.transition(ImageTransition.fade(1))],
@@ -241,7 +266,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             
             if(game?.title == "Failed"){
                 
-                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
+//                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
                 
                 cell.dayLabel.text = NSLocalizedString("Connection failed", comment: "")
                 cell.timeLabel.text = NSLocalizedString("Please check your internet", comment: "")
@@ -257,7 +282,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
                 
             }else if(game?.title == "No Game Scheduled"){
                 
-                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
+//                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
                 
                 
                 cell.dayLabel.text = NSLocalizedString("UPCOMING GAMES", comment: "")
@@ -444,15 +469,7 @@ class CardCollectionViewCell : UICollectionViewCell, UIActivityItemSource {
         let image = self.asImage()
         self.shareGameButton.isHidden = false
         
-        #if NEWSCORPUK
-        let activityViewController = UIActivityViewController(activityItems: [self, image,"I love Q LIVE and I know you will too! It's a live game where you answer trivia to win money. Use my code \"\(myUser.referralCode ?? " ")\" to sign up and earn a free life! https://Q-live.co.uk"], applicationActivities: nil)
-        #elseif BLINQ
-        let activityViewController = UIActivityViewController(activityItems: [self,image,"Join me on Blinq - the quickfire quiz where the more you revise the bigger the prize! Use my code \"\(myUser.referralCode ?? " ")\" to sign up and earn a free life! https://playblinq.com"], applicationActivities: nil)
-        #elseif BRAZIL
-        let activityViewController = UIActivityViewController(activityItems: [self,image,"Vem junto comigo no The Q - o game show ao vivo onde você ganha prêmios com dinheiro de verdade! Use meu código  \"\(myUser.referralCode ?? " ")\"  para se inscrever e ganhe uma Vida Extra! http://get.theq.live/"], applicationActivities: nil)
-        #else
-        let activityViewController = UIActivityViewController(activityItems: [self,image,"Join me on The Q: \(dayLabel.text!), \(timeLabel.text!) for a chance to win a \(prizeLabel.text!)! Use my code \"\(myUser.referralCode ?? " ")\" to sign up and earn a free life! http://get.theq.live/"], applicationActivities: nil)
-        #endif
+        let activityViewController = UIActivityViewController(activityItems: [self,image,"Join me on \(TQKConstants.appName): \(dayLabel.text!), \(timeLabel.text!) for a chance to win a \(prizeLabel.text!)! Use my code \"\(myUser.referralCode ?? " ")\" to sign up and earn a free life! http://get.theq.live/"], applicationActivities: nil)
         activityViewController.excludedActivityTypes = [.saveToCameraRoll,.assignToContact,.print]
         
         if let topController = UIApplication.topViewController() {
