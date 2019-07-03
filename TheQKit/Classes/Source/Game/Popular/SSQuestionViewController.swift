@@ -162,7 +162,7 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        NotificationCenter.default.post(name: .stopQuestionAUuio, object: nil)
+        NotificationCenter.default.post(name: .stopQuestionAudio, object: nil)
 
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)

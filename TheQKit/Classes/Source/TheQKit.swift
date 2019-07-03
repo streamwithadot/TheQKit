@@ -119,7 +119,7 @@ extension Notification.Name {
     static let showEndgameAd = Notification.Name("TQK_SHOW_ENDGAME_AD")
     
     static let playQuestionAudio = Notification.Name("TQK_PLAY_QUESTION_AUDIO")
-    static let stopQuestionAUuio = Notification.Name("TQK_STOP_QUESTION_AUDIO")
+    static let stopQuestionAudio = Notification.Name("TQK_STOP_QUESTION_AUDIO")
 
 }
 

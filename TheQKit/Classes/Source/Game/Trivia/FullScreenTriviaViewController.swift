@@ -143,7 +143,7 @@ class FullScreenTriviaViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if(self.type == .Question){
-            NotificationCenter.default.post(name: .stopQuestionAUuio, object: nil)
+            NotificationCenter.default.post(name: .stopQuestionAudio, object: nil)
         }
     }
     
