@@ -939,9 +939,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 
                 let title =  NSLocalizedString("Winner!", comment: "")
 
-                var message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), "\(asd ?? " ")")
+                var message = ""
                 if(self.useLongTimer){
                     message = "You WON \(asd ?? " ") voucher! Congrats and thanks for playing \(TQKConstants.appName)! Your balance usually updates within 5 minutes."
+                }else{
+                    message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), asd ?? " ", TQKConstants.appName)
                 }
 
                 let popup = PopupDialog(title: title, message: message)
