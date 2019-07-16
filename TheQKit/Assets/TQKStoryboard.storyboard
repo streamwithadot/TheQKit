@@ -46,7 +46,7 @@
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="j2s-kv-aLd">
                                                     <rect key="frame" x="-2" y="207.5" width="414" height="217"/>
                                                     <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P6a-LX-1R4">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="P6a-LX-1R4">
                                                             <rect key="frame" x="0.0" y="0.0" width="414" height="50"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                             <nil key="textColor"/>
@@ -57,7 +57,7 @@
                                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="40"/>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9pR-4K-2A2">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="9pR-4K-2A2">
                                                             <rect key="frame" x="0.0" y="50" width="414" height="50"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="31"/>
                                                             <nil key="textColor"/>
@@ -68,7 +68,7 @@
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="62"/>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uMb-ot-157">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="uMb-ot-157">
                                                             <rect key="frame" x="0.0" y="100" width="414" height="50"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                             <nil key="textColor"/>
@@ -79,7 +79,7 @@
                                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="40"/>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RyX-6A-xmd">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="RyX-6A-xmd">
                                                             <rect key="frame" x="0.0" y="150" width="414" height="17"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                             <nil key="textColor"/>
@@ -90,7 +90,7 @@
                                                                 <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l9e-hc-Bn0">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="l9e-hc-Bn0">
                                                             <rect key="frame" x="0.0" y="167" width="414" height="50"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                                             <color key="textColor" red="0.08235294118" green="0.12941176469999999" blue="0.27058823529999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -111,7 +111,7 @@
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F7v-pD-yU9">
                                                     <rect key="frame" x="225.5" y="15" width="184.5" height="95"/>
                                                     <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TRIVIA" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="wC8-SE-E61">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TRIVIA" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="wC8-SE-E61">
                                                             <rect key="frame" x="109" y="18" width="65" height="24"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                             <color key="textColor" red="0.95767384769999997" green="0.9727960229" blue="0.99322921040000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -120,7 +120,7 @@
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
                                                             </variation>
                                                         </label>
-                                                        <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PREMIUM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YeX-eJ-hCh">
+                                                        <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PREMIUM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="YeX-eJ-hCh">
                                                             <rect key="frame" x="103.5" y="42" width="70.5" height="18"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                             <color key="textColor" red="1" green="0.90980392160000001" blue="0.60784313729999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -129,7 +129,7 @@
                                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GAME TYPE:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aCm-PR-i8C">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GAME TYPE:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="aCm-PR-i8C">
                                                             <rect key="frame" x="83.5" y="0.0" width="90.5" height="18"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                             <color key="textColor" red="0.62745098040000002" green="0.63136225940000001" blue="0.62721210719999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -180,6 +180,7 @@
                                             <constraint firstItem="F7v-pD-yU9" firstAttribute="width" secondItem="ifx-rY-DUM" secondAttribute="width" multiplier="0.45" id="2Ho-qj-elG"/>
                                             <constraint firstItem="NL0-d4-Ph3" firstAttribute="height" secondItem="ifx-rY-DUM" secondAttribute="height" multiplier="0.15" id="2TC-Eq-8FQ"/>
                                             <constraint firstItem="kLC-gG-jd7" firstAttribute="top" secondItem="ifx-rY-DUM" secondAttribute="top" constant="15" id="AIZ-PD-t9a"/>
+                                            <constraint firstItem="F7v-pD-yU9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="NL0-d4-Ph3" secondAttribute="trailing" constant="10" id="BPa-BN-1cx"/>
                                             <constraint firstItem="kxq-gR-trX" firstAttribute="top" secondItem="j2s-kv-aLd" secondAttribute="bottom" constant="5" id="CX1-bd-FRF"/>
                                             <constraint firstAttribute="trailing" secondItem="ifx-rY-DUM" secondAttribute="trailing" id="HDE-Wa-ffs"/>
                                             <constraint firstItem="NL0-d4-Ph3" firstAttribute="top" secondItem="ifx-rY-DUM" secondAttribute="top" id="OLg-yA-b2h"/>
@@ -191,8 +192,10 @@
                                             <constraint firstItem="kLC-gG-jd7" firstAttribute="trailing" secondItem="ifx-rY-DUM" secondAttribute="trailing" constant="-15" id="c03-GQ-qq7"/>
                                             <constraint firstItem="F7v-pD-yU9" firstAttribute="top" secondItem="ifx-rY-DUM" secondAttribute="top" constant="15" id="iyf-jr-Jed"/>
                                             <constraint firstAttribute="bottom" secondItem="ifx-rY-DUM" secondAttribute="bottom" id="jay-uv-saU"/>
+                                            <constraint firstAttribute="trailing" secondItem="j2s-kv-aLd" secondAttribute="trailing" constant="-2" id="lri-ab-iRY"/>
                                             <constraint firstItem="j2s-kv-aLd" firstAttribute="centerY" secondItem="JjD-6k-Pi5" secondAttribute="centerY" id="qZe-Mb-kMr"/>
                                             <constraint firstItem="j2s-kv-aLd" firstAttribute="centerX" secondItem="JjD-6k-Pi5" secondAttribute="centerX" id="rlS-GG-agn"/>
+                                            <constraint firstItem="j2s-kv-aLd" firstAttribute="leading" secondItem="JjD-6k-Pi5" secondAttribute="leading" constant="-2" id="rxK-Uc-vyg"/>
                                             <constraint firstItem="NL0-d4-Ph3" firstAttribute="leading" secondItem="ifx-rY-DUM" secondAttribute="leading" id="ywX-KJ-iH2"/>
                                         </constraints>
                                         <connections>

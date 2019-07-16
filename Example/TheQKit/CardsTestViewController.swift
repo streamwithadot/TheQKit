@@ -14,23 +14,38 @@ class CardsTestViewController: UIViewController {
     
     @IBOutlet weak var containerView: UIView!
     
-    var containerViewController: UIViewController?
+    
+    
+//    var containerViewController: UIViewController?
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // you can set this name in 'segue.embed' in storyboard
         if segue.identifier == "cardsSegue" {
             let connectContainerViewController = segue.destination as UIViewController
-            containerViewController = connectContainerViewController
-            TheQKit.showCardsController(fromViewController: containerViewController!)
+//            containerViewController = connectContainerViewController
+            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+        }
+        if segue.identifier == "cards2" {
+            let connectContainerViewController = segue.destination as UIViewController
+            //            containerViewController = connectContainerViewController
+            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+        }
+        if segue.identifier == "cards3" {
+            let connectContainerViewController = segue.destination as UIViewController
+            //            containerViewController = connectContainerViewController
+            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+        }
+        if segue.identifier == "cards4" {
+            let connectContainerViewController = segue.destination as UIViewController
+            //            containerViewController = connectContainerViewController
+            TheQKit.showCardsController(fromViewController: connectContainerViewController)
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        
-        
+        // Do any additional setup after loading the view.        
     }
     
 

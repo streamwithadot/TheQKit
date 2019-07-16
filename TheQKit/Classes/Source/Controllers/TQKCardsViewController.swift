@@ -134,10 +134,10 @@ extension TQKCardsViewController : UICollectionViewDelegate {
             let game = self.games![indexPath.item]
             
             if((game.active)){
-//                self.lobbyDelegate?.joinGame(game,manualJoin: true)
+                TheQKit.LaunchGame(theGame: game)
             }else{
                 if(game.subscriberOnly){
-//                    self.lobbyDelegate?.checkToShowFreeTrial(game)
+                    //TODO : support this in SDK
                 }
             }
         }
@@ -160,209 +160,147 @@ extension TQKCardsViewController : UICollectionViewDataSource {
         
         let game = self.games?[indexPath.item]
         
-//        if(game?.nativeAd != nil){
-//
-//            let cell = cardsCollectionView.dequeueReusableCell(withReuseIdentifier: "AdCardCell", for: indexPath) as! AdCardCell
-//
-//
-//            cell.backgroundImageView.image = game?.nativeAd?.images![0].image
-//
-//            cell.nativeAdView.nativeAd = game?.nativeAd
-//            cell.nativeAdView.callToActionView?.isUserInteractionEnabled = false
-//
-//            game?.nativeAd!.delegate = cell
-//
-//
-//            cell.adLabel.isHidden = false
-//
-//            cell.adLabel.layer.cornerRadius = 5.0
-//            cell.adLabel.clipsToBounds = true
-//
-//            //            cell.backgroundImageView.backgroundColor = UIColor.init((game?.theme.defaultColorCode)!)
-//            cell.backgroundImageView.layer.masksToBounds = true
-//            cell.backgroundImageView.layer.cornerRadius = 10.0
-//            cell.backgroundImageView.contentMode = .scaleAspectFill
-//
-//            return cell
-//
-//        }else if(game?.adCode != nil && !((game?.adCode?.isEmpty)!)){
-//
-//            let cell = cardsCollectionView.dequeueReusableCell(withReuseIdentifier: "AdCardCell", for: indexPath) as! AdCardCell
-//
-//            ///6499/example/native   /\(Constants.AD_NETWORK_ID)/\(self.game!.adCode!)
-//            cell.adLoader = GADAdLoader(adUnitID: "\(game!.adCode!)", rootViewController: self,
-//                                        adTypes: [ .unifiedNative ], options: nil)
-//            cell.adLoader.delegate = cell
-//
-//            let request = DFPRequest()
-//            //            request.testDevices = [ kGADSimulatorID ]
-//            cell.adLoader.load(request)
-//
-//            cell.adLabel.layer.cornerRadius = 5.0
-//            cell.adLabel.clipsToBounds = true
-//
-//            //            cell.backgroundImageView.backgroundColor = UIColor.init((game?.theme.defaultColorCode)!)
-//            cell.backgroundImageView.layer.masksToBounds = true
-//            cell.backgroundImageView.layer.cornerRadius = 10.0
-//            cell.backgroundImageView.contentMode = .scaleAspectFill
-//
-//            return cell
-//        }else{
-            let cell = cardsCollectionView.dequeueReusableCell(withReuseIdentifier: "CardCollectionViewCell", for: indexPath) as! CardCollectionViewCell
-            //
-            //TODO - make this much less ugly
+
+        let cell = cardsCollectionView.dequeueReusableCell(withReuseIdentifier: "CardCollectionViewCell", for: indexPath) as! CardCollectionViewCell
+    
+        if let logoUrl = URL(string: (game!.theme.networkBadgeUrl ?? "" )) {
+            cell.logoImageView.contentMode = .scaleAspectFit
+            cell.logoImageView.kf.setImage(with: logoUrl,
+                                           placeholder: nil,
+                                           options: [.transition(ImageTransition.fade(1))],
+                                           progressBlock: { receivedSize, totalSize in
+                                            //                                print("\(index + 1): \(receivedSize)/\(totalSize)")
+            },
+                                           completionHandler: { image, error, cacheType, imageURL in
+                                            //                                print("\(index + 1): Finished")
+                                            
+            })
+        }else{
+            cell.logoImageView.isHidden = true
+        }
+        
+        if((game?.subscriberOnly)!){
+            cell.premiumGameLabel.isHidden = false
+        }else{
+            cell.premiumGameLabel.isHidden = true
+        }
+        
+        cell.gameTypeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+        cell.triviaLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+        
+        if(game?.gameType == "POPULAR"){
+            cell.triviaLabel.text = NSLocalizedString("POPULAR CHOICE", comment: "")
+        }else{
+            #if BLINQ
+            cell.triviaLabel.text = "QUIZ"
+            #else
+            cell.triviaLabel.text = NSLocalizedString("TRIVIA", comment: "")
+            #endif
+        }
+        
+        cell.backgroundImageView.backgroundColor = UIColor.init((game?.theme.defaultColorCode)!)
+        cell.backgroundImageView.layer.masksToBounds = true
+        cell.backgroundImageView.layer.cornerRadius = 10.0
+        cell.backgroundImageView.contentMode = .scaleAspectFill
+        
+        if(game?.title == "Failed"){
             
-            //            cell.andLabel.isHidden = false
-            //            cell.timeLabel.isHidden = false
-            //            cell.dayLabel.isHidden = false
-            //            cell.prizeLabel.isHidden = false
-            //            cell.optionalPrizeLabel.isHidden = false
-            //            cell.logoImageView.isHidden = false
-            //            cell.premiumGameLabel.isHidden = false
-            //            cell.gameTypeLabel.isHidden = false
-            //            cell.triviaLabel.isHidden = false
-            //            cell.shareGameButton.isHidden = false
-            //
-            //
-            if let logoUrl = URL(string: (game!.theme.networkBadgeUrl ?? "" )) {
-                cell.logoImageView.contentMode = .scaleAspectFit
-                cell.logoImageView.kf.setImage(with: logoUrl,
-                                               placeholder: nil,
-                                               options: [.transition(ImageTransition.fade(1))],
-                                               progressBlock: { receivedSize, totalSize in
-                                                //                                print("\(index + 1): \(receivedSize)/\(totalSize)")
-                },
-                                               completionHandler: { image, error, cacheType, imageURL in
-                                                //                                print("\(index + 1): Finished")
-                                                
-                })
-            }else{
-                cell.logoImageView.isHidden = true
-            }
-            
-            if((game?.subscriberOnly)!){
-                cell.premiumGameLabel.isHidden = false
-            }else{
-                cell.premiumGameLabel.isHidden = true
-            }
-            
-            cell.gameTypeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-            cell.triviaLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-            
-            if(game?.gameType == "POPULAR"){
-                cell.triviaLabel.text = NSLocalizedString("POPULAR CHOICE", comment: "")
-            }else{
-                #if BLINQ
-                cell.triviaLabel.text = "QUIZ"
-                #else
-                cell.triviaLabel.text = NSLocalizedString("TRIVIA", comment: "")
-                #endif
-            }
-            
-            cell.backgroundImageView.backgroundColor = UIColor.init((game?.theme.defaultColorCode)!)
-            cell.backgroundImageView.layer.masksToBounds = true
-            cell.backgroundImageView.layer.cornerRadius = 10.0
-            cell.backgroundImageView.contentMode = .scaleAspectFill
-            
-            if(game?.title == "Failed"){
-                
 //                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
-                
-                cell.dayLabel.text = NSLocalizedString("Connection failed", comment: "")
-                cell.timeLabel.text = NSLocalizedString("Please check your internet", comment: "")
-                cell.prizeLabel.text = "    "
-                
-                cell.optionalPrizeLabel.isHidden = true
-                cell.andLabel.isHidden = true
-                cell.shareGameButton.isHidden = true
-                
-                cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-                cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                
-            }else if(game?.title == "No Game Scheduled"){
-                
+            
+            cell.dayLabel.text = NSLocalizedString("Connection failed", comment: "")
+            cell.timeLabel.text = NSLocalizedString("Please check your internet", comment: "")
+            cell.prizeLabel.text = "    "
+            
+            cell.optionalPrizeLabel.isHidden = true
+            cell.andLabel.isHidden = true
+            cell.shareGameButton.isHidden = true
+            
+            cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+            cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            
+        }else if(game?.title == "No Game Scheduled"){
+            
 //                cell.backgroundImageView.image = UIImage(named: "TQKConstants.backgroundURL")
-                
-                
-                cell.dayLabel.text = NSLocalizedString("UPCOMING GAMES", comment: "")
-                cell.timeLabel.text = NSLocalizedString("TO BE ANNOUNCED", comment: "")
-                cell.prizeLabel.text = "    "
-                
-                cell.optionalPrizeLabel.isHidden = true
-                cell.andLabel.isHidden = true
-                cell.shareGameButton.isHidden = true
-                
+            
+            
+            cell.dayLabel.text = NSLocalizedString("UPCOMING GAMES", comment: "")
+            cell.timeLabel.text = NSLocalizedString("TO BE ANNOUNCED", comment: "")
+            cell.prizeLabel.text = "    "
+            
+            cell.optionalPrizeLabel.isHidden = true
+            cell.andLabel.isHidden = true
+            cell.shareGameButton.isHidden = true
+            
+            cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+            cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            
+        }else{
+            var isAdmin = false
+            if let myUser = TheQKit.getUser() {
+                isAdmin = myUser.admin
+            }
+            
+            if(game?.eligible == false && isAdmin == false){
                 cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-                cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                
+                cell.timeLabel.text = game?.notEligibleMessage ?? "Not Eligible to Play"
+                cell.andLabel.isHidden = true
             }else{
-                var isAdmin = false
-                if let myUser = TheQKit.getUser() {
-                    isAdmin = myUser.admin
-                }
-                
-                if(game?.eligible == false && isAdmin == false){
-                    cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-                    cell.timeLabel.text = game?.notEligibleMessage ?? "Not Eligible to Play"
-                    cell.andLabel.isHidden = true
+                if(game!.active){
+                    cell.timeLabel.text = NSLocalizedString(" TAP TO JOIN ", comment: "")
+                    cell.dayLabel.text = NSLocalizedString(" Game is Live! ", comment: "")
                 }else{
-                    if(game!.active){
-                        cell.timeLabel.text = NSLocalizedString(" TAP TO JOIN ", comment: "")
-                        cell.dayLabel.text = NSLocalizedString(" Game is Live! ", comment: "")
-                    }else{
-                        cell.timeLabel.text = " " + self.epochToLocal(epochTime: (game!.scheduled)) + " "
-                        cell.dayLabel.text = " " + self.epochToDay(epochTime: (game!.scheduled)) + " "
-                    }
-                    
-                    
-                    cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                    cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-                    cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                    
-                    if(game?.customRewardText != nil){
-                        cell.optionalPrizeLabel.text = game?.customRewardText
-                        cell.optionalPrizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                        cell.optionalPrizeLabel.isHidden = false
-                        cell.andLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                        cell.andLabel.isHidden = false
-                    }else{
-                        cell.optionalPrizeLabel.isHidden = true
-                        cell.andLabel.isHidden = true
-                    }
-                    
-                    cell.cardCollectionDelegate = self
-                    cell.shareGameButton.isHidden = false
-                    cell.shareGameButton.setTitleColor(UIColor.init((game?.theme.textColorCode)!), for: .normal)
-                    cell.shareGameButton.layer.borderWidth = 2
-                    cell.shareGameButton.layer.borderColor = UIColor.init((game?.theme.textColorCode)!, defaultColor: UIColor.clear).withAlphaComponent(1.0).cgColor
-                    
-                    
-                    let formatter = NumberFormatter()
-                    formatter.locale = Locale(identifier: TQKConstants.LOCALE)
-                    formatter.numberStyle = .decimal
-                    let asd = formatter.string(from: NSNumber(value: game!.reward))
-                    cell.prizeLabel.text = "\(TQKConstants.MONEY_SYMBOL)\(asd!) Prize"
+                    cell.timeLabel.text = " " + self.epochToLocal(epochTime: (game!.scheduled)) + " "
+                    cell.dayLabel.text = " " + self.epochToDay(epochTime: (game!.scheduled)) + " "
                 }
                 
-                if let backgroundUrl = URL(string: game?.theme.backgroundImageUrl ?? "") {
-                    if(game?.adCode == nil){
-                        cell.backgroundImageView.kf.setImage(with: backgroundUrl,
-                                                             placeholder: nil,
-                                                             options: [.transition(ImageTransition.fade(1))],
-                                                             progressBlock: { receivedSize, totalSize in
-                                                                //                                print("\(index + 1): \(receivedSize)/\(totalSize)")
-                        },
-                                                             completionHandler: { image, error, cacheType, imageURL in
-                                                                //                                print("\(index + 1): Finished")
-                                                                
-                        })
-                    }
+                
+                cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+                cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                
+                if(game?.customRewardText != nil){
+                    cell.optionalPrizeLabel.text = game?.customRewardText
+                    cell.optionalPrizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                    cell.optionalPrizeLabel.isHidden = false
+                    cell.andLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                    cell.andLabel.isHidden = false
+                }else{
+                    cell.optionalPrizeLabel.isHidden = true
+                    cell.andLabel.isHidden = true
+                }
+                
+                cell.cardCollectionDelegate = self
+                cell.shareGameButton.isHidden = false
+                cell.shareGameButton.setTitleColor(UIColor.init((game?.theme.textColorCode)!), for: .normal)
+                cell.shareGameButton.layer.borderWidth = 2
+                cell.shareGameButton.layer.borderColor = UIColor.init((game?.theme.textColorCode)!, defaultColor: UIColor.clear).withAlphaComponent(1.0).cgColor
+                
+                
+                let formatter = NumberFormatter()
+                formatter.locale = Locale(identifier: TQKConstants.LOCALE)
+                formatter.numberStyle = .decimal
+                let asd = formatter.string(from: NSNumber(value: game!.reward))
+                cell.prizeLabel.text = "\(TQKConstants.MONEY_SYMBOL)\(asd!) Prize"
+            }
+            
+            if let backgroundUrl = URL(string: game?.theme.backgroundImageUrl ?? "") {
+                if(game?.adCode == nil){
+                    cell.backgroundImageView.kf.setImage(with: backgroundUrl,
+                                                         placeholder: nil,
+                                                         options: [.transition(ImageTransition.fade(1))],
+                                                         progressBlock: { receivedSize, totalSize in
+                                                            //                                print("\(index + 1): \(receivedSize)/\(totalSize)")
+                    },
+                                                         completionHandler: { image, error, cacheType, imageURL in
+                                                            //                                print("\(index + 1): Finished")
+                                                            
+                    })
                 }
             }
-            return cell
-//        }
+        }
+        return cell
     }
     
     
@@ -420,7 +358,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
 
 extension TQKCardsViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = self.view.frame.width - 50
+        let width = ((self.view.frame.height / 1.5) > self.view.frame.width) ? self.view.frame.width - 50 : self.view.frame.height / 1.5
         let height = self.view.frame.height
         return CGSize(width: width, height: height)
     }

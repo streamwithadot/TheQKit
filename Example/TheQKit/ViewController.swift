@@ -26,6 +26,16 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // you can set this name in 'segue.embed' in storyboard
+        if segue.identifier == "cardTest" {
+            let connectContainerViewController = segue.destination as UIViewController
+            //            containerViewController = connectContainerViewController
+            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+        }
+    }
+    
+    
     @IBAction func AKLogin(_ sender: Any) {
         //TODO replace ID and Token
         TheQKit.LoginQUserWithAK(accountID: "<Insert ID>",
