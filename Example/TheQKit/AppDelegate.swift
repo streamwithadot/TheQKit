@@ -17,8 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        TheQKit.initialize(baseURL:"<insert base url>", token: "<insert token>")
-        FirebaseApp.configure()
+        TheQKit.initialize(baseURL:"<InserBaseURL>", token: "<InsertToken>")
+//        FirebaseApp.configure()
         return true
     }
 

@@ -89,7 +89,7 @@ class ViewController: UIViewController {
     @IBAction func testFunc(_ sender: Any) {
     
         //TODO - replace email and password
-        Auth.auth().signIn(withEmail: "<Insert Email>", password: "<Insert Password>") { [weak self] user, error in
+        Auth.auth().signIn(withEmail: "<InsertEmail>", password: "<InsertPassword>") { [weak self] user, error in
 
             let user = user?.user
             let isAnonymous = user!.isAnonymous  // true

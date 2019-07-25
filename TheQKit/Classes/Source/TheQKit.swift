@@ -16,62 +16,109 @@ public class TheQKit {
     
     init() {}
     
-    
     public static var bundle:Bundle {
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         return Bundle(url: bundleURL!)!
     }
     
+    /// Overriden initializer
+    ///
+    /// - Parameters:
+    ///     - baseURL: base URL to partners domain
+    ///     - locale: language / region
+    ///     - moneySymbol: meant to always match the one the locale would use
+    ///     - appName: name of the app to be shown to users
     public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q"){
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!)
     }
     
+    /// Overriden initializer with token
+    ///
+    /// - Parameters:
+    ///     - baseURL: base URL to partners domain
+    ///     - locale: language / region
+    ///     - moneySymbol: meant to always match the one the locale would use
+    ///     - appName: name of the app to be shown to users
+    ///     - token: partner key (provided by UI)
     public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", token : String){
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token)
     }
     
-    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", token : String, mixpanelToken : String){
-        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token, mixpanelToken: mixpanelToken)
-    }
-    
+    /// Logs a user in using AccountKit, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - accountID: AccountKit provided ID
+    ///     - tokenString: AccountKit provided Token String
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
     public class func LoginQUserWithAK(accountID: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
         TheQManager.sharedInstance.LoginQUserWithAK(accountID: accountID, tokenString: tokenString, username: username, completionHandler: completionHandler)
     }
     
+    /// Logs a user in Firebase, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - userId: Firebase provided ID
+    ///     - tokenString: Firebase provided Token String
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
     public class func LoginQUserWithFirebase(userId: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
             TheQManager.sharedInstance.LoginQUserWithFirebase(userId: userId, tokenString: tokenString, username: username, completionHandler: completionHandler)
     }
-    
-    public class func LoginQUserWithTwilio(userId: String, tokenString: String, userName: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
-//        TheQManager.sharedInstance.LoginQUserWithFirebase(userId: userId, tokenString: tokenString, completionHandler: completionHandler)
-    }
-    
+  
+    /// Logout a logged in user - clears SDK specifics in NSUserDefaults
     public class func LogoutQUser() {
         TheQManager.sharedInstance.LogoutQUser()
     }
     
+    /// Checks for scheduled games, returning a flag if any of them are currently active
+    ///
+    /// - Parameters:
+    ///     - completionHandler: callback with active game flag and array of scheduled games
+    ///
+    /// - Returns: callback with active game flag and array of scheduled games
     public class func CheckForGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
         return TheQManager.sharedInstance.CheckForGames(completionHandler: completionHandler)
     }
     
+    /// Launches a specified game
+    ///
+    /// - Parameters:
+    ///     - theGame: TQKGame object
+    ///     - colorCode: *Optional* override the color theme of the game
+    ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
     public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false){
         TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer)
     }
     
+    /// Launches the most recent active game
     public class func LaunchActiveGame() {
         TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil)
     }
     
+    /// Prompts the user for an email and performs a cash out request
+    ///
+    /// - Returns: bool for success/failer
     @discardableResult
     public class func CashOut() -> Bool {
         return TheQManager.sharedInstance.CashOut()
     }
     
+    /// Dummy function for testing
     public class func testVideo(){
+        // TODO: Should probably remove this
        TheQManager.sharedInstance.playTest()
     }
     
+    /// Populates a given container view with the cards schedule controller, allowing a UI for up to 10 scheduled games
+    ///
+    /// - Parameters:
+    ///     - viewController: container view where the cards controller will populate
     public class func showCardsController(fromViewController viewController : UIViewController){
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
@@ -87,16 +134,31 @@ public class TheQKit {
         vc.didMove(toParent: viewController)
     }
     
+    /// Checks for scheduled test games, returning a flag if any of them are currently active
+    ///
+    /// - Parameters:
+    ///     - completionHandler: callback with active game flag and array of scheduled test games
+    ///
+    /// - Returns: callback with active game flag and array of scheduled test games
     public class func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
         return TheQManager.sharedInstance.CheckForTestGames(completionHandler: completionHandler)
     }
     
+    /// Returns the current logged in user, or nil
+    ///
+    /// - Returns: TQKUser object, nil if not logged in
     public class func getUser() -> TQKUser? {
         return TheQManager.sharedInstance.getUser()
     }
     
+    /// Manually refreshes tokens
     public class func refreshTokens(completionHandler: @escaping (_ success : Bool) -> Void) {
         TheQManager.sharedInstance.refreshToken(completionHandler: completionHandler)
+    }
+    
+    /// Manually update the user object (this cannot occur more than once every 5 minutes to prevent spamming)
+    public class func updateUserObject() {
+        TheQManager.sharedInstance.updateUserObject()
     }
 }
 

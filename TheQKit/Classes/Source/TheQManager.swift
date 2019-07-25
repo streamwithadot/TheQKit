@@ -52,9 +52,96 @@ class TheQManager {
         UserDefaults.standard.set(moneySymbol, forKey: "TQK_MONEY_SYMBOL")
         UserDefaults.standard.set(appName, forKey: "TQK_APP_NAME")
         UserDefaults.standard.synchronize()
+        
         if(mixpanelToken != nil){
             mixpanelInstance =  Mixpanel.initialize(token: mixpanelToken!)
         }
+        
+        if(TheQManager.sharedInstance.loggedInUser != nil){
+            //Refresh user object if needed
+            let lastUserUpdate = UserDefaults.standard.object(forKey: "lastUserUpdate")
+            if(lastUserUpdate == nil){
+                updateUserObject()
+            }else{
+                let interval = Date().timeIntervalSince(lastUserUpdate as! Date)
+                let minutes = (Int(interval) / 60) % 60
+                if(minutes >= 5){
+                    updateUserObject()
+                }
+            }
+        }
+    }
+    
+    
+    // MARK: functions
+    
+    func updateUserObject(){
+        let userUrl = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
+        if UserDefaults.standard.object(forKey: "myTokens") != nil{
+            let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
+            let finalBearerToken:String = "Bearer " + (myTokens.accessToken)!
+            
+            let headers = [
+                "Authorization": finalBearerToken,
+                "Accept": "application/json",
+            ]
+            
+            Alamofire.request(userUrl, parameters: nil, headers: headers).responseJSON { response in
+                response.result.ifFailure {
+                    //check for 401 and log out if so
+                    if(response.response?.statusCode == 401){
+                        // TODO: handle this in the SDK - doing nothing currently will eventually work itself out
+                        TheQManager.sharedInstance.refreshToken(completionHandler: { (success) in
+                            if(!success){
+                                TheQManager.sharedInstance.LogoutQUser()
+                            }
+                        })
+                    }
+                }
+                
+                
+                response.result.ifSuccess {
+                    if let json = response.result.value as? [String: Any] {
+                        
+                        if ( !(json["success"] as! Bool) ) {
+                            if ( json["errorCode"] != nil ){
+                                let errorCode = json["errorCode"] as! String
+                                if( errorCode == "USER_BANNED"){
+                                    //Let app know this user is banned
+                                    NotificationCenter.default.post(name: .userBanned, object: nil)
+                                }
+                            }
+                            
+                            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                                if(utf8Text == "Token validation error."){
+                                    TheQManager.sharedInstance.refreshToken(completionHandler: { (success) in
+                                        if(!success){
+                                            TheQManager.sharedInstance.LogoutQUser()
+                                        }
+                                    })
+                                }
+                            }
+                            
+                        }else{
+                            print("JSON: \(json)") // serialized json response
+                            
+                            do{
+                                let json = try JSON(data: response.data!)
+                                let user = TQKUser(JSON: json["user"].dictionaryObject!)
+                                UserDefaults.standard.set(user?.propertyListRepresentation, forKey: "myUser")
+                                UserDefaults.standard.set(Date(), forKey: "lastUserUpdate")
+                                UserDefaults.standard.synchronize()
+                            }catch{
+                                print(error)
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+
     }
     
     @discardableResult

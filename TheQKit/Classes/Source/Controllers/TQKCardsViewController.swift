@@ -397,26 +397,38 @@ class CardCollectionViewCell : UICollectionViewCell, UIActivityItemSource {
     
     @IBAction func shareGameButtonPressed(_ sender: Any) {
         
-        let myUser = TheQKit.getUser()!
-        
-        //        let image = self.textToImage(drawText: "\(dayLabel!), \(timeLabel!)" as NSString, inImage: backgroundImageView.image!, atPoint: CGPoint(x: 700, y: 520))
-        //        let image2 = self.textToImage(drawText: "\(prizeLabel!)" as NSString, inImage: image, atPoint: CGPoint(x: 700, y: 520))
-        
-        //        let activityImage: [AnyObject] = [image as AnyObject]
-        self.shareGameButton.isHidden = true
-        let image = self.asImage()
-        self.shareGameButton.isHidden = false
-        
-        let activityViewController = UIActivityViewController(activityItems: [self,image,"Join me on \(TQKConstants.appName): \(dayLabel.text!), \(timeLabel.text!) for a chance to win a \(prizeLabel.text!)! Use my code \"\(myUser.referralCode ?? " ")\" to sign up and earn a free life! http://get.theq.live/"], applicationActivities: nil)
-        activityViewController.excludedActivityTypes = [.saveToCameraRoll,.assignToContact,.print]
-        
-        if let topController = UIApplication.topViewController() {
-            topController.present(activityViewController, animated: true, completion: {})
-            if let popOver = activityViewController.popoverPresentationController {
-                popOver.sourceView = self.shareGameButton
+        let myUser = TheQKit.getUser()
+        if myUser == nil {
+            //prompt user they must be logged in?
+            let alert = UIAlertController(title: "User Not Logged In", message: "Please Log In to Share", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
+//            alert.addAction(UIAlertAction(title: "Log In", style: .destructive, handler: { (alertAction) in
+//                //bring the user to a log in screen / prompt
+//            }))
+            if let topController = UIApplication.topViewController() {
+                topController.present(alert, animated: true, completion: {})
+            }
+        }else{
+            //        let image = self.textToImage(drawText: "\(dayLabel!), \(timeLabel!)" as NSString, inImage: backgroundImageView.image!, atPoint: CGPoint(x: 700, y: 520))
+            //        let image2 = self.textToImage(drawText: "\(prizeLabel!)" as NSString, inImage: image, atPoint: CGPoint(x: 700, y: 520))
+            
+            //        let activityImage: [AnyObject] = [image as AnyObject]
+            self.shareGameButton.isHidden = true
+            let image = self.asImage()
+            self.shareGameButton.isHidden = false
+            
+            let activityViewController = UIActivityViewController(activityItems: [self,image,"Join me on \(TQKConstants.appName): \(dayLabel.text!), \(timeLabel.text!) for a chance to win a \(prizeLabel.text!)! Use my code \"\(myUser?.referralCode ?? " ")\" to sign up and earn a free life! http://get.theq.live/"], applicationActivities: nil)
+            activityViewController.excludedActivityTypes = [.saveToCameraRoll,.assignToContact,.print]
+            
+            if let topController = UIApplication.topViewController() {
+                topController.present(activityViewController, animated: true, completion: {})
+                if let popOver = activityViewController.popoverPresentationController {
+                    popOver.sourceView = self.shareGameButton
+                }
             }
         }
-    }
+    }    
+
     
     @objc func postToFacebook(){
         

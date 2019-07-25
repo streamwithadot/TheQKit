@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--TheQKit-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
                 <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="TheQKit_Example" customModuleProvider="target" sceneMemberID="viewController">
@@ -21,86 +21,29 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="21" translatesAutoresizingMaskIntoConstraints="NO" id="whH-VR-WkT">
-                                <rect key="frame" x="0.0" y="88" width="375" height="690"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qan-od-g8S">
-                                        <rect key="frame" x="140.66666666666666" y="0.0" width="94" height="30"/>
-                                        <state key="normal" title="Test Login AK"/>
-                                        <connections>
-                                            <action selector="AKLogin:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="8NB-ES-cVG"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f36-PX-sqZ">
-                                        <rect key="frame" x="163.66666666666666" y="51" width="48" height="30"/>
-                                        <state key="normal" title="Logout"/>
-                                        <connections>
-                                            <action selector="logout:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Ijj-ub-tq3"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9l8-SG-2Ow">
-                                        <rect key="frame" x="132" y="102" width="111" height="30"/>
-                                        <state key="normal" title="Check for Game"/>
-                                        <connections>
-                                            <action selector="checkForGame:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="qEI-lN-3KV"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ORY-fb-uTe">
-                                        <rect key="frame" x="151" y="153" width="73" height="30"/>
-                                        <state key="normal" title="Join Game"/>
-                                        <connections>
-                                            <action selector="joinGame:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="jjR-Db-K45"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gWO-XK-p17">
-                                        <rect key="frame" x="137.66666666666666" y="204" width="100" height="30"/>
-                                        <state key="normal" title="Firebase Login"/>
-                                        <connections>
-                                            <action selector="testFunc:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Nsd-NS-4UK"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k4W-zK-BbV">
-                                        <rect key="frame" x="155.66666666666666" y="255" width="64" height="30"/>
-                                        <state key="normal" title="Cash Out"/>
-                                        <connections>
-                                            <action selector="cashOut:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Zxk-Ru-pzs"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2B8-dh-9ht">
-                                        <rect key="frame" x="164.66666666666666" y="306" width="46" height="30"/>
-                                        <state key="normal" title="Button"/>
-                                        <connections>
-                                            <segue destination="fNs-ae-I3j" kind="show" id="XGG-gz-woe"/>
-                                        </connections>
-                                    </button>
-                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FJ2-lX-WpI">
-                                        <rect key="frame" x="0.0" y="357" width="375" height="333"/>
-                                        <connections>
-                                            <segue destination="04G-Lb-SDd" kind="embed" identifier="cardTest" id="SSZ-eT-NtJ"/>
-                                        </connections>
-                                    </containerView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="FJ2-lX-WpI" firstAttribute="leading" secondItem="whH-VR-WkT" secondAttribute="leading" id="hdh-4g-GLp"/>
-                                </constraints>
-                            </stackView>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FJ2-lX-WpI">
+                                <rect key="frame" x="0.0" y="148" width="375" height="610"/>
+                                <connections>
+                                    <segue destination="04G-Lb-SDd" kind="embed" identifier="cardTest" id="SSZ-eT-NtJ"/>
+                                </connections>
+                            </containerView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="whH-VR-WkT" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="JjY-z3-fZd"/>
-                            <constraint firstAttribute="trailing" secondItem="whH-VR-WkT" secondAttribute="trailing" id="ROG-46-0uT"/>
-                            <constraint firstItem="whH-VR-WkT" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="weN-Og-42l"/>
-                            <constraint firstItem="whH-VR-WkT" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="yqX-dk-bc1"/>
+                            <constraint firstItem="FJ2-lX-WpI" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="60" id="ARL-oG-tQh"/>
+                            <constraint firstAttribute="trailing" secondItem="FJ2-lX-WpI" secondAttribute="trailing" id="Nkl-eb-t8b"/>
+                            <constraint firstItem="FJ2-lX-WpI" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="td4-eZ-O8V"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="FJ2-lX-WpI" secondAttribute="bottom" constant="20" id="trg-cj-oIO"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="dWl-a7-d9J"/>
+                    <navigationItem key="navigationItem" title="TheQKit" id="dWl-a7-d9J"/>
                     <connections>
                         <outlet property="containerView" destination="Dnj-UG-ZPu" id="oPu-6O-Fxb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="992.75362318840587" y="26.116071428571427"/>
+            <point key="canvasLocation" x="-391" y="92"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="lxd-iy-o7u">
@@ -118,7 +61,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ylj-hN-EQW" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1819" y="772"/>
+            <point key="canvasLocation" x="667" y="755"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="mPf-Yk-h5N">
@@ -136,7 +79,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="885-Lh-0DH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-770" y="106"/>
+            <point key="canvasLocation" x="-1657" y="92"/>
         </scene>
         <!--Cards Test View Controller-->
         <scene sceneID="qDq-qW-s6H">
@@ -165,7 +108,7 @@
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dnj-UG-ZPu">
-                                <rect key="frame" x="112" y="96" width="150" height="186"/>
+                                <rect key="frame" x="112" y="52" width="150" height="186"/>
                                 <connections>
                                     <segue destination="6pk-8a-3NZ" kind="embed" identifier="cardsSegue" id="CFf-EP-V8J"/>
                                 </connections>
@@ -185,7 +128,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Iuf-eT-ZNh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2352.8000000000002" y="18.472906403940886"/>
+            <point key="canvasLocation" x="1262" y="126"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="awX-ae-QqV">
@@ -196,31 +139,14 @@
                         <viewControllerLayoutGuide type="bottom" id="bNg-vB-uhQ"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="YIH-fz-P3n">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="333"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="610"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="e3e-bS-7KT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="541" y="771"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="m0C-Uc-laA">
-            <objects>
-                <viewController id="dLN-Rx-tnX" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="6hC-Xv-xnB"/>
-                        <viewControllerLayoutGuide type="bottom" id="zYV-C2-U9D"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="32T-sS-XD2">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="1aF-E9-C95" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
+            <point key="canvasLocation" x="-393" y="788"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="WQt-Uy-BxZ">
@@ -238,6 +164,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bry-NJ-Xg8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="1088" y="756"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="0j5-jb-ach">
@@ -255,6 +182,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SgC-K5-c2g" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="1676" y="771"/>
         </scene>
     </scenes>
 </document>
