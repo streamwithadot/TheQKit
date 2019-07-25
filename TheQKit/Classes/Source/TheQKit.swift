@@ -12,10 +12,12 @@ import SwiftyJSON
 import PopupDialog
 import Mixpanel
 
+/// TheQKit public functions
 public class TheQKit {
     
     init() {}
     
+    /// Easy reference to the class's bundle
     public static var bundle:Bundle {
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
@@ -40,7 +42,7 @@ public class TheQKit {
     ///     - locale: language / region
     ///     - moneySymbol: meant to always match the one the locale would use
     ///     - appName: name of the app to be shown to users
-    ///     - token: partner key (provided by UI)
+    ///     - token: partner key (provided by Stream Live, Inc.)
     public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", token : String){
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token)
     }
@@ -110,8 +112,9 @@ public class TheQKit {
     }
     
     /// Dummy function for testing
+    /// 
+    /// - TODO: Should probably remove this function, may crash
     public class func testVideo(){
-        // TODO: Should probably remove this
        TheQManager.sharedInstance.playTest()
     }
     

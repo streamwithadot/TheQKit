@@ -52,7 +52,7 @@ The `THEQKIT_TOKEN` allows for only this tenants games to be visable by TheQKit 
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provide Base Url>")
+    TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provide Base Url>")
 }
 ```
 
@@ -98,7 +98,18 @@ Logout and clear stored user
 TheQKit.LogoutQUser()
 ```
 
-## Play Games
+## Play Games - With UI
+A schedule controller that will display game "cards" can be populated into any container view. These cards can be clicked on when the game is active and a logged in user exist.
+```swift
+override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    if segue.identifier == "name_of_your_seque" {
+        let connectContainerViewController = segue.destination as UIViewController
+        TheQKit.showCardsController(fromViewController: connectContainerViewController)
+    }
+}
+```
+
+## Play Games - No UI
 To play a game with The Q Kit, after initilizing you will have to check and launch games with. 
 ```swift
 TheQKit.CheckForGames { (isActive, gamesArray) in
