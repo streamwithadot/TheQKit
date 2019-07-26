@@ -544,8 +544,9 @@ class AuthenticationService {
             }
         }
         
-        
         preferences.synchronize()
+        
+        NotificationCenter.default.post(name: .userLogout, object: nil)
     }
 
 
