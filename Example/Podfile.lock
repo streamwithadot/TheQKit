@@ -158,7 +158,7 @@ PODS:
   - SDWebImage/Core (4.4.6)
   - SwiftyAttributes (5.0.0)
   - SwiftyJSON (4.2.0)
-  - TheQKit (0.1.0):
+  - TheQKit (0.1.1):
     - Alamofire
     - ijkplayer (= 1.1.2)
     - Kingfisher
@@ -259,7 +259,7 @@ SPEC CHECKSUMS:
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
   SwiftyAttributes: a6e7bbac1e9a9f5c0b42e4055563ca091dda03ad
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
-  TheQKit: f13aba94b80ee6171d2aa4f838819f45c102e83d
+  TheQKit: 4575a47fbfa291f0634c6393bb46c7e29103920d
   Toast-Swift: e42a638589a2f95036b4bb7626cfbdde7daf0393
   TwitterCore: 8cbc9ad34d91c63a0035ea05bfbfc0d7ca72a28c
   TwitterKit: 5e4f41d70b9abdb41df5467f52d7aa2c0fd26ebb
