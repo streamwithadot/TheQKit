@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.version          = '0.1.1'
   s.summary          = 'A short description of TheQKit.'
   
-  # s.swift_version = '4.2'
+  s.swift_version = '4.2'
   # s.static_framework = true
 
 # This description is used to generate tags and improve search results.
