@@ -123,11 +123,12 @@ class TheQManager {
                             }
                             
                         }else{
-                            print("JSON: \(json)") // serialized json response
-                            
                             do{
                                 let json = try JSON(data: response.data!)
-                                let user = TQKUser(JSON: json["user"].dictionaryObject!)
+                                var user = TQKUser(JSON: json["user"].dictionaryObject!)
+                                if let tester = json["tester"].bool {
+                                    user?.tester = tester
+                                }
                                 UserDefaults.standard.set(user?.propertyListRepresentation, forKey: "myUser")
                                 UserDefaults.standard.set(Date(), forKey: "lastUserUpdate")
                                 UserDefaults.standard.synchronize()
@@ -222,12 +223,22 @@ class TheQManager {
     }
     
     func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
-        let gameHeaders : HTTPHeaders = [
+        
+        let key = "token"
+        let preferences = UserDefaults.standard
+        let bearerToken = preferences.string(forKey: key)
+        var finalBearerToken:String = "Bearer " + (bearerToken as! String)
+       
+        let gameHeaders: HTTPHeaders = [
+            "Authorization": finalBearerToken,
             "Accept": "application/json"
         ]
+        
         let params : Parameters = [
             "includeSubscriberOnly":false,
-            "gameTypes":"TRIVIA,POPULAR"
+            "gameTypes":"TRIVIA,POPULAR",
+            "userId":(TheQManager.sharedInstance.loggedInUser?.id)!,
+            "uid":(TheQManager.sharedInstance.loggedInUser?.id)!
         ]
         
         var url:String = TQKConstants.baseUrl + "test-games"
@@ -251,6 +262,8 @@ class TheQManager {
                     
                     if ( !(json["success"] as! Bool) ) {
                         
+//                        let json = try JSON(data: response.data!)
+                        print("JSON: \(json)") // serialized json response
                         //                        return false
                         completionHandler(false,nil)
                         

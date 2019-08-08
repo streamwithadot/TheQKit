@@ -339,8 +339,9 @@ class AuthenticationService {
     
     func refreshTokens(apiToken: String?,completionHandler: @escaping (_ success : Bool) -> Void){
         var finalUrl:String = TQKConstants.baseUrl + "oauth/token"
-        if let token = apiToken{
-            finalUrl = finalUrl + "?partnerCode=\(token)"
+        
+        if(apiToken != nil && !apiToken!.isEmpty){
+            finalUrl = finalUrl + "?partnerCode=\(apiToken)"
         }
         
         let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!

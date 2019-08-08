@@ -9,43 +9,43 @@
 import UIKit
 import ObjectMapper
 
-struct TQKSchedule : Mappable {
-    var arrOfGames : [TQKGames]?
+public struct TQKSchedule : Mappable {
+    public var arrOfGames : [TQKGames]?
     
-    init?(map: Map) {
+    public init?(map: Map) {
         
     }
     
-    init () {
+    public init () {
         arrOfGames = []
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         
     }
 }
 
-struct TQKGames : Mappable {
-    var actualDate: Date?
-    var dateString: String?
-    var games : [TQKGame]?
+public struct TQKGames : Mappable {
+    public var actualDate: Date?
+    public var dateString: String?
+    public var games : [TQKGame]?
         
-    init?(map: Map) {
-        
-    }
-    
-    init(){
+    public init?(map: Map) {
         
     }
     
-    init (actualDate : Date, dateString : String, games : [TQKGame]) {
+    public init(){
+        
+    }
+    
+    public init (actualDate : Date, dateString : String, games : [TQKGame]) {
         self.actualDate = actualDate
         self.dateString = dateString
         self.games = games
         
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         games <- map["games"]
     }
 }
