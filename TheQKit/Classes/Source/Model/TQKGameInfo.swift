@@ -87,6 +87,7 @@ public struct TQKGame : Mappable {
     public var subscriberOnly : Bool = false
     public var gameType : String = "TRIVIA"
     public var adCode : String?
+    var testMode : Bool = false
     
     public init?(map: Map) {
         
@@ -113,6 +114,7 @@ public struct TQKGame : Mappable {
         subscriberOnly <- map["subscriberOnly"]
         gameType <- map["gameType"]
         adCode <- map["adCode"]
+        testMode <- map["testMode"]
         
         //TEST CODE
 //        adCode = Constants.AD_SECOND_CODE

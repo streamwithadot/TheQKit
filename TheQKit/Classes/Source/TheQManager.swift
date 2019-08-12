@@ -88,9 +88,8 @@ class TheQManager {
             
             Alamofire.request(userUrl, parameters: nil, headers: headers).responseJSON { response in
                 response.result.ifFailure {
-                    //check for 401 and log out if so
+                    //check for 401
                     if(response.response?.statusCode == 401){
-                        // TODO: handle this in the SDK - doing nothing currently will eventually work itself out
                         TheQManager.sharedInstance.refreshToken(completionHandler: { (success) in
                             if(!success){
                                 TheQManager.sharedInstance.LogoutQUser()
