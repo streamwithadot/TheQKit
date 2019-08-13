@@ -178,7 +178,7 @@ class TheQManager {
         var url:String = TQKConstants.baseUrl + "games"
         
         if(!apiToken!.isEmpty){
-            url = url + "?partnerCode=\(apiToken)"
+            url = url + "?partnerCode=\(apiToken!)"
         }
         
         Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
@@ -243,7 +243,7 @@ class TheQManager {
         var url:String = TQKConstants.baseUrl + "test-games"
         
         if(!apiToken!.isEmpty){
-            url = url + "?partnerCode=\(apiToken)"
+            url = url + "?partnerCode=\(apiToken!)"
         }
         
         Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
@@ -333,7 +333,7 @@ class TheQManager {
             var url:String = TQKConstants.baseUrl + "games"
             
             if(!apiToken!.isEmpty){
-                url = url + "?partnerCode=\(apiToken)"
+                url = url + "?partnerCode=\(apiToken!)"
             }
             
             Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
