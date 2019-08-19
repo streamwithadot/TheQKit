@@ -5,14 +5,25 @@
 [![License](https://img.shields.io/cocoapods/l/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 [![Platform](https://img.shields.io/cocoapods/p/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 
-## Example
+# Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
-## Requirements
+## Login / Authentication and Setup instructions
 
-## Installation
+1) Always change the bundle identifier to one that is accosiated with your developer account.
 
+2) To use the Example app either Firebase or AccountKit (with "Sign in with Apple" coming soon) will need to be utilized and setup on the app and that login flow implemented. Once a user has been authenticated through these services can you pass the relative information to the SDK to create a user on The Q platform. 
+
+    2a) For Firebase this includes adding the GoogleServices.plist file and any info.plist modifications
+    2b) For AccountKit modifications to the app's info.plist are necessary
+    
+    3) Sharing to snapchat is provided through the SDK, if the `SCSDKClientID` is found in the target's info.plist file it will use the account associated with that (or fail without it)
+
+
+# Installation
+
+**NOT YET AVALIABLE**
 TheQKit is available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
