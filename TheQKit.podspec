@@ -65,4 +65,7 @@ TODO: Add long description of the pod here.
   # s.dependency 'ijkplayerssl', '~> 1.1.4'
   s.dependency 'ijkplayer', '1.1.2'
   
+  s.dependency 'SnapSDK'
+
+  
 end
