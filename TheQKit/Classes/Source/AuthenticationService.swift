@@ -259,89 +259,95 @@ class AuthenticationService {
     }
     
     
-    func updateUser(success: @escaping (_ success : Bool) -> Void, failure: @escaping (_ success : Bool) -> Void){
-        
-        if(TheQManager.sharedInstance.getUser() == nil){
-            return
-        }
+//    func updateUser(success: @escaping (_ success : Bool) -> Void, failure: @escaping (_ success : Bool) -> Void){
 //
-        let user = TheQManager.sharedInstance.getUser()
-        
-        let key = "token"
-        let preferences = UserDefaults.standard
-        let bearerToken = preferences.string(forKey: key)
-        let finalBearerToken:String = "Bearer " + (bearerToken!)
-        
-        let userUrl = TQKConstants.baseUrl + "users/" + (user?.id)!
-        let headers = [
-            "Authorization": finalBearerToken,
-            "Accept": "application/json",
-        ]
+//        if(TheQManager.sharedInstance.getUser() == nil){
+//            return
+//        }
+////
+//        let user = TheQManager.sharedInstance.getUser()
 //
-        Alamofire.request(userUrl, parameters: nil, headers: headers).responseJSON { response in
-
-            //go on
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
-
-
-            response.result.ifFailure {
-                //check for 401 and log out if so
-                if(response.response?.statusCode == 401){
-//                        self.commonLogout()
-                }
-                
-                failure(false)
-            }
-
-
-            response.result.ifSuccess {
-                if let json = response.result.value as? [String: Any] {
-
-                    if ( !(json["success"] as! Bool) ) {
-                        if ( json["errorCode"] != nil ){
-                            let errorCode = json["errorCode"] as! String
-                            if( errorCode == "USER_BANNED"){
-                                //Go to banned screen
-                                NotificationCenter.default.post(name: .userBanned, object: nil)
-                            }
-                        }
-
-                        if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                            print("Data: \(utf8Text)") // original server data as UTF8 string
-                            print("yoooo")
-                            if(utf8Text == "Token validation error."){
-                                failure(false)
-                            }
-                        }
-                        
-                        failure(false)
-
-                    }else{
-                        do{
-                            let json = try JSON(data: response.data!)
-                            let user = TQKUser(JSON: json["user"].dictionaryObject!)
-                            
-                            UserDefaults.standard.set(user?.propertyListRepresentation, forKey: "myUser")
-                            UserDefaults.standard.set(Date(), forKey: "lastUserUpdate")
-                            UserDefaults.standard.synchronize()
-                            success(true)
-                        }catch{
-                            failure(false)
-                        }
-                    }
-                }
-            }
-        }
-        
-    }
+//        let key = "token"
+//        let preferences = UserDefaults.standard
+//        let bearerToken = preferences.string(forKey: key)
+//        let finalBearerToken:String = "Bearer " + (bearerToken!)
+//
+//        var userUrl = TQKConstants.baseUrl + "users/" + (user?.id)!
+//
+//        let apiToken = TheQManager.sharedInstance.getPartnerCode()
+//        if(apiToken != nil && !apiToken!.isEmpty){
+//            userUrl = userUrl + "?partnerCode=\(apiToken!)"
+//        }
+//
+//        let headers = [
+//            "Authorization": finalBearerToken,
+//            "Accept": "application/json",
+//        ]
+////
+//        Alamofire.request(userUrl, parameters: nil, headers: headers).responseJSON { response in
+//
+//            //go on
+//            print("Request: \(String(describing: response.request))")   // original url request
+//            print("Response: \(String(describing: response.response))") // http url response
+//            print("Result: \(response.result)")                         // response serialization result
+//
+//
+//            response.result.ifFailure {
+//                //check for 401 and log out if so
+//                if(response.response?.statusCode == 401){
+////                        self.commonLogout()
+//                }
+//
+//                failure(false)
+//            }
+//
+//
+//            response.result.ifSuccess {
+//                if let json = response.result.value as? [String: Any] {
+//
+//                    if ( !(json["success"] as! Bool) ) {
+//                        if ( json["errorCode"] != nil ){
+//                            let errorCode = json["errorCode"] as! String
+//                            if( errorCode == "USER_BANNED"){
+//                                //Go to banned screen
+//                                NotificationCenter.default.post(name: .userBanned, object: nil)
+//                            }
+//                        }
+//
+//                        if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+//                            print("Data: \(utf8Text)") // original server data as UTF8 string
+//                            print("yoooo")
+//                            if(utf8Text == "Token validation error."){
+//                                failure(false)
+//                            }
+//                        }
+//
+//                        failure(false)
+//
+//                    }else{
+//                        do{
+//                            let json = try JSON(data: response.data!)
+//                            let user = TQKUser(JSON: json["user"].dictionaryObject!)
+//
+//                            UserDefaults.standard.set(user?.propertyListRepresentation, forKey: "myUser")
+//                            UserDefaults.standard.set(Date(), forKey: "lastUserUpdate")
+//                            UserDefaults.standard.synchronize()
+//                            success(true)
+//                        }catch{
+//                            failure(false)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
     
     func refreshTokens(apiToken: String?,completionHandler: @escaping (_ success : Bool) -> Void){
         var finalUrl:String = TQKConstants.baseUrl + "oauth/token"
         
         if(apiToken != nil && !apiToken!.isEmpty){
-            finalUrl = finalUrl + "?partnerCode=\(apiToken)"
+            finalUrl = finalUrl + "?partnerCode=\(apiToken!)"
         }
         
         let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
@@ -349,10 +355,12 @@ class AuthenticationService {
         let headers = [
             "Authorization": finalBearerToken,
             "Accept": "application/json",
+            "grant_type": "refresh_token",
+            "refresh_token": myTokens.refreshToken!
         ]
-        let params : Parameters = ["refresh_token":myTokens.refreshToken!]
+//        let params : Parameters = ["refresh_token":myTokens.refreshToken!]
         
-        Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+        Alamofire.request(finalUrl, method: .post, parameters: nil, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
             print("Request: \(String(describing: response.request))")   // original url request
             print("Response: \(String(describing: response.response))") // http url response
             print("Result: \(response.result)")                         // response serialization result

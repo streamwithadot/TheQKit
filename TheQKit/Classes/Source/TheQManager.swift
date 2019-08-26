@@ -35,6 +35,10 @@ class TheQManager {
         return TheQManager.sharedInstance.loggedInUser
     }
     
+    func getPartnerCode() -> String? {
+        return TheQManager.sharedInstance.apiToken ?? nil
+    }
+    
 //    func initialize() {
 //        TheQManager.sharedInstance.apiToken = ""
 //        mixpanelInstance =  Mixpanel.initialize(token: TQKConstants.MIXPANEL_TOKEN)

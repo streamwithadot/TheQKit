@@ -947,12 +947,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }
 
                 let popup = PopupDialog(title: title, message: message)
-                let buttonTwo = DefaultButton(title: "Okay!", dismissOnTap: true) {
+                let buttonOne = DefaultButton(title: "Okay", dismissOnTap: true) {
                     
                 }
-                popup.buttonAlignment = .horizontal
+                let buttonTwo = DefaultButton(title: "Share to SnapChat", dismissOnTap: true) {
+                    //TODO - fix for whitelabels
+                    TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
+                }
+                popup.buttonAlignment = .vertical
+                popup.addButtons([buttonOne])
                 popup.addButtons([buttonTwo])
-                
+
                 // Present dialog
                 self.present(popup, animated: true, completion: nil)
                 

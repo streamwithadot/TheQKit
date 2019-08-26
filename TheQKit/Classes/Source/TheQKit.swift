@@ -125,14 +125,13 @@ public class TheQKit {
     /// - Parameters:
     ///     - snapImage: Image to be used as a sticker in snapchats camera
     ///     - caption: Optional string to be used as the caption of snapchat story
-    /// - TODO: Refactor name
-    public class func testSnap(withImage snapImage:UIImage, caption:String?){
+    public class func shareToSnapChat(withImage snapImage:UIImage, caption:String?){
         
         if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
             let sticker = SCSDKSnapSticker(stickerImage: snapImage)
             let content = SCSDKNoSnapContent()
             content.sticker = sticker
-            content.attachmentUrl = "http://www.theq.live"
+            content.attachmentUrl = "https://app.adjust.com/a5lt94k"
             if(caption != nil){
                 content.caption = caption!
             }

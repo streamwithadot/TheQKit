@@ -150,12 +150,23 @@ PODS:
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
   - ObjectMapper (3.4.2)
+  - PINCache (2.3)
+  - PINOperation (1.1.1)
   - PopupDialog (0.9.2):
     - DynamicBlurView (~> 3.0.1)
   - Protobuf (3.7.0)
   - SDWebImage (4.4.6):
     - SDWebImage/Core (= 4.4.6)
   - SDWebImage/Core (4.4.6)
+  - SnapSDK (1.2.2):
+    - SnapSDK/SCSDKBitmojiKit (= 1.2.2)
+    - SnapSDK/SCSDKCreativeKit (= 1.2.2)
+    - SnapSDK/SCSDKLoginKit (= 1.2.2)
+  - SnapSDK/SCSDKBitmojiKit (1.2.2):
+    - PINCache (< 3.1, >= 2.3)
+    - PINOperation (~> 1.1)
+  - SnapSDK/SCSDKCreativeKit (1.2.2)
+  - SnapSDK/SCSDKLoginKit (1.2.2)
   - SwiftyAttributes (5.0.0)
   - SwiftyJSON (4.2.0)
   - TheQKit (0.1.1):
@@ -166,6 +177,7 @@ PODS:
     - Mixpanel-swift
     - ObjectMapper
     - PopupDialog
+    - SnapSDK
     - SwiftyAttributes
     - SwiftyJSON
     - Toast-Swift
@@ -211,9 +223,12 @@ SPEC REPOS:
     - Mixpanel-swift
     - nanopb
     - ObjectMapper
+    - PINCache
+    - PINOperation
     - PopupDialog
     - Protobuf
     - SDWebImage
+    - SnapSDK
     - SwiftyAttributes
     - SwiftyJSON
     - Toast-Swift
@@ -254,12 +269,15 @@ SPEC CHECKSUMS:
   Mixpanel-swift: dd5e3353d59274ec230f942d8646f1cfc49aaa5c
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   ObjectMapper: 0d4402610f4e468903ae64629eec4784531e5c51
+  PINCache: ce36ed282031b92fc7733ffe831f474ff80fddc2
+  PINOperation: a6219e6fc9db9c269eb7a7b871ac193bcf400aac
   PopupDialog: f4bb461bf70ff422be0b56656566424ee9273080
   Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
+  SnapSDK: 16d505e0e5a9340c49ce767f3131f4af76fe29e8
   SwiftyAttributes: a6e7bbac1e9a9f5c0b42e4055563ca091dda03ad
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
-  TheQKit: 4575a47fbfa291f0634c6393bb46c7e29103920d
+  TheQKit: 7cc6bd0d5851cd5252304158f2d59969ef0e2f27
   Toast-Swift: e42a638589a2f95036b4bb7626cfbdde7daf0393
   TwitterCore: 8cbc9ad34d91c63a0035ea05bfbfc0d7ca72a28c
   TwitterKit: 5e4f41d70b9abdb41df5467f52d7aa2c0fd26ebb

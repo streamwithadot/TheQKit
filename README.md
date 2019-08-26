@@ -18,10 +18,10 @@ To run the example project, clone the repo, and run `pod install` from the Examp
     2a) For Firebase this includes adding the GoogleServices.plist file and any info.plist modifications
     2b) For AccountKit modifications to the app's info.plist are necessary
     
-    3) Sharing to snapchat is provided through the SDK, if the `SCSDKClientID` is found in the target's info.plist file it will use the account associated with that (or fail without it)
+3) Sharing to snapchat is provided through the SDK, if the `SCSDKClientID` is found in the target's info.plist file it will use the account associated with that (or fail without it)
 
 
-# Installation
+# Installation 
 
 **NOT YET AVALIABLE**
 TheQKit is available through [CocoaPods](https://cocoapods.org). To install
