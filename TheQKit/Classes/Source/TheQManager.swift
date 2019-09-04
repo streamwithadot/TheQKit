@@ -80,6 +80,12 @@ class TheQManager {
     // MARK: functions
     
     func updateUserObject(){
+        
+        if(TheQManager.sharedInstance.getUser() == nil){
+            return
+        }
+        
+        print("testing this")
         let userUrl = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
         if UserDefaults.standard.object(forKey: "myTokens") != nil{
             let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
@@ -623,25 +629,55 @@ class TheQManager {
         //        player?.prepareToPlay()
         //        player?.play()
         
+        //TEST - FullScreen Questions
+
+                if let path = TheQKit.bundle.path(forResource: "testQuestion", ofType: "json") {
+                    do {
+                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .alwaysMapped)
+                        let jsonObj = try JSON(data: data)
+                        print("jsonData:\(jsonObj)")
+        
+                        let qu = TQKQuestion(JSON: jsonObj.dictionaryObject!)
+
+                        let sb = UIStoryboard(name: "Games", bundle: TheQKit.bundle)
+
+                        let testVC = sb.instantiateViewController(withIdentifier: "FullScreenTriviaViewController") as? FullScreenTriviaViewController
+                        let vc = UIApplication.topViewController()
+                        testVC?.view.frame = CGRect(x:0, y:0, width: vc!.view.frame.width, height: vc!.view.frame.height)
+                        testVC?.view.alpha = 1.0
+                        //        testVC?.leaderboardDelegate = self.leaderboardDelegate
+                        //        testVC?.gameDelegate = self
+                        testVC?.question = qu
+                        testVC?.type = .Question
+
+                        vc!.addChild(testVC!)
+                        vc!.view.addSubview(testVC!.view)
+                        testVC!.didMove(toParent: vc!)
+                    } catch let error {
+                        print("parse error: \(error.localizedDescription)")
+                    }
+                } else {
+                    print("Invalid filename/path.")
+                }
         //TEST - SS Questions
+
 //                if let path = TheQKit.bundle.path(forResource: "testQuestion", ofType: "json") {
 //                    do {
 //                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .alwaysMapped)
 //                        let jsonObj = try JSON(data: data)
 //                        print("jsonData:\(jsonObj)")
-//        
+//
 //                        let qu = TQKQuestion(JSON: jsonObj.dictionaryObject!)
 //
 //                        let sb = UIStoryboard(name: "Games", bundle: TheQKit.bundle)
 //
-//                        let testVC = sb.instantiateViewController(withIdentifier: "FullScreenTriviaViewController") as? FullScreenTriviaViewController
+//                        let testVC = sb.instantiateViewController(withIdentifier: "SSQuestionViewController") as? SSQuestionViewController
 //                        let vc = UIApplication.topViewController()
 //                        testVC?.view.frame = CGRect(x:0, y:0, width: vc!.view.frame.width, height: vc!.view.frame.height)
 //                        testVC?.view.alpha = 1.0
 //                        //        testVC?.leaderboardDelegate = self.leaderboardDelegate
 //                        //        testVC?.gameDelegate = self
 //                        testVC?.question = qu
-//                        testVC?.type = .Question
 //
 //                        vc!.addChild(testVC!)
 //                        vc!.view.addSubview(testVC!.view)
@@ -652,34 +688,6 @@ class TheQManager {
 //                } else {
 //                    print("Invalid filename/path.")
 //                }
-        
-                if let path = TheQKit.bundle.path(forResource: "testQuestion", ofType: "json") {
-                    do {
-                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .alwaysMapped)
-                        let jsonObj = try JSON(data: data)
-                        print("jsonData:\(jsonObj)")
-        
-                        let qu = TQKQuestion(JSON: jsonObj.dictionaryObject!)
-        
-                        let sb = UIStoryboard(name: "Games", bundle: TheQKit.bundle)
-        
-                        let testVC = sb.instantiateViewController(withIdentifier: "SSQuestionViewController") as? SSQuestionViewController
-                        let vc = UIApplication.topViewController()
-                        testVC?.view.frame = CGRect(x:0, y:0, width: vc!.view.frame.width, height: vc!.view.frame.height)
-                        testVC?.view.alpha = 1.0
-                        //        testVC?.leaderboardDelegate = self.leaderboardDelegate
-                        //        testVC?.gameDelegate = self
-                        testVC?.question = qu
-                        
-                        vc!.addChild(testVC!)
-                        vc!.view.addSubview(testVC!.view)
-                        testVC!.didMove(toParent: vc!)
-                    } catch let error {
-                        print("parse error: \(error.localizedDescription)")
-                    }
-                } else {
-                    print("Invalid filename/path.")
-                }
         
         
     }

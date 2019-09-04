@@ -950,8 +950,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 let buttonOne = DefaultButton(title: "Okay", dismissOnTap: true) {
                     
                 }
-                let buttonTwo = DefaultButton(title: "Share to SnapChat", dismissOnTap: true) {
+                let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
                     //TODO - fix for whitelabels
+                    let object : [String:Any] = ["Type" : "Game Won"]
+                    NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
+                    
                     TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
                 }
                 popup.buttonAlignment = .vertical

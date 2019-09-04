@@ -116,7 +116,7 @@ public class TheQKit {
     /// 
     /// - TODO: Should probably remove this function, may crash
     public class func testVideo(){
-//       TheQManager.sharedInstance.playTest()
+       TheQManager.sharedInstance.playTest()
         //i like to lick toad ass
     }
     
@@ -182,6 +182,13 @@ public class TheQKit {
         return TheQManager.sharedInstance.getUser()
     }
     
+    /// Returns the partnerCode, or nil
+    ///
+    /// - Returns: partnerCode, nil if not set
+    public class func getPartnerCode() -> String? {
+        return TheQManager.sharedInstance.getPartnerCode()
+    }
+    
     /// Manually refreshes tokens
     public class func refreshTokens(completionHandler: @escaping (_ success : Bool) -> Void) {
         TheQManager.sharedInstance.refreshToken(completionHandler: completionHandler)
@@ -230,6 +237,7 @@ extension Notification.Name {
     
     static let playQuestionAudio = Notification.Name("TQK_PLAY_QUESTION_AUDIO")
     static let stopQuestionAudio = Notification.Name("TQK_STOP_QUESTION_AUDIO")
-
+    
+    static let sharedToSnapchat = Notification.Name("TQK_SNAPCHAT_SHARE")
 }
 
