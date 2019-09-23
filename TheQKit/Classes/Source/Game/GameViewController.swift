@@ -562,9 +562,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     self.launchFullScreenTrivia(.Incorrect)
                 }
                 
-                self.launchFullScreenTrivia(.Incorrect)
-
-                
                 if(self.currentResult.selection != nil){
                     if(self.currentQuestion != nil){
                         
