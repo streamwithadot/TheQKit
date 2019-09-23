@@ -88,7 +88,7 @@ public struct TQKGame : Mappable {
     public var gameType : String = "TRIVIA"
     public var adCode : String?
     public var testMode : Bool = false
-    public var audioOnly : Bool = false
+    public var videoDisabled : Bool = false
     public var backgroundImageUrl : String?
     
     public init?(map: Map) {
@@ -117,7 +117,7 @@ public struct TQKGame : Mappable {
         gameType <- map["gameType"]
         adCode <- map["adCode"]
         testMode <- map["testMode"]
-        audioOnly <- map["audioOnly"]
+        videoDisabled <- map["videoDisabled"]
         backgroundImageUrl <- map["backgroundImageUrl"]
         
         //TEST CODE

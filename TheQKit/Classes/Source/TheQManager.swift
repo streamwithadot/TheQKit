@@ -36,7 +36,12 @@ class TheQManager {
     }
     
     func getPartnerCode() -> String? {
-        return TheQManager.sharedInstance.apiToken ?? nil
+        
+        if TheQManager.sharedInstance.apiToken != nil && !(TheQManager.sharedInstance.apiToken!.isEmpty){
+            return TheQManager.sharedInstance.apiToken
+        }else{
+            return nil
+        }
     }
     
 //    func initialize() {
