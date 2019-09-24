@@ -947,16 +947,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 let buttonOne = DefaultButton(title: "Okay", dismissOnTap: true) {
                     
                 }
-                let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
-                    //TODO - fix for whitelabels
-                    let object : [String:Any] = ["Type" : "Game Won"]
-                    NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
-                    
-                    TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
-                }
+                
                 popup.buttonAlignment = .vertical
                 popup.addButtons([buttonOne])
-                popup.addButtons([buttonTwo])
+                if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
+                    let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
+                        //TODO - fix for whitelabels
+                        let object : [String:Any] = ["Type" : "Game Won"]
+                        NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
+                        
+                        TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
+                    }
+                    popup.addButtons([buttonTwo])
+                }
+                
 
                 // Present dialog
                 self.present(popup, animated: true, completion: nil)
