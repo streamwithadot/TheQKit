@@ -303,7 +303,7 @@ class TheQManager {
         }
     }
     
-    func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false) {
+    func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false,completed: @escaping (_ success : Bool) -> Void ) {
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
@@ -319,6 +319,7 @@ class TheQManager {
         vc.heartsEnabled = theGame.heartsEnabled
         vc.useLongTimer = useLongTimer!
         vc.theGame = theGame
+        vc.completed = completed
         
         if(colorCode != nil){
             vc.colorOverride = colorCode
@@ -326,7 +327,9 @@ class TheQManager {
         
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
-                topController.present(vc, animated: true) {}
+                topController.present(vc, animated: true) {
+                    
+                }
             })
         }
     }

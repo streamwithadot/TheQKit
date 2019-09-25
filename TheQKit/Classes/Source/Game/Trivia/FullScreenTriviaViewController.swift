@@ -365,6 +365,23 @@ class FullScreenTriviaViewController: UIViewController {
             
             if(self.result != nil){
                 
+                self.questionLabelB.text = self.result?.choices?[1].choice
+                self.questionLabelC.text = self.result?.choices?[0].choice
+                
+                if (self.result?.choices?[1].correct)!{
+                    // set progress view collor to green
+                    self.imageViewB.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+
+                }else if (self.result?.choices?[0].correct)!{
+                    // set progress view collor to green
+                    self.imageViewC.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                }
+                
+                
                 if((self.result?.choices!.count)! > 2){
                     self.questionLabelA.text = self.result?.choices?[2].choice
                     if (self.result?.choices?[2].correct)!{
@@ -387,21 +404,6 @@ class FullScreenTriviaViewController: UIViewController {
                             self.imageViewA.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
                         }
                     }
-                }
-                self.questionLabelB.text = self.result?.choices?[1].choice
-                self.questionLabelC.text = self.result?.choices?[0].choice
-                
-                if (self.result?.choices?[1].correct)!{
-                    // set progress view collor to green
-                    self.imageViewB.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-
-                }else if (self.result?.choices?[0].correct)!{
-                    // set progress view collor to green
-                    self.imageViewC.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                 }
                 
                 if(self.result?.selection != nil){

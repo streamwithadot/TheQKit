@@ -95,8 +95,8 @@ public class TheQKit {
     ///     - theGame: TQKGame object
     ///     - colorCode: *Optional* override the color theme of the game
     ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
-    public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false){
-        TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer)
+    public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false, completed: @escaping (_ success : Bool) -> Void ){
+        TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer, completed: completed)
     }
     
     /// Launches the most recent active game

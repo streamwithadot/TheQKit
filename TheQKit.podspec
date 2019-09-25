@@ -66,6 +66,8 @@ TODO: Add long description of the pod here.
   s.dependency 'ijkplayer', '1.1.2'
   
   s.dependency 'SnapSDK'
+  
+  s.dependency 'IKEventSource'
 
   
 end

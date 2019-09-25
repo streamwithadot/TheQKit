@@ -134,7 +134,9 @@ extension TQKCardsViewController : UICollectionViewDelegate {
             let game = self.games![indexPath.item]
             
             if((game.active)){
-                TheQKit.LaunchGame(theGame: game)
+                TheQKit.LaunchGame(theGame: game) {_ in
+                    //do something?
+                }
             }else{
                 if(game.subscriberOnly){
                     //TODO : support this in SDK

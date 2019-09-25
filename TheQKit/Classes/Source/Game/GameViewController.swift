@@ -20,6 +20,8 @@ import ObjectMapper
 import SwiftyJSON
 import Lottie
 
+import IKEventSource
+
 //test
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Class
@@ -85,6 +87,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         set { self._orientations = newValue }
     }
     
+    var completed : ((Bool) -> Void)?
     
     @IBOutlet weak var spinnerView: SpinnerView!
     
@@ -383,7 +386,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     
     @IBAction func close(_ sender: UIButton) {
-        self.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true) {
+            self.completed!(true)
+        }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -741,64 +746,58 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         let baseUrl:String = "https://\(self.sseHost!)/v2/"
         let gameUrl = baseUrl + "event-feed/games/" + (myGameId!)
         guard let newUrl = URL(string: gameUrl) else {
-            self.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: true){
+                self.completed!(true)
+            }
             return
         }
         
         if(eSource != nil){
-            eSource?.close()
+            eSource?.disconnect()
             eSource = nil
         }
         
-        eSource = EventSource.init(url: newUrl, timeoutInterval: 15)
-        
-        eSource?.onError({ (event) in
-            print("error")
-        })
-        
-        eSource?.onOpen({ (event) in
+        let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
+        let finalBearerToken:String = "Bearer " + myTokens.accessToken!
+        eSource = EventSource(url: newUrl, headers: ["Authorization": finalBearerToken])
+                
+        eSource?.onOpen { [weak self] in
             print("onOpen")
-
-        })
+        }
         
-        eSource?.onReadyStateChanged({ (event) in
-            print("onReadyStateChanged")
-
-        })
         
-        eSource?.addEventListener("QuestionStart") { (e) in
-            var json = JSON.init(parseJSON: e!.data)
-            
+        eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
+                        
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
             
-            self.start = CACurrentMediaTime()
+            self?.start = CACurrentMediaTime()
             
-            self.currentQuestion = TQKQuestion(JSONString: (e?.data)!)
+            self?.currentQuestion = TQKQuestion(JSONString: data!)
             
-            self.currentEndQuestion = nil
-            self.userSubmittedAnswer = false
-            self.isQuestionActive = true
+            self?.currentEndQuestion = nil
+            self?.userSubmittedAnswer = false
+            self?.isQuestionActive = true
             
             
             DispatchQueue.main.async(execute: {
-                let num : String = String(describing: self.currentQuestion.number)
-                let total : String = String(describing: self.currentQuestion.total)
-                if(self.currentQuestion.total != 0){
-                    self.currentQuestionNumberLabel.text = "\(num) / \(total)"
-                    self.currentQuestionNumberLabel.isHidden = false
+                let num : String = String(describing: self!.currentQuestion.number)
+                let total : String = String(describing: self!.currentQuestion.total)
+                if(self!.currentQuestion.total != 0){
+                    self!.currentQuestionNumberLabel.text = " \(num) / \(total) "
+                    self!.currentQuestionNumberLabel.isHidden = false
                     //                self.currentQuestionNumberLabel.sizeToFit()
                     
                 }else{
-                    self.currentQuestionNumberLabel.text = "Q \(num)"
-                    self.currentQuestionNumberLabel.isHidden = false
+                    self!.currentQuestionNumberLabel.text = "Q \(num)"
+                    self!.currentQuestionNumberLabel.isHidden = false
                     //                self.currentQuestionNumberLabel.sizeToFit()
                 }
             })
             
-            if(self.currentQuestion.number >= self.lastQuestionHeartEligible){
+            if(self!.currentQuestion.number >= self!.lastQuestionHeartEligible){
                 //                self.heartAnimationView?.removeFromSuperview()
                 //                UIView.animate(withDuration: 1.0, animations: {
-                for views in self.heartContainerView.subviews {
+                for views in (self?.heartContainerView.subviews)! {
                     views.removeFromSuperview()
                 }
                 
@@ -806,21 +805,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     let heartImageView = UIImageView(image: UIImage(named: "heartUnavaliable", in: TheQKit.bundle, compatibleWith: nil))
                     heartImageView.contentMode = .scaleAspectFit
                     heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
-                    self.heartContainerView.addSubview(heartImageView)
+                    self?.heartContainerView.addSubview(heartImageView)
                 })
             }
             
             DispatchQueue.main.async(execute: {
                 
-                self.launchFullScreenTrivia(.Question)
+                self?.launchFullScreenTrivia(.Question)
                 
             })
         }
         
-        eSource?.addEventListener("QuestionEnd") { (e) in
-            var json = JSON.init(parseJSON: e!.data)
-            self.currentEndQuestion =  TQKResult(JSONString: (e?.data)!)
-            self.handleQuestionEnd()
+        eSource?.addEventListener("QuestionEnd") { [weak self] id, event, data in
+            self?.currentEndQuestion =  TQKResult(JSONString: data!)
+            self?.handleQuestionEnd()
             
             /*
              QuestionEnd %@ {
@@ -839,58 +837,57 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
              */
         }
         
-        eSource?.addEventListener("QuestionResult") { (e) in
-            var json = JSON.init(parseJSON: e!.data)
-            self.currentResult = TQKResult(JSONString: (e?.data)!)
-            self.stopCountDownTimer()
-            self.stopShortTimer()
-            self.handleQuestionResult()
+        eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            self?.currentResult = TQKResult(JSONString: data!)
+            self?.stopCountDownTimer()
+            self?.stopShortTimer()
+            self?.handleQuestionResult()
         }
         
-        eSource?.addEventListener("GameEnded") { (e) in
-            var json = JSON.init(parseJSON: e!.data)
-            self.eSource?.close()
-            self.eSource = nil
-            self.dismiss(animated: true, completion: { })
+        eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            var json = JSON.init(parseJSON: data!)
+            self?.eSource?.disconnect()
+            self?.eSource = nil
+            self?.dismiss(animated: true, completion: {
+                self?.completed!(true)
+            })
         }
         
-        eSource?.addEventListener("ViewCountUpdate") { (e) in
-            var json = JSON.init(parseJSON: e!.data)
+        eSource?.addEventListener("ViewCountUpdate") { [weak self] id, event, data in
+            var json = JSON.init(parseJSON: data!)
             DispatchQueue.main.async(execute: {
-                self.viewCount.text = json["viewCnt"].stringValue
+                self?.viewCount.text = json["viewCnt"].stringValue
                 
             })
         }
         
-        eSource?.addEventListener("GameWarn") { (e) in
-            //            var json = JSON.parse((e?.data)!)
-            let seconds : TimeInterval = 20 //TimeInterval(json["duration"].doubleValue).truncatingRemainder(dividingBy: 60)
-            let interval = seconds / 5
-            
-            DispatchQueue.main.async(execute: {
-                //vibrate 5 times over 20 seconds
-                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
-                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
-                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
-                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
-                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
-                
-                
-                //show "get ready" screen for 1 x interval
-                //                self.getReadyView.isHidden = false
-                self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
-                
-                //show "countdown" screen for 4 x interval
-                let secondsToShow = Int(seconds) - 5
-                self.gameWarnCountdownLabel.text = String(secondsToShow)
-                self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
-            })
-        }
-        
-        eSource?.addEventListener("GameWinners") { (e) in
+//        eSource?.addEventListener("GameWarn") { [weak self] id, event, data in
+//            //            var json = JSON.parse((e?.data)!)
+//            let seconds : TimeInterval = 20 //TimeInterval(json["duration"].doubleValue).truncatingRemainder(dividingBy: 60)
+//            let interval = seconds / 5
+//
+//            DispatchQueue.main.async(execute: {
+//                //vibrate 5 times over 20 seconds
+//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
+//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
+//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
+//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
+//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
+//
+//
+//                //show "get ready" screen for 1 x interval
+//                //                self.getReadyView.isHidden = false
+//                self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
+//
+//                //show "countdown" screen for 4 x interval
+//                let secondsToShow = Int(seconds) - 5
+//                self.gameWarnCountdownLabel.text = String(secondsToShow)
+//                self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
+//            })
+//        }
+        eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
             //show winners screen
-            var json = JSON.init(parseJSON: e!.data)
-            let gameWinners = GameWinners(JSONString: (e?.data)!)
+            let gameWinners = GameWinners(JSONString: data!)
             
             DispatchQueue.main.async(execute: {
                 
@@ -900,31 +897,31 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
                 let bundle = Bundle(url: bundleURL!)!
                 let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)                // I have identified the view inside my storyboard.
-                self.gameWinnersViewController = sb.instantiateViewController(withIdentifier: "GameWinnersViewController") as? GameWinnersViewController
+                self?.gameWinnersViewController = sb.instantiateViewController(withIdentifier: "GameWinnersViewController") as? GameWinnersViewController
                 
                 // These values can be played around with, depending on how much you want the view to show up when it starts.
-                self.gameWinnersViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
-                self.gameWinnersViewController?.view.alpha = 1.0
+                self?.gameWinnersViewController?.view.frame = CGRect(x:0, y:0, width: (self?.view.frame.width)!, height: (self?.view.frame.height)!)
+                self?.gameWinnersViewController?.view.alpha = 1.0
                 
-                self.gameWinnersViewController?.reward = self.reward
-                self.gameWinnersViewController?.gameWinners = gameWinners
+                self?.gameWinnersViewController?.reward = self?.reward
+                self?.gameWinnersViewController?.gameWinners = gameWinners
                 
-                self.addChild(self.gameWinnersViewController!)
+                self?.addChild((self?.gameWinnersViewController!)!)
                 
-                self.view.insertSubview(self.gameWinnersViewController!.view, belowSubview: self.exitButton)
+                self?.view.insertSubview((self?.gameWinnersViewController!.view)!, belowSubview: self!.exitButton)
                 
-                self.gameWinnersViewController?.didMove(toParent: self)
+                self?.gameWinnersViewController?.didMove(toParent: self!)
                 
-                self.gameWinnersViewController?.gameWinnerTableView.reloadData()
+                self?.gameWinnersViewController?.gameWinnerTableView.reloadData()
                 
             })
         }
         
-        eSource?.addEventListener("GameWon", handler: { (e) in
+        eSource?.addEventListener("GameWon") { [weak self] id, event, data in
             //listen for gamewon event
             DispatchQueue.main.async(execute: {
                 
-                var json = JSON.init(parseJSON: e!.data)
+                var json = JSON.init(parseJSON: data!)
 
                 NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
 
@@ -937,7 +934,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 let title =  NSLocalizedString("Winner!", comment: "")
 
                 var message = ""
-                if(self.useLongTimer){
+                if(self!.useLongTimer){
                     message = "You WON \(asd ?? " ") voucher! Congrats and thanks for playing \(TQKConstants.appName)! Your balance usually updates within 5 minutes."
                 }else{
                     message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), asd ?? " ", TQKConstants.appName)
@@ -963,56 +960,55 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 
 
                 // Present dialog
-                self.present(popup, animated: true, completion: nil)
+                self!.present(popup, animated: true, completion: nil)
                 
                 
             })
-        })
+        }
         
-        eSource?.addEventListener("GameStatus") { (e) in
+        eSource?.addEventListener("GameStatus") { [weak self] id, event, data in
             
-            var json = JSON.init(parseJSON: e!.data)
-            let gameStatus = TQKGameStatus(JSONString: (e?.data)!)
+            let gameStatus = TQKGameStatus(JSONString: data!)
             
             //Always keep heart status up to date
-            self.heartsEnabled = (gameStatus?.heartEligible)!
-            if(gameStatus?.active == true && self.heartsEnabled){
+            self!.heartsEnabled = (gameStatus?.heartEligible)!
+            if(gameStatus?.active == true && self!.heartsEnabled){
                 
                 DispatchQueue.main.async(execute: {
                     let heartImageView = UIImageView(image: UIImage(named: "heartAvaliable", in: TheQKit.bundle, compatibleWith: nil))
                     heartImageView.contentMode = .scaleAspectFit
                     heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
-                    self.heartContainerView.addSubview(heartImageView)
+                    self!.heartContainerView.addSubview(heartImageView)
                     UIView.animate(withDuration: 1.0, animations: {
-                        self.heartContainerView.alpha = 1.0
+                        self!.heartContainerView.alpha = 1.0
                     })
                 })
                 
                 //see if we have left the game and came back and used the heart - may not be needed anymore with question result event tracking - TODO
                 let userDefaults = UserDefaults.standard
-                self.didUseHeart = userDefaults.bool(forKey: "usedHeartFor\(self.myGameId!)")
+                self!.didUseHeart = userDefaults.bool(forKey: "usedHeartFor\(self!.myGameId!)")
             }else{
                 //eliminated or hearts disabled - either way this variable keeps it from being used by accident
-                self.didUseHeart = true
+                self!.didUseHeart = true
             }
 
             //TODO add - don't make this happen on a reconnect (maybe count how many times per games we recieve this)
-            self.gameStatusReceivedCount += 1
-            if(self.gameStatusReceivedCount > 1){
+            self!.gameStatusReceivedCount += 1
+            if(self!.gameStatusReceivedCount > 1){
                 //case for reconnect
-                if(gameStatus?.question != nil && self.isQuestionActive == false ){
+                if(gameStatus?.question != nil && self!.isQuestionActive == false ){
                     //show question to user maybe?
-                    self.currentQuestion = gameStatus?.question
-                    self.currentEndQuestion = nil
-                    if(self.currentQuestion.questionId == nil){
-                        self.currentQuestion.questionId = gameStatus?.question?.id
+                    self!.currentQuestion = gameStatus?.question
+                    self!.currentEndQuestion = nil
+                    if(self!.currentQuestion.questionId == nil){
+                        self!.currentQuestion.questionId = gameStatus?.question?.id
                     }
                     
                     DispatchQueue.main.async(execute: {
-                        self.isQuestionActive = true
-                        self.start = CACurrentMediaTime()
+                        self!.isQuestionActive = true
+                        self!.start = CACurrentMediaTime()
 
-                        self.launchFullScreenTrivia(.Question)
+                        self!.launchFullScreenTrivia(.Question)
                     })
 
                 }
@@ -1023,7 +1019,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     DispatchQueue.main.async(execute: {
                         
                         let userDefaults = UserDefaults.standard
-                        let answersSaved = userDefaults.object(forKey: self.myGameId!) as? String
+                        let answersSaved = userDefaults.object(forKey: self!.myGameId!) as? String
                         if (answersSaved != "eliminated"){
                             // Prepare the popup assets
                             let title = "Sorry, you've joined late, or were previously eliminated"
@@ -1036,32 +1032,35 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             popup.addButtons([buttonTwo])
                             
                             // Present dialog
-                            self.present(popup, animated: true, completion: nil)
+                            self!.present(popup, animated: true, completion: nil)
                         }
                         
-                        self.eliminateUser()
+                        self!.eliminateUser()
                         
                     })
                     
                 }
                 
-                if(gameStatus?.question != nil && self.isQuestionActive == false ){
+                if(gameStatus?.question != nil && self!.isQuestionActive == false ){
                     //show question to user maybe?
-                    self.currentQuestion = gameStatus?.question
-                    self.currentEndQuestion = nil
-                    if(self.currentQuestion.questionId == nil){
-                        self.currentQuestion.questionId = gameStatus?.question?.id
+                    self!.currentQuestion = gameStatus?.question
+                    self!.currentEndQuestion = nil
+                    if(self!.currentQuestion.questionId == nil){
+                        self!.currentQuestion.questionId = gameStatus?.question?.id
                     }
                     
                     DispatchQueue.main.async(execute: {
-                        self.isQuestionActive = true
-                        self.start = CACurrentMediaTime()
-                        self.launchFullScreenTrivia(.Question)
+                        self!.isQuestionActive = true
+                        self!.start = CACurrentMediaTime()
+                        self!.launchFullScreenTrivia(.Question)
                     })
 
                 }
             }
         }
+        
+        eSource?.connect()
+
     }
     
     //    func testGameWarn(){
@@ -1147,7 +1146,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         // This button will not the dismiss the dialog
         let buttonTwo = DefaultButton(title: "Yes", dismissOnTap: true) {
-            self.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: true){
+                self.completed!(true)
+            }
         }
         
         // Add buttons to dialog
@@ -1374,7 +1375,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         NotificationCenter.default.removeObserver(player)
         
         if(self.eSource != nil){
-            self.eSource?.close()
+            self.eSource?.disconnect()
             self.eSource = nil
         }
         
@@ -1410,6 +1411,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        if #available(iOS 13.0, *) {
+            self.isModalInPresentation = true
+        } else {
+            // Fallback on earlier versions
+        }
+        
         self.checkIfScreenIsCapturedNoNotification()
         
         if (myGameId != nil && !(myGameId?.isEmpty)!) {
@@ -1438,7 +1445,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }else{
             //get a game ID and join
 //            self.getGameId()
-            self.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: true){
+                self.completed!(true)
+            }
         }
         
         //Test the game countdown without SSE event
