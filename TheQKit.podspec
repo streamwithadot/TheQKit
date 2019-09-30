@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '1.0.0'
-  s.summary          = 'A short description of TheQKit.'
+  s.version          = '1.0.1'
+  s.summary          = 'TheQKit SDK allows your own app to run game from The Q Trivia Network'
   
   s.swift_version = '4.2'
   # s.static_framework = true
@@ -26,7 +26,7 @@ TODO: Add long description of the pod here.
 
   s.homepage         = 'https://github.com/streamwithadot/TheQKit'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  # s.license          = { :type => 'MIT', :file => 'LICENSE' }
+   s.license          = { :type => 'proprietary', :file => 'LICENSE' }
   s.author           = { 'Spohn' => 'spohn@stre.am' }
   s.source           = { :git => 'https://github.com/streamwithadot/TheQKit.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
