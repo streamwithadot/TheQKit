@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '0.1.1'
+  s.version          = '1.0.0'
   s.summary          = 'A short description of TheQKit.'
   
   s.swift_version = '4.2'
