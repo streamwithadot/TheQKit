@@ -173,7 +173,7 @@ extension Notification.Name {
 
 ## Known Issues, Dependency Awareness, and Goals
 
-This is a beta version of our SDK for playing The Q network games; issues are expected and currently the dependency list is larger than it should be. In future versions we would like to trim down the number of dependencies this framework requires.
+This is first release of our SDK for playing The Q network games; issues are expected and currently the dependency list is larger than it should be. In future versions we would like to trim down the number of dependencies this framework requires.
 
 ## Author
 
