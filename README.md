@@ -1,8 +1,6 @@
 # TheQKit
 
-[![CI Status](https://img.shields.io/travis/Spohn/TheQKit.svg?style=flat)](https://travis-ci.org/Spohn/TheQKit)
 [![Version](https://img.shields.io/cocoapods/v/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
-[![License](https://img.shields.io/cocoapods/l/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 [![Platform](https://img.shields.io/cocoapods/p/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 
 # Example

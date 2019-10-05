@@ -13,7 +13,7 @@ import AdSupport
 
 public struct TQKPlayer {
     
-    public init(username: String, email: String, authData: TQKFacebookAuth,optInBool:Bool, apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?) {
+    public init(username: String, email: String, authData: TQKFacebookAuth,optInBool:Bool, apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?,autoHandleUsernameCollision:Bool) {
         self.username = username
         self.email = email
         self.authData = authData
@@ -22,6 +22,7 @@ public struct TQKPlayer {
         self.deviceId = deviceId
         self.type = type
         self.optInBool = optInBool
+        self.autoHandleUsernameCollision = autoHandleUsernameCollision
     }
     
     
@@ -33,13 +34,15 @@ public struct TQKPlayer {
     public var firebaseToken : String!
     public var deviceId : String!
     public var type : String!
-    
+    public var autoHandleUsernameCollision : Bool = false
+
     public var dictionaryRepresentation: [String: Any] {
 
     let idfa = ASIdentifierManager.shared().advertisingIdentifier
         
         return
             ["username" : username,
+             "autoHandleUsernameCollision" : autoHandleUsernameCollision,
              "device" :  ["id":deviceId!,
                           "type":type!,
                           "token":apnToken!,
@@ -60,7 +63,7 @@ public struct TQKPlayer {
 
 public class TQKAKPlayer {
     
-    public init(username: String, email: String, accountKit: TQKAccountKitAuth,optInBool:Bool,apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?) {
+    public init(username: String, email: String, accountKit: TQKAccountKitAuth,optInBool:Bool,apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?,autoHandleUsernameCollision:Bool) {
         self.username = username
         self.email = email
         self.accountKit = accountKit
@@ -69,6 +72,7 @@ public class TQKAKPlayer {
         self.deviceId = deviceId
         self.type = type
         self.optInBool = optInBool
+        self.autoHandleUsernameCollision = autoHandleUsernameCollision
     }
     
     public var username: String
@@ -79,6 +83,7 @@ public class TQKAKPlayer {
     public var firebaseToken : String!
     public var deviceId : String!
     public var type : String!
+    public var autoHandleUsernameCollision : Bool = false
 
     public var dictionaryRepresentationAK: [String: Any] {
 
@@ -86,6 +91,7 @@ public class TQKAKPlayer {
         
         return
             ["username" : username,
+             "autoHandleUsernameCollision" : autoHandleUsernameCollision,
              "device" :  ["id":deviceId!,
                           "type":type!,
                           "token":apnToken!,
@@ -105,6 +111,19 @@ public class TQKAKPlayer {
 }
 
 public struct TQKFirebasePlayer {
+    
+    public init(username: String, email: String, firebaseAuth: TQKFirebaseAuth,optInBool:Bool,apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?,autoHandleUsernameCollision:Bool) {
+        self.username = username
+        self.email = email
+        self.firebaseAuth = firebaseAuth
+        self.apnToken = apnToken
+        self.firebaseToken = firebaseToken
+        self.deviceId = deviceId
+        self.type = type
+        self.optInBool = optInBool
+        self.autoHandleUsernameCollision = autoHandleUsernameCollision
+    }
+    
     public var username: String
     public var email: String
     public var firebaseAuth: TQKFirebaseAuth
@@ -113,12 +132,13 @@ public struct TQKFirebasePlayer {
     public var firebaseToken : String!
     public var deviceId : String!
     public var type : String!
-    
+    public var autoHandleUsernameCollision : Bool = false
+
     public var dictionaryRepresentationFirebase: [String: Any] {
         
         return
             ["username" : username,
-             "autoHandleUsernameCollision": true,
+             "autoHandleUsernameCollision": autoHandleUsernameCollision,
              "authData" : [
                 "firebase": [
                     "id": firebaseAuth.id,
@@ -131,6 +151,19 @@ public struct TQKFirebasePlayer {
 }
 
 public struct TQKCommonPlayer {
+    
+    public init(username: String, email: String, commonAuth: TQKCommonAuth,optInBool:Bool,apnToken: String?, firebaseToken: String?, deviceId: String?, type: String?,autoHandleUsernameCollision:Bool) {
+        self.username = username
+        self.email = email
+        self.commonAuth = commonAuth
+        self.apnToken = apnToken
+        self.firebaseToken = firebaseToken
+        self.deviceId = deviceId
+        self.type = type
+        self.optInBool = optInBool
+        self.autoHandleUsernameCollision = autoHandleUsernameCollision
+    }
+    
     public var username: String
     public var email: String
     public var commonAuth: TQKCommonAuth
@@ -139,12 +172,13 @@ public struct TQKCommonPlayer {
     public var firebaseToken : String!
     public var deviceId : String!
     public var type : String!
+    public var autoHandleUsernameCollision : Bool = true
     
     public var dictionaryRepresentationFirebase: [String: Any] {
         
         return
             ["username" : username,
-             "autoHandleUsernameCollision": true,
+             "autoHandleUsernameCollision": autoHandleUsernameCollision,
              "authData" : [
                 commonAuth.provider: [
                     "id": commonAuth.id,

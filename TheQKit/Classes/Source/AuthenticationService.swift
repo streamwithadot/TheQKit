@@ -170,7 +170,7 @@ class AuthenticationService {
                                         apnToken: UserDefaults.standard.string(forKey: "apnToken") ?? "",
                                         firebaseToken: UserDefaults.standard.string(forKey: "firebaseToken") ?? "",
                                         deviceId: UIDevice.current.identifierForVendor!.uuidString,
-                                        type: "IOS")
+                                        type: "IOS", autoHandleUsernameCollision: true)
         params = newUser.dictionaryRepresentationFirebase
         
         print(params)
