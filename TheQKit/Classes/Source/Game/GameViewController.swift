@@ -22,6 +22,8 @@ import Lottie
 
 import IKEventSource
 
+import Mixpanel
+
 //test
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Class
@@ -329,8 +331,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
-                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
-                let object : [String:Any] = ["gameID" : self.theGame?.id,
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String:Any])!
+                let object : Properties = ["gameID" : self.theGame!.id!,
                                              "userID" : myUser.id!,
                                              "username" : myUser.username!,
                                              "numberOfScreens" : "\(UIScreen.screens.count)" ]
@@ -339,8 +341,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }else{
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
-                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
-                let object : [String:Any] = ["gameID" : self.theGame?.id,
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String:Any])!
+                let object : Properties = ["gameID" : self.theGame!.id!,
                                              "userID" : myUser.id!,
                                              "username" : myUser.username!]
                 NotificationCenter.default.post(name: .airplayDetected, object: object)
@@ -511,7 +513,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 
                 if(self.currentQuestion != nil && !self.currentQuestion.wasMarkedIneligibleForTracking){
                     
-                    let object : [String:Any] = ["gameID" : self.myGameId!,
+                    let object : Properties = ["gameID" : self.myGameId!,
                                                  "questionID" : self.currentResult.questionId!,
                                                  "choiceID" : self.currentResult.selection!,
                                                  "eliminatedFlag": self.userEliminated,
@@ -522,7 +524,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     NotificationCenter.default.post(name: .correctAnswerSubmitted, object: object)
 
                 }else{
-                    let object : [String:Any] = ["gameID" : self.myGameId!,
+                    let object : Properties = ["gameID" : self.myGameId!,
                                                  "questionID" : self.currentResult.questionId!,
                                                  "choiceID" : self.currentResult.selection!,
                                                  "eliminatedFlag": self.userEliminated]
@@ -536,7 +538,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 //Check here to launch the game sub offer
                 
                 let userDefaults = UserDefaults.standard
-                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String:Any])!
                 let heartCount = myUser.heartPieceCount
 
                 if(self.currentResult.canUseSubscription && !self.didOfferFreeTrial && heartCount < 4){
@@ -555,8 +557,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     }
                     
                     //TODO: notify the notification center that the app should present the subscriptions dialogue
-                    let object: [String: Any] = ["gameID": self.theGame?.id,
-                                                 "hostUrl": self.theGame?.host,
+                    let object: Properties = ["gameID": self.theGame!.id!,
+                                              "hostUrl": self.theGame!.host!,
                                                  "currentQuestionNumber":currentQuestionNum,
                                                  "currentQuestionTotal":currentQuestionTotal]
                     
@@ -570,7 +572,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 if(self.currentResult.selection != nil){
                     if(self.currentQuestion != nil){
                         
-                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                        let object : Properties = ["gameID" : self.myGameId!,
                                                      "questionID" : self.currentResult.questionId!,
                                                      "choiceID" : self.currentResult.selection!,
                                                      "eliminatedFlag": self.userEliminated,
@@ -582,7 +584,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 
                     }else{
                         
-                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                        let object : Properties = ["gameID" : self.myGameId!,
                                                      "questionID" : self.currentResult.questionId!,
                                                      "choiceID" : self.currentResult.selection!,
                                                      "eliminatedFlag": self.userEliminated]
@@ -849,6 +851,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self?.eSource?.disconnect()
             self?.eSource = nil
             self?.dismiss(animated: true, completion: {
+                if(self!.userEliminated){
+                    NotificationCenter.default.post(name: .gameEndedAndEliminated, object: json.dictionaryObject)
+                }
                 self?.completed!(true)
             })
         }
@@ -950,7 +955,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
                     let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
                         //TODO - fix for whitelabels
-                        let object : [String:Any] = ["Type" : "Game Won"]
+                        let object : Properties = ["Type" : "Game Won"]
                         NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
                         
                         TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
@@ -1434,8 +1439,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
                 userDefaults.synchronize()
                 
-                let object : [String:Any] = ["gameID" : myGameId!,
-                                             "gameTitle": theGame?.theme.displayName,
+                let object : Properties = ["gameID" : myGameId!,
+                                           "gameTitle": (theGame?.theme.displayName)!,
                                              "scheduled": String(format:"%f", (theGame?.scheduled)!),
                                              "count" : joinedCount]
                 
@@ -1506,7 +1511,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             submitUrl = baseURL + "/questions/" + questionId + "/responses?\(answerType)=\(escapedString!)"
         }
         
-        var object : [String:Any] = ["gameID" : self.myGameId!,
+        let object : Properties = ["gameID" : self.myGameId!,
                                      "questionID" : questionId,
                                      "choiceID" : responseId,
                                      "questionNumber" : self.currentQuestion.number,
@@ -1643,7 +1648,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             self.present(popup, animated: true, completion: nil)
                         }
                         
-                        let object : [String:Any] = ["gameID" : self.myGameId!,
+                        let object : Properties = ["gameID" : self.myGameId!,
                                                      "questionID" : questionId,
                                                      "choiceID" : responseId,
                                                      "errorCode" : String(describing: json["errorCode"]!),

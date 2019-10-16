@@ -239,5 +239,8 @@ extension Notification.Name {
     static let stopQuestionAudio = Notification.Name("TQK_STOP_QUESTION_AUDIO")
     
     static let sharedToSnapchat = Notification.Name("TQK_SNAPCHAT_SHARE")
+    
+    static let gameEndedAndEliminated = Notification.Name("TQK_GAME_END_ELIMINATED")
+
 }
 

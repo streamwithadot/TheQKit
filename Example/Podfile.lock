@@ -137,6 +137,7 @@ PODS:
   - gRPC-Core/Interface (1.17.0)
   - GTMSessionFetcher/Core (1.2.1)
   - ijkplayer (1.1.2)
+  - IKEventSource (3.0.1)
   - Kingfisher (5.3.0)
   - leveldb-library (1.20)
   - lottie-ios (3.0.3)
@@ -169,9 +170,10 @@ PODS:
   - SnapSDK/SCSDKLoginKit (1.2.2)
   - SwiftyAttributes (5.0.0)
   - SwiftyJSON (4.2.0)
-  - TheQKit (0.1.1):
+  - TheQKit (1.0.1):
     - Alamofire
     - ijkplayer (= 1.1.2)
+    - IKEventSource
     - Kingfisher
     - lottie-ios
     - Mixpanel-swift
@@ -194,7 +196,7 @@ DEPENDENCIES:
   - TheQKit (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - Bolts
     - BoringSSL-GRPC
@@ -235,6 +237,8 @@ SPEC REPOS:
     - TwitterCore
     - TwitterKit
     - UIColor_Hex_Swift
+  trunk:
+    - IKEventSource
 
 EXTERNAL SOURCES:
   TheQKit:
@@ -262,6 +266,7 @@ SPEC CHECKSUMS:
   gRPC-Core: 4028031ed2c5267cca0d846c876d8046b1ecb9b6
   GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
   ijkplayer: da342ca5262c25ed7166c5b73a94c1548496000e
+  IKEventSource: ababa323587c6b0c250dd54d4a48ab68fd845e8e
   Kingfisher: 4692c783ffb99e9e2e40a6eb3e518c3b96c6fa8c
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   lottie-ios: 06e0b54aab85ba128e332687d7f4ac4861a7a7ae
@@ -277,7 +282,7 @@ SPEC CHECKSUMS:
   SnapSDK: 16d505e0e5a9340c49ce767f3131f4af76fe29e8
   SwiftyAttributes: a6e7bbac1e9a9f5c0b42e4055563ca091dda03ad
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
-  TheQKit: 7cc6bd0d5851cd5252304158f2d59969ef0e2f27
+  TheQKit: dc3b46532350a03f206c26d8faf83bb0bfd4f950
   Toast-Swift: e42a638589a2f95036b4bb7626cfbdde7daf0393
   TwitterCore: 8cbc9ad34d91c63a0035ea05bfbfc0d7ca72a28c
   TwitterKit: 5e4f41d70b9abdb41df5467f52d7aa2c0fd26ebb
@@ -285,4 +290,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a81f0122e505a8840d82b415464b03cf8536f231
 
-COCOAPODS: 1.6.0
+COCOAPODS: 1.8.3
