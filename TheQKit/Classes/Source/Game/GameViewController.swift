@@ -36,9 +36,6 @@ protocol GameDelegate {
     func submitAnswer(questionId: String, responseId: String, choiceText: String?)
     func getColorForID(catId: String) -> UIColor
     
-    func beginAudio()
-    func stopAudio()
-    
     var userSubmittedAnswer : Bool { get }
     var isQuestionActive : Bool { get }
 //    var leaderboardDelegate : LeaderboardDelegate { get }
@@ -120,9 +117,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var userSubmittedAnswer: Bool = false
     var rtmpUrl: String!
     var isQuestionActive: Bool = false
-    var hideIn2Timer:Timer!
-    var hideIn5Timer:Timer!
-    var countDownTimer:Timer!
     var timerIsOn = false
     var timeRemaining: Int!
     @IBOutlet weak var countdownLabel: UILabel!
@@ -449,24 +443,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
     }
     
-    func handleViewCountUpdate() {
-        
-    }
-    func stopShortTimer()
-    {
-        if hideIn2Timer != nil {
-            hideIn2Timer!.invalidate()
-            hideIn2Timer = nil
-        }
-    }
-    
-    func stopCountDownTimer () {
-        if countDownTimer != nil {
-            countDownTimer.invalidate()
-            countDownTimer = nil
-        }
-    }
-    
     func stopVideoTimer()
     {
         if reloadVideoTimer != nil {
@@ -474,15 +450,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             reloadVideoTimer = nil
         }
     }
-    
-    func stopLongTimer()
-    {
-        if hideIn5Timer != nil {
-            hideIn5Timer!.invalidate()
-            hideIn5Timer = nil
-        }
-    }
-    
+
     func handleQuestionResult() {
         
         self.currentEndQuestion = nil
@@ -675,21 +643,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         self.ssQuestionViewController?.didMove(toParent: self)
     }
     
-    func beginAudio(){
-//        //TODO - make atTime work
-////        var startTime = 15 - self.currentQuestion!.secondsToRespond!
-////        if startTime < 0 { startTime = 0 }
-//        audioPlayer?.volume = 0.3
-//        DispatchQueue.global(qos: .background).async {
-//            self.audioPlayer?.play()//(atTime: TimeInterval(startTime))
-//        }
-    }
-    
-    func stopAudio(){
-//        audioPlayer?.pause()
-//        audioPlayer?.stop()
-    }
-    
+
     fileprivate func showPopularChoiceResult(withType type:FullScreenType){
         
         let podBundle = Bundle(for: TheQKit.self)
@@ -841,8 +795,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
             self?.currentResult = TQKResult(JSONString: data!)
-            self?.stopCountDownTimer()
-            self?.stopShortTimer()
             self?.handleQuestionResult()
         }
         
@@ -1068,30 +1020,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 
     }
     
-    //    func testGameWarn(){
-    //        let seconds : TimeInterval = 20
-    //        let interval = seconds / 5
-    //
-    //        DispatchQueue.main.async(execute: {
-    //            //vibrate 5 times over 20 seconds
-    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
-    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
-    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
-    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
-    //            self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
-    //
-    //
-    //            //show "get ready" screen for 1 x interval
-    //            self.getReadyView.isHidden = false
-    //            self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
-    //
-    //            //show "countdown" screen for 4 x interval
-    //            let secondsToShow = Int(seconds) - 5
-    //            self.gameWarnCountdownLabel.text = String(secondsToShow)
-    //            self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
-    //        })
-    //    }
-    
     @objc func countdownGameWarn(){
         let currentTime = (self.gameWarnCountdownLabel.text! as NSString).integerValue
         
@@ -1152,6 +1080,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         // This button will not the dismiss the dialog
         let buttonTwo = DefaultButton(title: "Yes", dismissOnTap: true) {
             self.dismiss(animated: true){
+                if(self.userEliminated && (self.currentQuestion != nil && (self.currentQuestion.number == self.currentQuestion.total))){
+                    NotificationCenter.default.post(name: .gameEndedAndEliminated, object: nil)
+                }
                 self.completed!(true)
             }
         }
@@ -1330,16 +1261,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
     }
     
-    
-    
-    func playTimer(_ timer: AnyObject) {
-        print("play timer called")
-        
-        self.view.makeToast("3 Seconds Remaining", duration: 2.0, position: .center)
-        
-        
-    }
-    
     func reloadVideo() {
         playbackStarted = false
         playbackDelay = 0
@@ -1383,22 +1304,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.eSource?.disconnect()
             self.eSource = nil
         }
-        
-        if(self.countDownTimer != nil){
-            self.countDownTimer.invalidate()
-            self.countDownTimer = nil
-        }
-        
         if(self.reconnectTimer != nil){
             self.reconnectTimer.invalidate()
             self.reconnectTimer = nil
         }
-        
         if(self.bufferTimer != nil){
             self.bufferTimer?.invalidate()
             self.bufferTimer = nil
         }
-        
         if(self.player != nil){
             self.player.stop()
             self.player.shutdown()
@@ -1446,17 +1359,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 
                 NotificationCenter.default.post(name: .enteredGame, object: object)
             }
-            //.generalTrackWith("Entered Game", props:props)
         }else{
-            //get a game ID and join
-//            self.getGameId()
+            //Game ID is missing - exit the game before bad things happen
             self.dismiss(animated: true){
                 self.completed!(true)
             }
         }
         
-        //Test the game countdown without SSE event
-        //        self.perform(#selector(self.testGameWarn), with: nil, afterDelay: 0.0)
     }
     
     func submitAnswer(questionId: String, responseId: String, choiceText: String?){
@@ -1493,22 +1402,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             "uid":(userId)!
         ]
         
-//        let answerType = "response"
-        
-        var answerType = "response"
-//        if(self.currentQuestion.questionType == "POPULAR"){
-//            answerType = "response"
-//        }else{
-//            answerType = "choiceId"
-//        }
-        
         let allowedCharacterSet = (CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted)
         let escapedString = responseId.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
         if(self.shouldUseHeart){
-            submitUrl = baseURL + "/questions/" + questionId + "/responses?\(answerType)=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
+            submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
         }else{
-            submitUrl = baseURL + "/questions/" + questionId + "/responses?\(answerType)=\(escapedString!)"
+            submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)"
         }
         
         let object : Properties = ["gameID" : self.myGameId!,
@@ -1522,7 +1422,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         NotificationCenter.default.post(name: .choiceSelected, object: object)
         
-//        Alamofire.request(submitUrl, method: .post, parameters: params, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
         Alamofire.request(submitUrl, method: .post, parameters: params, headers: headers).responseJSON
         { response in
             print("Request: \(String(describing: response.request))")   // original url request

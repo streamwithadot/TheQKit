@@ -174,7 +174,7 @@ public struct TQKCommonPlayer {
     public var type : String!
     public var autoHandleUsernameCollision : Bool = true
     
-    public var dictionaryRepresentationFirebase: [String: Any] {
+    public var dictionaryRepresentation: [String: Any] {
         
         return
             ["username" : username,
