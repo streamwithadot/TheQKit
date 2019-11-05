@@ -68,7 +68,18 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 Integration with Account Kit must be done app side, after verification with those providers, pass along the token string, and account ID to login existing user  / enter user creation flow
 
-Account Kit:
+Sign in with Apple
+```swift
+if let token = appleIDCredential.identityToken?.base64EncodedString() {
+    let userIdentifier = appleIDCredential.user
+    
+    TheQKit.LoginQUserWithApple(userID: userIdentifier, identityString: token) { (success) in
+        //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
+    }
+}
+```
+
+Account Kit: *DEPRECATED: with AccountKit shuting down, this method will go away, though avaliable for existing users or apps that are not setup for firebase phone #*
 ```swift
 
 let token = AKFAccountKit(responseType: .accessToken).currentAccessToken
