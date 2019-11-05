@@ -173,6 +173,10 @@ class TheQManager {
         AuthenticationService.sharedInstance.FirebaseLogin(userID: userId, tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
     
+    func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
+        AuthenticationService.sharedInstance.AppleLogin(userID: userID, identityString: identityString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
+    }
+    
     func refreshToken(completionHandler: @escaping (_ success : Bool) -> Void){
         AuthenticationService.sharedInstance.refreshTokens(apiToken: TheQManager.sharedInstance.apiToken, completionHandler: completionHandler)
     }

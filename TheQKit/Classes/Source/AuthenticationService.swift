@@ -95,6 +95,68 @@ class AuthenticationService {
         
     }
     
+    func AppleLogin(userID: String, identityString: String, username: String? = nil, apiToken: String, completionHandler: @escaping (_ success : Bool) -> Void) {
+        let commonAuth = TQKCommonAuth(id: userID, accessToken: identityString, provider: "apple")
+        let params: Parameters = commonAuth.dictionaryRepresentation
+       
+        var finalUrl:String = TQKConstants.baseUrl + "oauth/token"
+        if(!apiToken.isEmpty){
+            finalUrl = finalUrl + "?partnerCode=\(apiToken)"
+        }
+
+        var code:String = ""
+       
+       Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON
+       { response in
+           print("Request: \(String(describing: response.request))")   // original url request
+           print("Response: \(String(describing: response.response))") // http url response
+           print("Result: \(response.result)")                         // response serialization result
+
+           response.result.ifFailure {
+               self.showLoginError()
+               completionHandler(false)
+           }
+           
+           response.result.ifSuccess {
+               if let json = response.result.value as? [String: Any] {
+                   print("JSON: \(json)") // serialized json response
+                   do{
+                       let json1 = try JSON(data: response.data!)
+                       code = json1["errorCode"].stringValue
+                       
+                       self.loginResponse =  TQKLoginResponse(JSON: json)
+                       if (self.loginResponse.user != nil) {
+                           self.setupUserInfo()
+                           completionHandler(true)
+                       }else{
+                           print("the user login code is" + code)
+                           if (code == "CLIENT_ERROR" || code == "AUTHORIZATION_ERROR") {
+                               self.showLoginError()
+                               completionHandler(false)
+                           }else if (code == "NO_SUCH_USER"){
+                               if(username != nil){
+                                   self.createAccountWithUsername(id: userID, accessToken: identityString, apiToken: apiToken, provider: "apple", username: username!, completionHandler: completionHandler)
+                               }else{
+                                   self.createAccountWithUI(id: userID, accessToken: identityString, apiToken: apiToken, provider: "apple", completionHandler: completionHandler)
+                               }
+                           }else if( code == "USER_BANNED"){
+                               //Show a banned thing here
+    //                                self.showBannedMessage()
+                               NotificationCenter.default.post(name: .userBanned, object: nil)
+                               completionHandler(false)
+                           } else {
+                               self.showLoginError()
+                               completionHandler(false)
+                           }
+                       }
+                   }catch{
+                       print(error)
+                       completionHandler(false)
+                   }
+               }
+           }
+       }
+    }
     
     func FirebaseLogin(userID: String, tokenString: String, username: String? = nil, apiToken: String, completionHandler: @escaping (_ success : Bool) -> Void) {
         

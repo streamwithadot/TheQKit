@@ -73,6 +73,19 @@ public class TheQKit {
     public class func LoginQUserWithFirebase(userId: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
             TheQManager.sharedInstance.LoginQUserWithFirebase(userId: userId, tokenString: tokenString, username: username, completionHandler: completionHandler)
     }
+    
+    /// Logs a user in using Sign in with Apple, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - userID: userID from apple
+    ///     - identityString: base64EncodedString  of identityToken
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
+    public class func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
+        TheQManager.sharedInstance.LoginQUserWithApple(userID: userID, identityString: identityString, username: username, completionHandler: completionHandler)
+    }
   
     /// Logout a logged in user - clears SDK specifics in NSUserDefaults
     public class func LogoutQUser() {
