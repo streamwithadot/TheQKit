@@ -81,7 +81,6 @@ if let token = appleIDCredential.identityToken?.base64EncodedString() {
 
 Account Kit: *DEPRECATED: with AccountKit shuting down, this method will go away, though avaliable for existing users or apps that are not setup for firebase phone #*
 ```swift
-
 let token = AKFAccountKit(responseType: .accessToken).currentAccessToken
 let accountID:String = token!.accountID
 let tokenString:String = token!.tokenString
@@ -93,7 +92,6 @@ TheQKit.LoginQUserWithAK(accountID: accountID, tokenString: tokenString) { (succ
 
 Firebase:
 ```swift
-
 TheQKit.LoginQUserWithFirebase(userId: "uid", tokenString: "tokenString") { (success) in
     //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
 }
@@ -102,6 +100,11 @@ TheQKit.LoginQUserWithFirebase(userId: "uid", tokenString: "tokenString") { (suc
 Additionally you can skip the username selection and provide one the user may already have associated with your app. If already taken a number will incrementally be added
 
 ```swift    
+TheQKit.LoginQUserWithApple(userID: userIdentifier, identityString: token, username : "username") { (success) in
+     //success : Bool ... if user successfully is logged in, no account creation flow
+}
+
+*DEPRACTED*
 TheQKit.LoginQUserWithAK(accountID: "accountID", tokenString: "tokenString", username : "username") { (success) in
     //success : Bool ... if user successfully is logged in, no account creation flow
 }
