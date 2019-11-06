@@ -90,7 +90,7 @@ TheQKit.LoginQUserWithAK(accountID: accountID, tokenString: tokenString) { (succ
 }
 ```
 
-Firebase:
+Firebase: has a few different ways to accomplish the same thing, all ultimately end up with a user ID and token that get passed on to the TheQKit
 ```swift
 extension YourVC: FUIAuthDelegate {
     func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, url: URL?, error: Error?) {
