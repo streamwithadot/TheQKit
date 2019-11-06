@@ -92,8 +92,18 @@ TheQKit.LoginQUserWithAK(accountID: accountID, tokenString: tokenString) { (succ
 
 Firebase:
 ```swift
-TheQKit.LoginQUserWithFirebase(userId: "uid", tokenString: "tokenString") { (success) in
-    //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
+Auth.auth().signIn(<Choose preferred method>) { [weak self] user, error in
+
+let user = user?.user
+let uid = user!.uid
+
+user!.getIDTokenResult(completion: { (result, error) in
+    let token = result?.token
+    print(token)
+        TheQKit.LoginQUserWithFirebase(userId: uid, tokenString: token) { (success) in
+            //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
+        }
+    }
 }
 ```
 
