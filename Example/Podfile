@@ -2,9 +2,11 @@ use_frameworks!
 platform :ios, '10.0'
 
 target 'TheQKit_Example' do
-  pod 'TheQKit', :path => '../'
+  pod 'TheQKit'
   pod 'MBProgressHUD'
-  pod 'FirebaseUI'
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+  pod 'FirebaseUI/Phone'
 end
 
 pre_install do |installer|
