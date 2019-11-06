@@ -97,12 +97,13 @@ extension YourVC: FUIAuthDelegate {
 
         if let user = authDataResult?.user {
             user.getIDTokenResult(completion: { (result, error) in
-            let token = result?.token
-            let userId:String = user.uid
+                let token = result?.token
+                let userId:String = user.uid
 
-            TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token) { (success) in
-                //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
-            }
+                TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token) { (success) in
+                    //success : Bool ... if user successfully is logged in, if no user exist will be false and account creation flow launches
+                }
+            })
         }
     }
 }
