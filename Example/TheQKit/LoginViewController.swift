@@ -18,6 +18,8 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        authUI = FUIAuth.defaultAuthUI()
+        authUI!.delegate = self
     }
     
     @IBAction func loginPressed(_ sender: Any) {
@@ -45,7 +47,7 @@ extension LoginViewController: FUIAuthDelegate {
                 let token = result?.token
                 let userId:String = user.uid
                 
-                TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token!, username: "FirebaseTester") { (success) in
+                TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token!) { (success) in
                     if(success){
                         self.performSegue(withIdentifier: "Onward!", sender: self)
                     }else{

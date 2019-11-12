@@ -7,7 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--TheQKit-->
+        <!--TheQKit-Example-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
                 <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="TheQKit_Example" customModuleProvider="target" sceneMemberID="viewController">
@@ -34,7 +34,7 @@
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="FJ2-lX-WpI" secondAttribute="bottom" constant="20" id="trg-cj-oIO"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="TheQKit" id="dWl-a7-d9J"/>
+                    <navigationItem key="navigationItem" title="TheQKit-Example" id="dWl-a7-d9J"/>
                     <connections>
                         <outlet property="containerView" destination="Dnj-UG-ZPu" id="oPu-6O-Fxb"/>
                     </connections>
@@ -79,7 +79,7 @@
             </objects>
             <point key="canvasLocation" x="-2282" y="92"/>
         </scene>
-        <!--Login View Controller-->
+        <!--TheQKit-Example-->
         <scene sceneID="pB1-br-vKn">
             <objects>
                 <viewController id="QOQ-bn-pwi" customClass="LoginViewController" customModule="TheQKit_Example" customModuleProvider="target" sceneMemberID="viewController">
@@ -102,7 +102,7 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     </view>
-                    <navigationItem key="navigationItem" id="Q8H-sH-pen"/>
+                    <navigationItem key="navigationItem" title="TheQKit-Example" id="Q8H-sH-pen"/>
                     <connections>
                         <segue destination="vXZ-lx-hvc" kind="show" identifier="Onward!" id="Z6o-GF-nHj"/>
                     </connections>

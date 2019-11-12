@@ -64,6 +64,9 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if #available(iOS 13.0, *) {
+            self.answerTextField.overrideUserInterfaceStyle = .light
+        }
         // Do any additional setup after loading the view, typically from a nib.
         
         yourAnswerLabel.alpha = 0.0
