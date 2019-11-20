@@ -48,6 +48,18 @@ public class TheQKit {
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token)
     }
     
+    /// Disable the built in profanity filter on user submissions
+    public class func disableProfanityFilter(){
+        TheQManager.sharedInstance.disableProfanityFilter()
+    }
+    
+    /// Getter for profanity filter override flag
+    ///
+    /// - Returns: A bool representing the profanity override flag
+    public class func profanityFilter() -> Bool{
+        return TheQManager.sharedInstance.profanityFlag
+    }
+    
     /// Logs a user in using AccountKit, setting a user object into NSUserDefaults
     ///
     /// - Parameters:

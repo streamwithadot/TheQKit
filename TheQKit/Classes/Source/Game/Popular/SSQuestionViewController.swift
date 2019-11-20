@@ -396,7 +396,7 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
         
         if(self.answerTextField.hasText){
             
-            if(self.answerTextField.text!.containsProfanity()){
+            if(TheQKit.profanityFilter() && answerTextField.text!.containsProfanity()){
                 var style = ToastStyle()
                 style.backgroundColor = .red
                 

@@ -13,6 +13,7 @@ import Mixpanel
 
 class TheQManager {
     
+    var profanityFlag : Bool = true
     var mixpanelInstance : MixpanelInstance?
     static let sharedInstance = TheQManager()
     private var apiToken : String?
@@ -29,6 +30,10 @@ class TheQManager {
     
     init() {
         apiToken = ""
+    }
+    
+    func disableProfanityFilter(){
+        self.profanityFlag = false
     }
     
     func getUser() -> TQKUser? {
