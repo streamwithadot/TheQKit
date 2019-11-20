@@ -10,6 +10,7 @@ import UIKit
 //import AVFoundation
 import Lottie
 import UIColor_Hex_Swift
+import Toast_Swift
 
 class SSQuestionViewController: UIViewController, UITextFieldDelegate {
 
@@ -394,26 +395,39 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
     @IBAction func submitPressed(_ sender: Any) {
         
         if(self.answerTextField.hasText){
-            DispatchQueue.main.async {
-                self.answerTextField.resignFirstResponder()
-            }
-            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: self.answerTextField.text!, choiceText: self.answerTextField.text!)
             
-            self.inputAnswerLabel.text = self.answerTextField.text!
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
+            if(self.answerTextField.text!.containsProfanity()){
+                var style = ToastStyle()
+                style.backgroundColor = .red
                 
-                self.submitButton.alpha = 0.0
-                self.answerTextField.isEnabled = false
-                self.answerTextField.alpha = 0.0
+                let random = arc4random_uniform(100)
+
+                if random == 1 {
+                    self.view.makeToast(NSLocalizedString("You kiss your mother with that mouth?", comment: ""), duration: 1.0, position: .center, style: style)
+                } else {
+                    self.view.makeToast(NSLocalizedString("Please don't use profanity!", comment: ""), duration: 1.0, position: .center, style: style)
+                }
                 
-                self.inputAnswerLabel.alpha = 1.0
-                self.yourAnswerLabel.alpha = 1.0
-            }) { (bool) in
-                //na
+            }else{
+                DispatchQueue.main.async {
+                    self.answerTextField.resignFirstResponder()
+                }
+                
+                self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: self.answerTextField.text!, choiceText: self.answerTextField.text!)
+                
+                self.inputAnswerLabel.text = self.answerTextField.text!
+                UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
+                    
+                    self.submitButton.alpha = 0.0
+                    self.answerTextField.isEnabled = false
+                    self.answerTextField.alpha = 0.0
+                    
+                    self.inputAnswerLabel.alpha = 1.0
+                    self.yourAnswerLabel.alpha = 1.0
+                }) { (bool) in
+                    //na
+                }
             }
-            
-            
-            
         }else{
             //show no text entered
         }
