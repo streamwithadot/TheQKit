@@ -60,7 +60,9 @@ The `THEQKIT_TOKEN` allows for only this tenants games to be visable by TheQKit 
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provide Base Url>")
+    TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provided Base Url>")
+    //Optional - Disable the built in profanity filter on freeform user answers
+    //TheQKit.disableProfanityFilter()
 }
 ```
 
