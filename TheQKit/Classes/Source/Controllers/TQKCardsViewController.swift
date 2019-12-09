@@ -53,8 +53,11 @@ class TQKCardsViewController : UIViewController, CardCollectionViewCellDelegate 
                     self.cardsCollectionView.reloadData()
                 }else{
                     //no cards to show
-//                    self.gameInfoGames?.games?.removeAll()
-//                    self.cardsCollectionView.reloadData()
+                    var noGameFound = TQKGame()
+                    noGameFound.title = "No Game Scheduled"
+                    self.games = [TQKGame]()
+                    self.games?.append(noGameFound)
+                    self.cardsCollectionView.reloadData()
                 }
 //            }
         }
@@ -90,6 +93,13 @@ class TQKCardsViewController : UIViewController, CardCollectionViewCellDelegate 
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        if (myTimer != nil) {
+            self.myTimer.invalidate()
+            self.myTimer = nil
+        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -238,11 +248,17 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
             cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
             
+            cell.gameTypeLabel.isHidden = true
+            cell.triviaLabel.isHidden = true
+            
         }else{
             var isAdmin = false
             if let myUser = TheQKit.getUser() {
                 isAdmin = myUser.admin
             }
+            
+            cell.gameTypeLabel.isHidden = false
+            cell.triviaLabel.isHidden = false
             
             if(game?.eligible == false && isAdmin == false){
                 cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)

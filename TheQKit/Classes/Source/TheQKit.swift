@@ -162,7 +162,6 @@ public class TheQKit {
             }
             var snapAPI: SCSDKSnapAPI?
             snapAPI = SCSDKSnapAPI.init(content: content)
-            
             snapAPI?.startSnapping(completionHandler: { (error) in
                 //do something?
             })

@@ -1020,48 +1020,48 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 
     }
     
-    @objc func countdownGameWarn(){
-        let currentTime = (self.gameWarnCountdownLabel.text! as NSString).integerValue
-        
-        self.gameWarnCountdownLabel.text = String(currentTime - 1)
-        
-        if(currentTime - 1 <= 0){
-            self.gameWarnTimer.invalidate()
-            self.gameWarnTimer = nil
-        }
-    }
+//    @objc func countdownGameWarn(){
+//        let currentTime = (self.gameWarnCountdownLabel.text! as NSString).integerValue
+//
+//        self.gameWarnCountdownLabel.text = String(currentTime - 1)
+//
+//        if(currentTime - 1 <= 0){
+//            self.gameWarnTimer.invalidate()
+//            self.gameWarnTimer = nil
+//        }
+//    }
     
-    @objc func hideCountdownView(){
-        self.countdownView.isHidden = true
-    }
+//    @objc func hideCountdownView(){
+//        self.countdownView.isHidden = true
+//    }
     
-    @objc func hideGetReadyView(){
-        self.getReadyView.isHidden = true
-        self.countdownView.isHidden = false
-        
-        if(self.gameWarnTimer != nil){
-            self.gameWarnTimer.invalidate()
-            self.gameWarnTimer = nil
-        }
-        self.gameWarnTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.countdownGameWarn), userInfo: nil, repeats: true)
-        
-    }
+//    @objc func hideGetReadyView(){
+//        self.getReadyView.isHidden = true
+//        self.countdownView.isHidden = false
+//
+//        if(self.gameWarnTimer != nil){
+//            self.gameWarnTimer.invalidate()
+//            self.gameWarnTimer = nil
+//        }
+//        self.gameWarnTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.countdownGameWarn), userInfo: nil, repeats: true)
+//
+//    }
     
-    @objc func vibrate(){
-        if #available(iOS 10.0, *) {
-            let generator = UINotificationFeedbackGenerator()
-            //            generator.prepare()
-            generator.notificationOccurred(.error)
-            
-            let feedback = UIDevice.current.value(forKey: "_feedbackSupportLevel") as! Int
-            if (feedback == 0 || feedback == 1){
-                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-            }
-            
-        }else{
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-        }
-    }
+//    @objc func vibrate(){
+//        if #available(iOS 10.0, *) {
+//            let generator = UINotificationFeedbackGenerator()
+//            //            generator.prepare()
+//            generator.notificationOccurred(.error)
+//
+//            let feedback = UIDevice.current.value(forKey: "_feedbackSupportLevel") as! Int
+//            if (feedback == 0 || feedback == 1){
+//                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+//            }
+//
+//        }else{
+//            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+//        }
+//    }
     
     @IBAction func showExitDialog(_ sender: Any) {
         

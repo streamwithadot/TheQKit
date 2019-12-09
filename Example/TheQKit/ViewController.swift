@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,6 +35,7 @@ class ViewController: UIViewController {
             TheQKit.showCardsController(fromViewController: connectContainerViewController)
         }
     }
+    
     
     
     @IBAction func AKLogin(_ sender: Any) {
@@ -58,6 +60,7 @@ class ViewController: UIViewController {
     
     @IBAction func logout(_ sender: Any) {
         TheQKit.LogoutQUser()
+        self.navigationController?.popViewController(animated: true)
     }
     
     @IBAction func checkForGame(_ sender: Any) {
