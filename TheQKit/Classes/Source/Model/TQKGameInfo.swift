@@ -51,8 +51,8 @@ public struct TQKGames : Mappable {
 }
 
 enum TQKGameType : String {
-    case TRIVIA
-    case POPULAR
+    case TRIVIA = "TRIVIA"
+    case POPULAR = "POPULAR"
 }
 
 

@@ -9,6 +9,13 @@
 import Foundation
 import ObjectMapper
 
+enum TQKQuestionType : String {
+    case TRIVIA = "TRIVIA"
+    case POPULAR = "POPULAR"
+    case TEXT_SURVEY = "TEXT_SURVEY"
+    case CHOICE_SURVEY = "CHOICE_SURVEY"
+}
+
 struct TQKQuestion: Mappable{
     
 //    var gameId: String?

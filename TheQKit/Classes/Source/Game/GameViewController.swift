@@ -165,11 +165,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     var didOfferFreeTrial: Bool = false
     
-    
-//    let linearBar : LinearProgressBar = LinearProgressBar()
-    
-    
     var shouldUseHeart : Bool = false
+    var skipHeartUse : Bool = false
     var didUseHeart : Bool = false
     var lastQuestionHeartEligible : Int = 0
     var heartsEnabled : Bool = false
@@ -472,8 +469,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }else{
                     self.eliminateUser()
                 }
+            }else{
+                //user is still in game, maybe ensure that?
+                self.undoElimination()
             }
             
+            //Check to see if the user responded to the question before checking if the result is correct/incorrect
             if ((self.currentResult.selection != nil && !(self.currentResult.selection?.isEmpty)!) && (self.currentResult.answerId == self.currentResult.selection ||  self.currentResult.correctResponse == self.currentResult.selection)) {
                 
                 //Launch full screen trivia view with correct style
@@ -611,18 +612,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     fileprivate func launchFullScreenTrivia(_ type: FullScreenType){
         
         if(type == .Question){
-            if(self.currentQuestion.questionType == "POPULAR"){
+            if(self.currentQuestion.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                 self.showPopularChoiceQuestion()
             }else{ // trivia
                 self.showTriviaScreen(withType: type)
             }
         }else{ // we are a result
-            if(self.currentResult.questionType == "POPULAR"){
+            if(self.currentResult.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                 self.showPopularChoiceResult(withType: type)
             }else{
                 self.showTriviaScreen(withType: type)
             }
         }
+        
+        
     }
     
     fileprivate func showPopularChoiceQuestion(){
@@ -1375,7 +1378,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         print(responseId)
         self.userSubmittedAnswer = true
         
-        if(self.currentQuestion.questionType == "POPULAR"){
+        if(self.currentQuestion.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
             self.selectionChoiceText = responseId
         }else{
             self.selectionChoiceText = choiceText
@@ -1404,6 +1407,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         let allowedCharacterSet = (CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted)
         let escapedString = responseId.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+        
+        //Don't let users use a heart on a survey question
+        if(self.shouldUseHeart && (self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue)) {
+            self.shouldUseHeart = false
+            self.skipHeartUse = true
+        }
         
         if(self.shouldUseHeart){
             submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
@@ -1437,7 +1446,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.userSubmittedAnswer = false
                 self.isQuestionActive = true
                 
-                if(self.currentQuestion.questionType == "TRIVIA"){
+                if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                     DispatchQueue.main.async(execute: {
 
                         self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
@@ -1451,7 +1460,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         self.ssQuestionViewController?.submitButton.alpha = 1.0
                         self.ssQuestionViewController?.answerTextField.alpha = 1.0
                         self.ssQuestionViewController?.answerTextField.isEnabled = true
-                        
+                        self.ssQuestionViewController?.answerTextField.text = ""
                         self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
                         self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
                         
@@ -1493,7 +1502,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
                             errorMessage = NSLocalizedString("Please choose a shorter answer.", comment: "")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
-                            if(self.currentQuestion.questionType == "TRIVIA"){
+                            if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                                 DispatchQueue.main.async(execute: {
                                     
                                     self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
@@ -1507,9 +1516,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                                     self.ssQuestionViewController?.submitButton.alpha = 1.0
                                     self.ssQuestionViewController?.answerTextField.alpha = 1.0
                                     self.ssQuestionViewController?.answerTextField.isEnabled = true
-                                    
                                     self.ssQuestionViewController?.answerTextField.text = ""
-
                                     self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
                                     self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
                                     
@@ -1563,7 +1570,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         
                         UIView.animate(withDuration: 1.0, animations: {
 
-                            if(self.currentQuestion.questionType == "TRIVIA"){
+                            if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                                 self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
                                 self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
                                 self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
@@ -1598,9 +1605,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             userDefaults.set(true, forKey: "usedHeartFor\(self.myGameId!)") // fill data
                             userDefaults.synchronize()
                         }
-                        
                     }
                     
+                    //Set the next question up to use the heart that was skipped due to a survey question
+                    if(self.skipHeartUse) {
+                        self.shouldUseHeart = true
+                        self.skipHeartUse = false
+                    }
                 }
             }
         }
@@ -1630,7 +1641,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         //No longer eliminated
         let userDefaults = UserDefaults.standard
         userDefaults.removeObject(forKey: self.myGameId!)
-        userDefaults.synchronize()
         
         //track this user defaults
         userDefaults.set(true, forKey: "usedHeartFor\(self.myGameId!)") // fill data
@@ -1654,6 +1664,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         self.present(self.heartPopup!, animated: true, completion: nil)
         
+    }
+    
+    fileprivate func undoElimination(){
+        self.userEliminated = false
+        self.eliminatedLabel.isHidden = true
+        
+        let userDefaults = UserDefaults.standard
+        userDefaults.removeObject(forKey: self.myGameId!)
+        userDefaults.synchronize()
     }
     
     fileprivate func eliminateUser(){
