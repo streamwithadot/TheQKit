@@ -467,7 +467,12 @@ class FullScreenTriviaViewController: UIViewController {
         
         if(self.type == .Question){
             let qNum: Int! = self.question?.number
-            self.timesUpLabel.text = String(format: NSLocalizedString(" Question %@ ", comment: ""), "\(String(qNum))")
+            
+            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey ", comment: ""))
+            }else{
+                self.timesUpLabel.text = String(format: NSLocalizedString(" Question %@ ", comment: ""), "\(String(qNum))")
+            }
 
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
                 self.timesUpLabel.textColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
@@ -477,7 +482,11 @@ class FullScreenTriviaViewController: UIViewController {
 
             self.timesUpLabel.backgroundColor = UIColor.white
         }else if(self.type == .Correct){
-            self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
+            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
+            }else{
+                self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
+            }
 //#if !NEWSCORPUK
             self.timesUpLabel.textColor = UIColor("#32C274")
             self.timesUpLabel.backgroundColor = UIColor.white
@@ -486,7 +495,11 @@ class FullScreenTriviaViewController: UIViewController {
 //            self.timesUpLabel.backgroundColor = UIColor("#32C274")
 //#endif
         }else if(self.type == .Incorrect){
-            self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
+            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
+            }else{
+                self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
+            }
 //#if !NEWSCORPUK
             self.timesUpLabel.textColor = UIColor("#E63462")
             self.timesUpLabel.backgroundColor = UIColor.white

@@ -181,6 +181,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     var start : CFTimeInterval?
     var version : String?
+    
+    var customBackgroundImageView : UIImageView?
 
     var isAudioSessionUsingAirplayOutputRoute: Bool {
         
@@ -210,8 +212,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             NotificationCenter.default.addObserver(self, selector: #selector(checkIFScreenIsCapture), name: UIScreen.capturedDidChangeNotification, object: nil)
         }
         if #available(iOS 10.0, *) {
-            NotificationCenter.default.addObserver(self, selector: #selector(callDisconnected), name: NSNotification.Name("DISCONNECTED_CALL"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(callConnected), name: NSNotification.Name("CONNECTED_CALL"), object: nil)
+            if(!self.theGame!.videoDisabled){
+                NotificationCenter.default.addObserver(self, selector: #selector(callDisconnected), name: NSNotification.Name("DISCONNECTED_CALL"), object: nil)
+                NotificationCenter.default.addObserver(self, selector: #selector(callConnected), name: NSNotification.Name("CONNECTED_CALL"), object: nil)
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -354,9 +358,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     @objc func applicationWillEnterForeground(_ notification: NSNotification) {
         // Reconnect
-        spinnerView.animate()
-        
-        self.stopStreamAndReset()
+        if(!self.theGame!.videoDisabled){
+            spinnerView.animate()
+            self.stopStreamAndReset()
+        }
     }
     
     @objc func reconnectTimerCheck() {
@@ -724,6 +729,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             print("onOpen")
         }
         
+        eSource?.onMessage({ (idString, eventString, dataString) in
+            //This is onMessage
+            print("id: %@", idString!)
+            print("event: %@", eventString!)
+            print("data: %@", dataString!)
+        })
         
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
                         
@@ -909,10 +920,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 popup.addButtons([buttonOne])
                 if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
                     let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
-                        //TODO - fix for whitelabels
                         let object : Properties = ["Type" : "Game Won"]
                         NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
-                        
                         TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
                     }
                     popup.addButtons([buttonTwo])
@@ -1104,6 +1113,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     fileprivate func setupUI() {
         
+        //If game object has a background, use it
+        if(self.theGame?.backgroundImageUrl != nil && !(self.theGame?.backgroundImageUrl!.isEmpty)!){
+            self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
+            self.customBackgroundImageView!.contentMode = .scaleAspectFit
+            self.customBackgroundImageView!.backgroundColor = UIColor.clear
+            self.view.addSubview(self.customBackgroundImageView!)
+            self.view.insertSubview(self.customBackgroundImageView!, aboveSubview: self.previewView)
+            self.customBackgroundImageView!.load(url: URL(string: self.theGame!.backgroundImageUrl!)!)
+        }
+        
+        
         if(self.useLongTimer == true){
             //swap out exist button
             exitButton.setImage(UIImage(named: "qTriviaNetworkLogo"), for: .normal)
@@ -1125,10 +1145,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eliminatedLabel.text = NSLocalizedString("Eliminated", comment: "")
         
-        spinnerView.animate()
-        self.spinnerView.isHidden = false
+        if(!self.theGame!.videoDisabled){
+            spinnerView.animate()
+            self.spinnerView.isHidden = false
+            initializePlayer(url: self.rtmpUrl)
+        }else{
+            self.spinnerView.isHidden = true
+        }
         
-        initializePlayer(url: self.rtmpUrl)
         
         currentQuestionNumberLabel.isHidden = true
         getReadyView.isHidden = true
@@ -1260,7 +1284,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         player.shutdown()
         
-        self.initializePlayer(url: self.rtmpUrl)
+        if(!self.theGame!.videoDisabled){
+            self.initializePlayer(url: self.rtmpUrl)
+        }
         
     }
     
@@ -1301,7 +1327,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         NSObject.cancelPreviousPerformRequests(withTarget: self)
         
         NotificationCenter.default.removeObserver(self)
-        NotificationCenter.default.removeObserver(player)
+        if(!self.theGame!.videoDisabled){
+            NotificationCenter.default.removeObserver(player)
+        }
         
         if(self.eSource != nil){
             self.eSource?.disconnect()
@@ -1729,4 +1757,18 @@ extension UIView {
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromAVAudioSessionPort(_ input: AVAudioSession.Port) -> String {
 	return input.rawValue
+}
+
+extension UIImageView {
+    func load(url: URL) {
+        DispatchQueue.global().async { [weak self] in
+            if let data = try? Data(contentsOf: url) {
+                if let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self?.image = image
+                    }
+                }
+            }
+        }
+    }
 }

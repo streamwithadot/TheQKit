@@ -120,6 +120,9 @@ extension LoginViewController : UITableViewDelegate {
             }
         }else{
             //apple
+            let alert = UIAlertController(title: "Not Implemented", message: "Sign in with Apple needs to be implemented", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
+            self.present(alert, animated: true)
         }
     }
     
