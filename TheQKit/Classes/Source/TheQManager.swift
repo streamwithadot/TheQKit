@@ -313,6 +313,12 @@ class TheQManager {
     }
     
     func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false,completed: @escaping (_ success : Bool) -> Void ) {
+        
+        if(theGame.active == false){
+            completed(false)
+            return
+        }
+        
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
@@ -344,7 +350,7 @@ class TheQManager {
     }
     
     
-    func LaunchActiveGame(colorCode : String?) {
+    func LaunchActiveGame(colorCode : String?, completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
             let gameHeaders : HTTPHeaders = [
@@ -383,33 +389,10 @@ class TheQManager {
                             
                             do{
                                 let json = try JSON(data: response.data!)
-//                                print("JSON: \(json)") // serialized json response
                                 
                                 if (json["games"][0]["active"] == true) {
-                                    let game = TQKGame(JSON: json["games"][0].dictionaryObject!)
-                                    
-                                    let podBundle = Bundle(for: TheQKit.self)
-                                    let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
-                                    let bundle = Bundle(url: bundleURL!)!
-                                    let storyboard = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
-                                    
-                                    let vc = storyboard.instantiateViewController(withIdentifier: "gameViewController") as! GameViewController
-                                    vc.myGameId = game!.id
-                                    vc.host = game!.host
-                                    vc.sseHost = game!.sseHost
-                                    vc.rtmpUrl = game!.streamUrl
-                                    vc.reward = "\(game!.reward)"
-                                    vc.lastQuestionHeartEligible = game!.lastQuestionHeartEligible!
-                                    vc.heartsEnabled = game!.heartsEnabled
-                                    
-                                    vc.theGame = game
-                                    
-                                    if(colorCode != nil){
-                                        vc.colorOverride = colorCode
-                                    }
-                                    
-                                    if let topController = UIApplication.topViewController() {
-                                        topController.present(vc, animated: true) {}
+                                    if let game = TQKGame(JSON: json["games"][0].dictionaryObject!) {
+                                        self.LaunchGame(theGame: game, colorCode: colorCode, completed: completed)
                                     }
                                 }
                             }catch{

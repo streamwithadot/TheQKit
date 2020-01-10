@@ -82,7 +82,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func joinGame(_ sender: Any) {
-        TheQKit.LaunchActiveGame()
+        TheQKit.LaunchActiveGame {_ in
+            //do something?
+        }
     }
     
     @IBAction func cashOut(_ sender: Any) {

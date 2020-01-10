@@ -125,8 +125,8 @@ public class TheQKit {
     }
     
     /// Launches the most recent active game
-    public class func LaunchActiveGame() {
-        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil)
+    public class func LaunchActiveGame(completed: @escaping (_ success : Bool) -> Void) {
+        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil, completed: completed)
     }
     
     /// Prompts the user for an email and performs a cash out request
