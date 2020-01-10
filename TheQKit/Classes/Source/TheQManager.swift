@@ -315,7 +315,6 @@ class TheQManager {
     func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false,completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
-            completed(false)
             return
         }
         
