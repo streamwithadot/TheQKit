@@ -740,7 +740,26 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
             let json = JSON.init(parseJSON: data!)
+            print("gamereset")
             print(json)
+            
+            if(self?.fullScreenTriviaViewController != nil){
+                self?.fullScreenTriviaViewController?.willMove(toParent: nil)
+                self?.fullScreenTriviaViewController?.view.removeFromSuperview()
+                self?.fullScreenTriviaViewController?.removeFromParent()
+            }
+            if(self?.ssQuestionViewController != nil){
+                self?.ssQuestionViewController?.willMove(toParent: nil)
+                self?.ssQuestionViewController?.view.removeFromSuperview()
+                self?.ssQuestionViewController?.removeFromParent()
+            }
+            if(self?.ssResultsViewController != nil){
+                self?.ssResultsViewController?.willMove(toParent: nil)
+                self?.ssResultsViewController?.view.removeFromSuperview()
+                self?.ssResultsViewController?.removeFromParent()
+            }
+            
+            
             let resetData = TQKResetMsg(JSONString: data!)
             //Reset state of game to a brand new one
             self?.shouldUseHeart = false
@@ -771,7 +790,25 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eSource?.addEventListener("QuestionReset") { [weak self] id, event, data in
             let json = JSON.init(parseJSON: data!)
+            print("questionreset")
             print(json)
+            
+            if(self?.fullScreenTriviaViewController != nil){
+                self?.fullScreenTriviaViewController?.willMove(toParent: nil)
+                self?.fullScreenTriviaViewController?.view.removeFromSuperview()
+                self?.fullScreenTriviaViewController?.removeFromParent()
+            }
+            if(self?.ssQuestionViewController != nil){
+                self?.ssQuestionViewController?.willMove(toParent: nil)
+                self?.ssQuestionViewController?.view.removeFromSuperview()
+                self?.ssQuestionViewController?.removeFromParent()
+            }
+            if(self?.ssResultsViewController != nil){
+                self?.ssResultsViewController?.willMove(toParent: nil)
+                self?.ssResultsViewController?.view.removeFromSuperview()
+                self?.ssResultsViewController?.removeFromParent()
+            }
+            
             let resetData = TQKResetMsg(JSONString: data!)
 
             //Reset the current question
@@ -822,7 +859,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 let num : String = String(describing: self!.currentQuestion.number)
                 let total : String = String(describing: self!.currentQuestion.total)
                 if(self!.currentQuestion.total != 0){
-                    self!.currentQuestionNumberLabel.text = " \(num) / \(total) "
+                    self!.currentQuestionNumberLabel.text = "\(num) / \(total)"
                     self!.currentQuestionNumberLabel.isHidden = false
                     //                self.currentQuestionNumberLabel.sizeToFit()
                     
@@ -1234,7 +1271,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         player = nil
         player = IJKFFMoviePlayerController(contentURLString: url, with: IJKFFOptions.byDefault())
-        IJKFFMoviePlayerController.setLogLevel(k_IJK_LOG_ERROR)
+        IJKFFMoviePlayerController.setLogLevel(k_IJK_LOG_SILENT)
+        IJKFFMoviePlayerController.setLogReport(false)
         //        IJKFFMonitor
 //        if(TQKConstants.SHOULD_SHOW_HUD){
 //            player.shouldShowHudView = true
