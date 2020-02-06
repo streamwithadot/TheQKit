@@ -166,7 +166,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var didOfferFreeTrial: Bool = false
     
     var shouldUseHeart : Bool = false
-    var skipHeartUse : Bool = false
     var didUseHeart : Bool = false
     var lastQuestionHeartEligible : Int = 0
     var heartsEnabled : Bool = false
@@ -479,9 +478,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.undoElimination()
             }
             
-            //Check to see if the user responded to the question before checking if the result is correct/incorrect
-            if ((self.currentResult.selection != nil && !(self.currentResult.selection?.isEmpty)!) && (self.currentResult.answerId == self.currentResult.selection ||  self.currentResult.correctResponse == self.currentResult.selection)) {
+            if(self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue || self.currentResult.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                //TODO: Default the UI to the correct
+                self.launchFullScreenTrivia(.Correct)
                 
+            }else if ((self.currentResult.selection != nil && !(self.currentResult.selection?.isEmpty)!) && (self.currentResult.answerId == self.currentResult.selection ||  self.currentResult.correctResponse == self.currentResult.selection)) {
+                //Check to see if the user responded to the question before checking if the result is correct/incorrect
                 //Launch full screen trivia view with correct style
                self.launchFullScreenTrivia(.Correct)
                 
@@ -623,7 +625,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.showTriviaScreen(withType: type)
             }
         }else{ // we are a result
-            if(self.currentResult.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.currentResult.questionType == "POPULAR" || self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                 self.showPopularChoiceResult(withType: type)
             }else{
                 self.showTriviaScreen(withType: type)
@@ -736,6 +738,73 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             print("data: %@", dataString!)
         })
         
+        eSource?.addEventListener("GameReset") { [weak self] id, event, data in
+            let json = JSON.init(parseJSON: data!)
+            print(json)
+            let resetData = TQKResetMsg(JSONString: data!)
+            //Reset state of game to a brand new one
+            self?.shouldUseHeart = false
+            self?.currentResult = nil
+            self?.currentQuestion = nil
+            self?.currentQuestionNumberLabel.text = " "
+            self?.currentQuestionNumberLabel.isHidden = true
+            self?.undoElimination()
+            self?.heartsEnabled = resetData!.heartEligible
+            if(self!.heartsEnabled){
+                           
+               DispatchQueue.main.async(execute: {
+                   let heartImageView = UIImageView(image: UIImage(named: "heartAvaliable", in: TheQKit.bundle, compatibleWith: nil))
+                   heartImageView.contentMode = .scaleAspectFit
+                   heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
+                   self!.heartContainerView.addSubview(heartImageView)
+                   UIView.animate(withDuration: 1.0, animations: {
+                       self!.heartContainerView.alpha = 1.0
+                   })
+               })
+               
+               self!.didUseHeart = false
+           }else{
+               //eliminated or hearts disabled - either way this variable keeps it from being used by accident
+               self!.didUseHeart = true
+           }
+        }
+        
+        eSource?.addEventListener("QuestionReset") { [weak self] id, event, data in
+            let json = JSON.init(parseJSON: data!)
+            print(json)
+            let resetData = TQKResetMsg(JSONString: data!)
+
+            //Reset the current question
+            self?.shouldUseHeart = false
+            self?.currentResult = nil
+            self?.currentQuestion = nil
+            self?.currentQuestionNumberLabel.text = " "
+            self?.currentQuestionNumberLabel.isHidden = true
+            self?.heartsEnabled = resetData!.heartEligible
+            if(resetData!.active){
+                self?.undoElimination()
+            }
+            
+            if(resetData!.active == true && self!.heartsEnabled){
+                
+                DispatchQueue.main.async(execute: {
+                    let heartImageView = UIImageView(image: UIImage(named: "heartAvaliable", in: TheQKit.bundle, compatibleWith: nil))
+                    heartImageView.contentMode = .scaleAspectFit
+                    heartImageView.frame = CGRect(x: 0, y: 2, width: 20, height: 20)//self.heartContainerView.bounds
+                    self!.heartContainerView.addSubview(heartImageView)
+                    UIView.animate(withDuration: 1.0, animations: {
+                        self!.heartContainerView.alpha = 1.0
+                    })
+                })
+                
+                self!.didUseHeart = false
+            }else{
+                //eliminated or hearts disabled - either way this variable keeps it from being used by accident
+                self!.didUseHeart = true
+            }
+            
+        }
+        
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
                         
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
@@ -808,6 +877,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            var json = JSON.init(parseJSON: data!)
+            print(json)
             self?.currentResult = TQKResult(JSONString: data!)
             self?.handleQuestionResult()
         }
@@ -1436,12 +1507,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         let allowedCharacterSet = (CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted)
         let escapedString = responseId.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
-        //Don't let users use a heart on a survey question
-        if(self.shouldUseHeart && (self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue)) {
-            self.shouldUseHeart = false
-            self.skipHeartUse = true
-        }
-        
         if(self.shouldUseHeart){
             submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
         }else{
@@ -1561,19 +1626,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         // Prepare the popup assets
                         let title = NSLocalizedString("Sorry, an error has occured", comment: "")
                         let message = errorMessage + NSLocalizedString(" You may keep playing to increase your score on the Leaderboard!", comment: "")
-                        
-                        // Create the dialog
                         let popup = PopupDialog(title: title, message: message)
-                        
-                        
-                        // This button will not the dismiss the dialog
                         let buttonTwo = DefaultButton(title: "Continue", dismissOnTap: true) {
                             
                         }
-                        
-                        // Add buttons to dialog
-                        // Alternatively, you can use popup.addButton(buttonOne)
-                        // to add a single button
                         popup.buttonAlignment = .horizontal
                         popup.addButtons([buttonTwo])
                         
@@ -1612,7 +1668,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         if(!usedHeart && self.shouldUseHeart){
                             //Heart redemption failed - let user know heart wasn't used
                             let title = NSLocalizedString("Heart Redemption Failed", comment: "")
-                            let message = NSLocalizedString("Looks like you tried to redeem a heart but a network error occured - Your heart was not used and is avaliable for use in the next game.", comment: "")
+                            let message = NSLocalizedString("Looks like you tried to redeem an extra life but it was either the last question of the game or some network error occured. Your extra life was not used and is avaliable for use in the next game.", comment: "")
                             let popup = PopupDialog(title: title, message: message)
                             let buttonTwo = DefaultButton(title: NSLocalizedString("Continue", comment: ""), dismissOnTap: true) {
                                 
@@ -1633,12 +1689,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             userDefaults.set(true, forKey: "usedHeartFor\(self.myGameId!)") // fill data
                             userDefaults.synchronize()
                         }
-                    }
-                    
-                    //Set the next question up to use the heart that was skipped due to a survey question
-                    if(self.skipHeartUse) {
-                        self.shouldUseHeart = true
-                        self.skipHeartUse = false
                     }
                 }
             }

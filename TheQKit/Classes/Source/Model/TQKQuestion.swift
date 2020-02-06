@@ -16,6 +16,22 @@ enum TQKQuestionType : String {
     case CHOICE_SURVEY = "CHOICE_SURVEY"
 }
 
+struct TQKResetMsg: Mappable{
+    
+    var heartEligible : Bool = false
+    var active : Bool = false
+
+    init?(map: Map) {
+        
+    }
+        
+    mutating func mapping(map: Map) {
+        heartEligible <- map["heartEligible"]
+        active <- map["id"]
+    }
+    
+}
+
 struct TQKQuestion: Mappable{
     
 //    var gameId: String?
