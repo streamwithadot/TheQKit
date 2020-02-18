@@ -191,13 +191,26 @@ class TheQManager {
     }
     
     func CheckForGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
+        
+        var params : Parameters
+        if(TheQManager.sharedInstance.getUser() == nil){
+              params  = [
+                           "includeSubscriberOnly":false,
+                           "gameTypes":"TRIVIA,POPULAR"
+                       ]
+        }else{
+             params = [
+                "includeSubscriberOnly":false,
+                "gameTypes":"TRIVIA,POPULAR",
+                "userId":(TheQManager.sharedInstance.loggedInUser?.id)!,
+                "uid":(TheQManager.sharedInstance.loggedInUser?.id)!
+            ]
+        }
+        
         let gameHeaders : HTTPHeaders = [
             "Accept": "application/json"
         ]
-        let params : Parameters = [
-            "includeSubscriberOnly":false,
-            "gameTypes":"TRIVIA,POPULAR"
-        ]
+        
         
         var url:String = TQKConstants.baseUrl + "games"
         
