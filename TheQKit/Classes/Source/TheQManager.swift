@@ -318,6 +318,20 @@ class TheQManager {
             return
         }
         
+        if(TheQManager.sharedInstance.getUser() == nil){
+            
+            let alert = UIAlertController(title: "No User Found", message: "You must first be logged in to join a game", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+            }))
+            if let topController = UIApplication.topViewController() {
+                DispatchQueue.main.async(execute: {
+                    topController.present(alert, animated: true) {}
+                })
+            }
+            
+            return
+        }
+        
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
