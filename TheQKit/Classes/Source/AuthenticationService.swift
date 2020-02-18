@@ -314,8 +314,8 @@ class AuthenticationService {
             textField.isSecureTextEntry = false // for password input
         })
         
-        UIApplication.topViewController()!.present(alert, animated: true) {
-            
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            UIApplication.topViewController()!.present(alert, animated: true) {}
         }
         
     }
