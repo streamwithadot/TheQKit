@@ -315,21 +315,12 @@ class TheQManager {
     func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false,completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
+            print("TheQKit ERROR: GAME IS NOT ACTIVE - CAN NOT LAUNCH GAME")
             return
         }
         
         if(TheQManager.sharedInstance.getUser() == nil){
-            
-            print("NO USER LOGGED IN - CAN NOT PLAY GAME")
-//            let alert = UIAlertController(title: "No User Found", message: "You must first be logged in to join a game", preferredStyle: .alert)
-//            alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
-//            }))
-//            if let topController = UIApplication.topViewController() {
-//                DispatchQueue.main.async(execute: {
-//                    topController.present(alert, animated: true) {}
-//                })
-//            }
-            
+            print("TheQKit ERROR: NO USER LOGGED IN - CAN NOT LAUNCH GAME")
             return
         }
         
