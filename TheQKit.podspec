@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '1.0.9'
+  s.version          = '1.0.10'
   s.summary          = 'TheQKit SDK allows your own app to run game from The Q Trivia Network'
   
   s.swift_version = '4.2'
@@ -51,7 +51,7 @@ TODO: Add long description of the pod here.
   
   s.libraries = 'z', 'bz2', 'stdc++'
   
-  s.dependency 'Alamofire'
+  s.dependency 'Alamofire', '~> 4.9.1'
   s.dependency 'lottie-ios'
   s.dependency 'SwiftyJSON'
   s.dependency 'ObjectMapper'
