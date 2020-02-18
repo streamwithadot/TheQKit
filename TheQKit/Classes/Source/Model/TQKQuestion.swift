@@ -20,6 +20,7 @@ struct TQKResetMsg: Mappable{
     
     var heartEligible : Bool = false
     var active : Bool = false
+    var canRedeemHeart : Bool = false
 
     init?(map: Map) {
         
@@ -28,6 +29,7 @@ struct TQKResetMsg: Mappable{
     mutating func mapping(map: Map) {
         heartEligible <- map["heartEligible"]
         active <- map["id"]
+        canRedeemHeart <- map["canRedeemHeart"]
     }
     
 }
@@ -45,6 +47,7 @@ struct TQKQuestion: Mappable{
     var categoryId : String = "GEN"
     var wasMarkedIneligibleForTracking : Bool = false
     var questionType : String = "TRIVIA"
+    var canRedeemHeart : Bool = false
     
     init?(map: Map) {
         
@@ -61,6 +64,7 @@ struct TQKQuestion: Mappable{
         total <- map ["total"]
         categoryId <- map ["categoryId"]
         questionType <- map["questionType"]
+        canRedeemHeart <- map["canRedeemHeart"]
     }
     
 }

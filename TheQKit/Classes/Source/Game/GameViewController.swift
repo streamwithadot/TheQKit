@@ -743,22 +743,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             print("gamereset")
             print(json)
             
-            if(self?.fullScreenTriviaViewController != nil){
-                self?.fullScreenTriviaViewController?.willMove(toParent: nil)
-                self?.fullScreenTriviaViewController?.view.removeFromSuperview()
-                self?.fullScreenTriviaViewController?.removeFromParent()
-            }
-            if(self?.ssQuestionViewController != nil){
-                self?.ssQuestionViewController?.willMove(toParent: nil)
-                self?.ssQuestionViewController?.view.removeFromSuperview()
-                self?.ssQuestionViewController?.removeFromParent()
-            }
-            if(self?.ssResultsViewController != nil){
-                self?.ssResultsViewController?.willMove(toParent: nil)
-                self?.ssResultsViewController?.view.removeFromSuperview()
-                self?.ssResultsViewController?.removeFromParent()
-            }
-            
+            self?.removeAllChildScreens()
             
             let resetData = TQKResetMsg(JSONString: data!)
             //Reset state of game to a brand new one
@@ -782,9 +767,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                })
                
                self!.didUseHeart = false
-           }else{
-               //eliminated or hearts disabled - either way this variable keeps it from being used by accident
-               self!.didUseHeart = true
            }
         }
         
@@ -793,26 +775,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             print("questionreset")
             print(json)
             
-            if(self?.fullScreenTriviaViewController != nil){
-                self?.fullScreenTriviaViewController?.willMove(toParent: nil)
-                self?.fullScreenTriviaViewController?.view.removeFromSuperview()
-                self?.fullScreenTriviaViewController?.removeFromParent()
-            }
-            if(self?.ssQuestionViewController != nil){
-                self?.ssQuestionViewController?.willMove(toParent: nil)
-                self?.ssQuestionViewController?.view.removeFromSuperview()
-                self?.ssQuestionViewController?.removeFromParent()
-            }
-            if(self?.ssResultsViewController != nil){
-                self?.ssResultsViewController?.willMove(toParent: nil)
-                self?.ssResultsViewController?.view.removeFromSuperview()
-                self?.ssResultsViewController?.removeFromParent()
-            }
+            self?.removeAllChildScreens()
             
             let resetData = TQKResetMsg(JSONString: data!)
 
             //Reset the current question
-            self?.shouldUseHeart = false
+//            self?.shouldUseHeart = false
             self?.currentResult = nil
             self?.currentQuestion = nil
             self?.currentQuestionNumberLabel.text = " "
@@ -820,6 +788,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self?.heartsEnabled = resetData!.heartEligible
             if(resetData!.active){
                 self?.undoElimination()
+            }
+            
+            if(self!.didUseHeart && resetData!.canRedeemHeart){
+                self?.shouldUseHeart = true
             }
             
             if(resetData!.active == true && self!.heartsEnabled){
@@ -835,9 +807,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 })
                 
                 self!.didUseHeart = false
-            }else{
-                //eliminated or hearts disabled - either way this variable keeps it from being used by accident
-                self!.didUseHeart = true
             }
             
         }
@@ -1803,6 +1772,24 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         UIView.animate(withDuration: 1.0, animations: {
             self.heartContainerView.alpha = 0
         })
+    }
+    
+    fileprivate func removeAllChildScreens(){
+        if(self.fullScreenTriviaViewController != nil){
+            self.fullScreenTriviaViewController?.willMove(toParent: nil)
+            self.fullScreenTriviaViewController?.view.removeFromSuperview()
+            self.fullScreenTriviaViewController?.removeFromParent()
+        }
+        if(self.ssQuestionViewController != nil){
+            self.ssQuestionViewController?.willMove(toParent: nil)
+            self.ssQuestionViewController?.view.removeFromSuperview()
+            self.ssQuestionViewController?.removeFromParent()
+        }
+        if(self.ssResultsViewController != nil){
+            self.ssResultsViewController?.willMove(toParent: nil)
+            self.ssResultsViewController?.view.removeFromSuperview()
+            self.ssResultsViewController?.removeFromParent()
+        }
     }
     
 }
