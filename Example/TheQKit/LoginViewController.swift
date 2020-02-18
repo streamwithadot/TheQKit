@@ -10,6 +10,7 @@ import UIKit
 import TheQKit
 import FirebaseUI
 import GoogleSignIn
+import AuthenticationServices
 
 class LoginViewController: UIViewController, GIDSignInDelegate {
 
@@ -120,9 +121,16 @@ extension LoginViewController : UITableViewDelegate {
             }
         }else{
             //apple
-            let alert = UIAlertController(title: "Not Implemented", message: "Sign in with Apple needs to be implemented", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
-            self.present(alert, animated: true)
+             if #available(iOS 13.0, *) {
+                let appleIDProvider = ASAuthorizationAppleIDProvider()
+                let request = appleIDProvider.createRequest()
+                request.requestedScopes = [.fullName, .email]
+                    
+                let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+                authorizationController.delegate = self
+    //            authorizationController.presentationContextProvider = self as! ASAuthorizationControllerPresentationContextProviding
+                authorizationController.performRequests()
+            }
         }
     }
     
@@ -166,6 +174,29 @@ extension LoginViewController : UITableViewDataSource {
         }
     }
         
+}
+
+@available(iOS 13.0, *)
+extension LoginViewController : ASAuthorizationControllerDelegate {
+ 
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print(error.localizedDescription)
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            let userIdentifier = appleIDCredential.user
+                      
+            if let token = appleIDCredential.identityToken?.base64EncodedString() {
+                
+                TheQKit.LoginQUserWithApple(userID: userIdentifier, identityString: token) { (success) in
+                    if(success){
+                        self.performSegue(withIdentifier: "Onward!", sender: self)
+                    }
+                }
+            }
+        }
+    }
 }
 
 class LoginCell : UITableViewCell {
