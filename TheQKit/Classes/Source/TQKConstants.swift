@@ -9,7 +9,7 @@
 import Foundation
 
 
-enum TQKConstants {
+struct TQKConstants {
     
     static var RUNNING_JOIN_GAME_COUNT = "TQK_RUNNING_JOIN_GAME_COUNT"
     

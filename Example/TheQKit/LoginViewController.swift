@@ -12,7 +12,7 @@ import FirebaseUI
 import GoogleSignIn
 import AuthenticationServices
 
-class LoginViewController: UIViewController, GIDSignInDelegate {
+class LoginViewController: UIViewController {
 
     var authUI : FUIAuth?
     @IBOutlet weak var tableView: UITableView!
@@ -46,71 +46,10 @@ class LoginViewController: UIViewController, GIDSignInDelegate {
         let phoneProvider = FUIAuth.defaultAuthUI()!.providers.first as! FUIPhoneAuth
         phoneProvider.signIn(withPresenting: self, phoneNumber: nil)
     }
-    
-    
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-      if let _ = error {
-        return
-      }
-
-      guard let authentication = user.authentication else { return }
-      let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                        accessToken: authentication.accessToken)
-        
-        Auth.auth().signIn(with: credential) { (authResult, error) in
-            if let _ = error {
-                return
-            }
-            // User is signed in
-            let user = authResult?.user
-            let uid = user!.uid
-
-            user!.getIDTokenResult(completion: { (result, error) in
-                let token = result?.token
-                print(token)
-                
-                TheQKit.LoginQUserWithFirebase(userId: uid, tokenString: token!, username: "FBGoogTester") { (success) in
-                    if(success){
-                        self.performSegue(withIdentifier: "Onward!", sender: self)
-                    }else{
-                        print("Something went wrong")
-                    }
-                }
-            })
-        }
-    }
-
-    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
-        // Perform any operations when the user disconnects from app here.
-        // ...
-    }
 
 }
 
-
-// MARK: - FireBase UI
-extension LoginViewController: FUIAuthDelegate {
-    
-    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, url: URL?, error: Error?) {
-        if let user = authDataResult?.user {
-            
-            user.getIDTokenResult(completion: { (result, error) in
-                let token = result?.token
-                let userId:String = user.uid
-                
-                TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token!) { (success) in
-                    if(success){
-                        self.performSegue(withIdentifier: "Onward!", sender: self)
-                    }else{
-                        print("Something went wrong")
-                    }
-                }
-            })
-        }
-    }
-}
-
-// MARK: - TableView
+// MARK: - TableViewDelegate
 extension LoginViewController : UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if(indexPath.section == 0){
@@ -176,6 +115,48 @@ extension LoginViewController : UITableViewDataSource {
         
 }
 
+// MARK: Google Sign In
+extension LoginViewController : GIDSignInDelegate {
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
+      if let _ = error {
+        return
+      }
+
+      guard let authentication = user.authentication else { return }
+      let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
+                                                        accessToken: authentication.accessToken)
+        
+        Auth.auth().signIn(with: credential) { (authResult, error) in
+            if let _ = error {
+                return
+            }
+            // User is signed in
+            let user = authResult?.user
+            let uid = user!.uid
+
+            user!.getIDTokenResult(completion: { (result, error) in
+                let token = result?.token
+                print(token)
+                
+                TheQKit.LoginQUserWithFirebase(userId: uid, tokenString: token!, username: "FBGoogTester") { (success) in
+                    if(success){
+                        self.performSegue(withIdentifier: "Onward!", sender: self)
+                    }else{
+                        print("Something went wrong")
+                    }
+                }
+            })
+        }
+    }
+
+    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
+        // Perform any operations when the user disconnects from app here.
+        // ...
+    }
+}
+
+// MARK: Apple Sign In
+
 @available(iOS 13.0, *)
 extension LoginViewController : ASAuthorizationControllerDelegate {
  
@@ -199,6 +180,30 @@ extension LoginViewController : ASAuthorizationControllerDelegate {
     }
 }
 
+// MARK: - FireBase UI
+extension LoginViewController: FUIAuthDelegate {
+    
+    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, url: URL?, error: Error?) {
+        if let user = authDataResult?.user {
+            
+            user.getIDTokenResult(completion: { (result, error) in
+                let token = result?.token
+                let userId:String = user.uid
+                
+                TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token!) { (success) in
+                    if(success){
+                        self.performSegue(withIdentifier: "Onward!", sender: self)
+                    }else{
+                        print("Something went wrong")
+                    }
+                }
+            })
+        }
+    }
+}
+
+
+// MARK: LoginCell
 class LoginCell : UITableViewCell {
     
     @IBOutlet weak var loginLabel: UILabel!

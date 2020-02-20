@@ -36,28 +36,6 @@ class ViewController: UIViewController {
         }
     }
     
-    
-    
-    @IBAction func AKLogin(_ sender: Any) {
-        //TODO replace ID and Token
-        TheQKit.LoginQUserWithAK(accountID: "<Insert ID>",
-                                 tokenString: "<Insert Token String>") { (success) in
-            if(success){
-                //user logged in
-                print("Logged in")
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.label.text = "Success"
-                hud.hide(animated: true, afterDelay: 2.0)
-            }else{
-                //user not logged in
-                print("Not logged in")
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.label.text = "Failure"
-                hud.hide(animated: true, afterDelay: 2.0)
-            }
-        }
-    }
-    
     @IBAction func logout(_ sender: Any) {
         TheQKit.LogoutQUser()
         self.navigationController?.popViewController(animated: true)
@@ -91,39 +69,5 @@ class ViewController: UIViewController {
         TheQKit.CashOut()
     }
     
-    @IBAction func testFunc(_ sender: Any) {
-    
-        //TODO - replace email and password
-        Auth.auth().signIn(withEmail: "<InsertEmail>", password: "<InsertPassword>") { [weak self] user, error in
-
-            let user = user?.user
-            let isAnonymous = user!.isAnonymous  // true
-            let uid = user!.uid
-
-            user!.getIDTokenResult(completion: { (result, error) in
-                let token = result?.token
-                print(token)
-                
-                TheQKit.LoginQUserWithFirebase(userId: uid,
-                                         tokenString: token!) { (success) in
-                                            if(success){
-                                                //user logged in
-                                                print("Logged in")
-                                                let hud = MBProgressHUD.showAdded(to: self!.view, animated: true)
-                                                hud.label.text = "Success"
-                                                hud.hide(animated: true, afterDelay: 2.0)
-                                            }else{
-                                                //user not logged in
-                                                print("Not logged in")
-                                                let hud = MBProgressHUD.showAdded(to: self!.view, animated: true)
-                                                hud.label.text = "Failure"
-                                                hud.hide(animated: true, afterDelay: 2.0)
-                                            }
-                }
-                
-                
-            })
-        }
-    }
 }
 
