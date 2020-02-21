@@ -239,71 +239,71 @@ class FullScreenTriviaViewController: UIViewController {
         }
         for index in 0...count - 1 {
                     
-            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
+            if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
             
-            if(type == .Question){
-                cell.progressView.progressImage = self.selectedQuestionImage
-            }else if (type == .Correct && self.result?.selection != nil){
-                
-                let currentChoice = self.result!.choices![index]
-                
-                if (currentChoice.correct)!{
-                    cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-                }
-                if (currentChoice.id == self.result?.selection) {
-                    cell.progressView.progressImage = self.selectedImage
-                    cell.progressView.layer.borderColor = self.neutralBorderColor
-                    cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                    cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                }else{
-                    cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                }
-            
-            }else if(type == .Incorrect){
-                if(self.result != nil){
+                if(type == .Question){
+                    cell.progressView.progressImage = self.selectedQuestionImage
+                }else if (type == .Correct && self.result?.selection != nil){
+                    
                     let currentChoice = self.result!.choices![index]
-
-                    if(currentChoice.correct!){
-                        cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    
+                    if (currentChoice.correct)!{
+                        cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+                    }
+                    if (currentChoice.id == self.result?.selection) {
+                        cell.progressView.progressImage = self.selectedImage
+                        cell.progressView.layer.borderColor = self.neutralBorderColor
+                        cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                        cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
                     }else{
                         cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                     }
-                    
-                    if(self.result?.selection != nil){
-                        if (currentChoice.id == self.result?.selection) {
-                            cell.progressView.progressImage = self.selectedImage
-                            cell.progressView.layer.borderColor = self.neutralBorderColor
-                            cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                            cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                
+                }else if(type == .Incorrect){
+                    if(self.result != nil){
+                        let currentChoice = self.result!.choices![index]
+
+                        if(currentChoice.correct!){
+                            cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                        }else{
+                            cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                         }
-                    }
-                }
-            }
-            
-            UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-        
-                    cell.pvWidthConstraint.constant = cell.answerView.frame.width
-                    cell.questionLabel.alpha = 1.0
-                    if(self.type != .Question){
-                        cell.answerCountLabel.alpha = 1.0
-                        let b: Int! = self.result?.choices?[index].responses!
-                        cell.answerCountLabel.text = String(b)
-                        cell.ivWidthConstraint.constant = 30.0
-        
-                    }
-                    self.view.layoutIfNeeded()
-        
-                }) { (bool) in
-                    if(self.type != .Question){
-                        self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
-                        if(self.type == .Correct){
-                            if (self.result?.choices?[index].correct)!{
-                                self.showPlusOneFor(view: cell.progressView)
+                        
+                        if(self.result?.selection != nil){
+                            if (currentChoice.id == self.result?.selection) {
+                                cell.progressView.progressImage = self.selectedImage
+                                cell.progressView.layer.borderColor = self.neutralBorderColor
+                                cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                                cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
                             }
                         }
                     }
                 }
-//            }
+                
+                UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
+            
+                        cell.pvWidthConstraint.constant = cell.answerView.frame.width
+                        cell.questionLabel.alpha = 1.0
+                        if(self.type != .Question){
+                            cell.answerCountLabel.alpha = 1.0
+                            let b: Int! = self.result?.choices?[index].responses!
+                            cell.answerCountLabel.text = String(b)
+                            cell.ivWidthConstraint.constant = 30.0
+            
+                        }
+                        self.view.layoutIfNeeded()
+            
+                    }) { (bool) in
+                        if(self.type != .Question){
+                            self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
+                            if(self.type == .Correct){
+                                if (self.result?.choices?[index].correct)!{
+                                    self.showPlusOneFor(view: cell.progressView)
+                                }
+                            }
+                        }
+                    }
+            }
         }
         
     }
@@ -447,8 +447,9 @@ class FullScreenTriviaViewController: UIViewController {
             count = self.result!.choices!.count
         }
         for index in 0...count - 1 {
-            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
-            cell.progressView.alpha = 0.0
+            if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
+                cell.progressView.alpha = 0.0
+            }
         }
     }
     
@@ -460,8 +461,9 @@ class FullScreenTriviaViewController: UIViewController {
             count = self.result!.choices!.count
         }
         for index in 0...count - 1 {
-            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
-            cell.progressView.alpha = 1.0
+            if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
+                cell.progressView.alpha = 1.0
+            }
         }
     }
 }
@@ -508,8 +510,8 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
             let x = CGFloat(tableView.frame.height) / CGFloat(self.result!.choices!.count)
             height = (x >= 70 ? 70 : x)
         }
-        
-        return height <= 30 ? 30 : height
+
+        return height <= 50 ? 50 : height
         
     }
 }
