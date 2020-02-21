@@ -45,93 +45,28 @@ class FullScreenTriviaViewController: UIViewController {
 
     
     @IBOutlet weak var blurView: UIVisualEffectView!
-    
-    
-    @IBOutlet weak var answerViewA: UIView!
-    @IBOutlet weak var answerViewB: UIView!
-    @IBOutlet weak var answerViewC: UIView!
-
-    
-    @IBOutlet weak var progressViewA: UIProgressView!
-    @IBOutlet weak var pvaHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var pvaWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var questionLabelA: UILabel!
-    @IBOutlet weak var answerCountLabelA: UILabel!
-    @IBOutlet weak var imageViewA: UIImageView!
-    @IBOutlet weak var ivaWidthConstraint: NSLayoutConstraint!
-    
-    
-    @IBOutlet weak var progressViewB: UIProgressView!
-    @IBOutlet weak var pvbHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var pvbWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var questionLabelB: UILabel!
-    @IBOutlet weak var answerCountLabelB: UILabel!
-    @IBOutlet weak var imageViewB: UIImageView!
-    @IBOutlet weak var ivbWidthConstraint: NSLayoutConstraint!
-    
-    
-    @IBOutlet weak var progressViewC: UIProgressView!
-    @IBOutlet weak var pvcHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var pvcWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var questionLabelC: UILabel!
-    @IBOutlet weak var answerCountLabelC: UILabel!
-    @IBOutlet weak var imageViewC: UIImageView!
-    @IBOutlet weak var ivcWidthConstraint: NSLayoutConstraint!
-    
-    
+    @IBOutlet weak var triviaTable: UITableView!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var tintedView: UIView!
-    
-    
-    
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var questionLabelWidth: NSLayoutConstraint!
-    
-    
     @IBOutlet weak var timesUpLabel: UILabel!
-    
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        progressViewA.layer.borderWidth = 2.0
-        progressViewB.layer.borderWidth = 2.0
-        progressViewC.layer.borderWidth = 2.0
-        
-        progressViewA.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
-        progressViewB.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
-        progressViewC.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
+        self.triviaTable.delegate = self
+        self.triviaTable.dataSource = self
         
         questionLabel.backgroundColor = UIColor.clear//UIColor.black.withAlphaComponent(0.5)
         questionLabel.layer.cornerRadius = 10.0
         questionLabel.clipsToBounds = true
-        
-        progressViewA.clipsToBounds = true
-        progressViewB.clipsToBounds = true
-        progressViewC.clipsToBounds = true
-        
-        progressViewA.backgroundColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-        progressViewB.backgroundColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-        progressViewC.backgroundColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-
-        
         timesUpLabel.clipsToBounds = true
         timesUpLabel.isHidden = false
         timesUpLabel.alpha = 0.0
-        
-        answerViewA.isHidden = true
-        answerViewB.isHidden = true
-        answerViewC.isHidden = true
+        triviaTable.alpha = 0.0
         self.questionLabel.alpha = 0.0
-
-        self.progressViewA.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-        self.progressViewB.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-        self.progressViewC.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-
-        
-        
     }
     
     override func viewDidLayoutSubviews() {
@@ -154,35 +89,7 @@ class FullScreenTriviaViewController: UIViewController {
         if(self.type == .Question){
             NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
         }
-
-        if(type == .Question){
-            let aGesture = UITapGestureRecognizer(target: self, action: #selector(self.aTapped(_:)))
-            let bGesture = UITapGestureRecognizer(target: self, action: #selector(self.bTapped(_:)))
-            let cGesture = UITapGestureRecognizer(target: self, action: #selector(self.cTapped(_:)))
-            
-            answerViewC.addGestureRecognizer(cGesture)
-            answerViewC.isUserInteractionEnabled = true
-            answerViewA.addGestureRecognizer(aGesture)
-            answerViewA.isUserInteractionEnabled = true
-            answerViewB.addGestureRecognizer(bGesture)
-            answerViewB.isUserInteractionEnabled = true
-            
-        }
-
-        progressViewA.layer.cornerRadius = progressViewA.frame.size.height / 2
-        progressViewA.clipsToBounds = true
-        progressViewA.layer.sublayers![1].cornerRadius = progressViewA.frame.size.height / 2
-        progressViewA.subviews[1].clipsToBounds = true
         
-        progressViewB.layer.cornerRadius = progressViewB.frame.size.height / 2
-        progressViewB.clipsToBounds = true
-        progressViewB.layer.sublayers![1].cornerRadius = progressViewB.frame.size.height / 2
-        progressViewB.subviews[1].clipsToBounds = true
-        
-        progressViewC.layer.cornerRadius = progressViewC.frame.size.height / 2
-        progressViewC.clipsToBounds = true
-        progressViewC.layer.sublayers![1].cornerRadius = progressViewC.frame.size.height / 2
-        progressViewC.subviews[1].clipsToBounds = true
      
         if(type == .Question){
             
@@ -231,17 +138,14 @@ class FullScreenTriviaViewController: UIViewController {
             self.containerView.addSubview(animationView)
             
             animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-//                animationView.removeFromSuperview()
             }
             
-//            self.perform(#selector(removeLottieView), with: self, afterDelay: 4.5)
+
             self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
             
-//#if !NEWSCORPUK
-//            blurView.tintColor = UIColor("#32C274")
+
             tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
 
-//#endif
 
         }else if(type == .Incorrect){
             let animationView = AnimationView(name: "incorrect", bundle: TheQKit.bundle)
@@ -251,213 +155,23 @@ class FullScreenTriviaViewController: UIViewController {
             self.containerView.addSubview(animationView)
             
             animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-//                animationView.removeFromSuperview()
             }
-//            self.perform(#selector(removeLottieView), with: self, afterDelay: 4.5)
             self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
 
-//#if !NEWSCORPUK
-//            blurView.tintColor = UIColor("#E63462")
             tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
 
-//#endif
             
         }
         
         questionLabelWidth.constant = 0.0
+        questionLabel.text = self.question?.question!
         
-        pvaWidthConstraint.constant = 0.0
-        questionLabelA.alpha = 0.0
-        answerCountLabelA.alpha = 0.0
-        ivaWidthConstraint.constant = 0.0
-
-        pvbWidthConstraint.constant = 0.0
-        questionLabelB.alpha = 0.0
-        answerCountLabelB.alpha = 0.0
-        ivbWidthConstraint.constant = 0.0
-
-        pvcWidthConstraint.constant = 0.0
-        questionLabelC.alpha = 0.0
-        answerCountLabelC.alpha = 0.0
-        ivcWidthConstraint.constant = 0.0
-
         
-        self.questionLabel.text = self.question?.question!
-        if(type == .Question){
-            if((self.question?.choices!.count)! > 2){
-                self.questionLabelA.text = self.question?.choices?[2].choice
-                self.progressViewA.progressImage = self.selectedQuestionImage
-            }
-            self.questionLabelB.text = self.question?.choices?[1].choice
-            self.questionLabelC.text = self.question?.choices?[0].choice
-            
-            self.progressViewB.progressImage = self.selectedQuestionImage
-            self.progressViewC.progressImage = self.selectedQuestionImage
-
-        }else if (type == .Correct && self.result?.selection != nil){
-            if((self.result?.choices!.count)! > 2){
-                self.questionLabelA.text = self.result?.choices?[2].choice
-                if (self.result?.choices?[2].correct)!{
-                    self.progressViewA.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-                }
-                if (self.result?.choices?[2].id == self.result?.selection) {
-                    // set progress view to red
-                    self.progressViewA.progressImage = self.selectedImage
-                    self.progressViewA.layer.borderColor = self.neutralBorderColor
-                    
-                    self.questionLabelA.textColor = UIColor("#32C274")
-                    self.answerCountLabelA.textColor = UIColor("#32C274")
-                    
-                    progressViewA.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                    self.imageViewA.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                }
-            }
-            self.questionLabelB.text = self.result?.choices?[1].choice
-            self.questionLabelC.text = self.result?.choices?[0].choice
-            
-            
-            
-            if (self.result?.choices?[1].correct)!{
-                // set progress view collor to green
-                self.progressViewB.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-            }
-            if (self.result?.choices?[0].correct)!{
-                // set progress view collor to green
-                self.progressViewC.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-            }
-            
-            if (self.result?.choices?[1].id == self.result?.selection) {
-                // set progress view to red
-//                #if !NEWSCORPUK
-                self.progressViewB.progressImage = self.selectedImage
-                self.progressViewB.layer.borderColor = self.neutralBorderColor
-                
-                self.questionLabelB.textColor = UIColor("#32C274")
-                self.answerCountLabelB.textColor = UIColor("#32C274")
-                
-                progressViewB.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                self.imageViewB.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-
-//                #endif
-            }else if (self.result?.choices?[0].id == self.result?.selection) {
-                // set progress view to red
-//                #if !NEWSCORPUK
-                self.progressViewC.progressImage = self.selectedImage
-                self.progressViewC.layer.borderColor = self.neutralBorderColor
-                
-                self.questionLabelC.textColor = UIColor("#32C274")
-                self.answerCountLabelC.textColor = UIColor("#32C274")
-                
-                progressViewC.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                self.imageViewC.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-
-//                #endif
-            }
-            
-            
-        }else if(type == .Incorrect){
-            
-            if(self.result != nil){
-                
-                self.questionLabelB.text = self.result?.choices?[1].choice
-                self.questionLabelC.text = self.result?.choices?[0].choice
-                
-                if (self.result?.choices?[1].correct)!{
-                    // set progress view collor to green
-                    self.imageViewB.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-
-                }else if (self.result?.choices?[0].correct)!{
-                    // set progress view collor to green
-                    self.imageViewC.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    self.imageViewA.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                }
-                
-                
-                if((self.result?.choices!.count)! > 2){
-                    self.questionLabelA.text = self.result?.choices?[2].choice
-                    if (self.result?.choices?[2].correct)!{
-                        self.imageViewA.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        self.imageViewB.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        self.imageViewC.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        
-                    }
-                    
-                    if(self.result?.selection != nil){
-                        if (self.result?.choices?[2].id == self.result?.selection) {
-                            // set progress view to red
-                            self.progressViewA.progressImage = self.selectedImage
-                            self.progressViewA.layer.borderColor = self.neutralBorderColor
-                            
-                            self.questionLabelA.textColor = UIColor("#E63462")
-                            self.answerCountLabelA.textColor = UIColor("#E63462")
-                            
-                            progressViewA.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                            self.imageViewA.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        }
-                    }
-                }
-                
-                if(self.result?.selection != nil){
-                
-                    if (self.result?.choices?[1].id == self.result?.selection) {
-                        // set progress view to red
-                        self.progressViewB.progressImage = self.selectedImage
-                        self.progressViewB.layer.borderColor = self.neutralBorderColor
-                        
-                        self.questionLabelB.textColor = UIColor("#E63462")
-                        self.answerCountLabelB.textColor = UIColor("#E63462")
-                        
-                        progressViewB.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                        self.imageViewB.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    }
-                    if (self.result?.choices?[0].id == self.result?.selection) {
-                        // set progress view to red
-                        self.progressViewC.progressImage = self.selectedImage
-                        self.progressViewC.layer.borderColor = self.neutralBorderColor
-                        
-                        self.questionLabelC.textColor = UIColor("#E63462")
-                        self.answerCountLabelC.textColor = UIColor("#E63462")
-                        
-                        progressViewC.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                        self.imageViewC.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    }
-                }
-            }
-        }
         
         self.view.layoutIfNeeded()
         
-        progressViewA.setProgress(0.0, animated: false)
-        progressViewB.setProgress(0.0, animated: false)
-        progressViewC.setProgress(0.0, animated: false)
         
-        answerViewA.isHidden = false
-        answerViewB.isHidden = false
-        answerViewC.isHidden = false
-        
-        if(type == .Question){
-            if((self.question?.choices!.count)! < 3){
-                self.answerViewA.isHidden = true
-            }else{
-                self.answerViewA.isHidden = false
-            }
-        }else{
-            if((self.result?.choices!.count)! < 3){
-                self.answerViewA.isHidden = true
-            }else{
-                self.answerViewA.isHidden = false
-            }
-        }
-        
+
         var totalResponse = 0
         if(type != .Question){
             for choice in (self.result?.choices!)! {
@@ -487,115 +201,111 @@ class FullScreenTriviaViewController: UIViewController {
             }else{
                 self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
             }
-//#if !NEWSCORPUK
             self.timesUpLabel.textColor = UIColor("#32C274")
             self.timesUpLabel.backgroundColor = UIColor.white
-//#else
-//            self.timesUpLabel.textColor = UIColor.white
-//            self.timesUpLabel.backgroundColor = UIColor("#32C274")
-//#endif
+
         }else if(self.type == .Incorrect){
             if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                 self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
             }else{
                 self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
             }
-//#if !NEWSCORPUK
             self.timesUpLabel.textColor = UIColor("#E63462")
             self.timesUpLabel.backgroundColor = UIColor.white
-//#else
-//            self.timesUpLabel.textColor = UIColor.white
-//            self.timesUpLabel.backgroundColor = UIColor("#E63462")
-//#endif
-        }
-        
-        if(  (self.type != .Question && (self.result?.choices!.count)! > 2) ||  (self.type == .Question && (self.question?.choices!.count)! > 2)    ){
-            UIView.animate(withDuration: 0.35, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-                
-                self.pvaWidthConstraint.constant = self.answerViewA.frame.width
-                self.questionLabelA.alpha = 1.0
-                if(self.type != .Question){
-                    self.answerCountLabelA.alpha = 1.0
-                    let a: Int! = self.result?.choices?[2].responses!
-                    self.answerCountLabelA.text = String(a)
-                    self.ivaWidthConstraint.constant = 30.0
-                    
-                    
-                }
-                self.view.layoutIfNeeded()
 
-            }) { (bool) in
-                if(self.type != .Question){
-                    self.setProgressBarFill(bar: self.progressViewA, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[2].responses)!))
-                    if(self.type == .Correct){
-                        if (self.result?.choices?[2].correct)!{
-                            self.showPlusOneFor(view: self.progressViewA)
-                        }
-                    }
-                    
-                }
-            }
         }
         
-        UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-
-            self.pvbWidthConstraint.constant = self.answerViewB.frame.width
-            self.questionLabelB.alpha = 1.0
-            if(self.type != .Question){
-                self.answerCountLabelB.alpha = 1.0
-                let b: Int! = self.result?.choices?[1].responses!
-                self.answerCountLabelB.text = String(b)
-                self.ivbWidthConstraint.constant = 30.0
-                
-            }
-            self.view.layoutIfNeeded()
-            
-        }) { (bool) in
-            if(self.type != .Question){
-                self.setProgressBarFill(bar: self.progressViewB, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[1].responses)!))
-                if(self.type == .Correct){
-                    if (self.result?.choices?[1].correct)!{
-                        self.showPlusOneFor(view: self.progressViewB)
-                    }
-                }
-            }
-        }
-        
-        UIView.animate(withDuration: 0.35, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            
-            self.pvcWidthConstraint.constant = self.answerViewC.frame.width
-            self.questionLabelC.alpha = 1.0
-            if(self.type != .Question){
-                self.answerCountLabelC.alpha = 1.0
-                let c: Int! = self.result?.choices?[0].responses!
-                self.answerCountLabelC.text = String(c)
-                self.ivcWidthConstraint.constant = 30.0
-            }
-            self.view.layoutIfNeeded()
-            
-        }) { (bool) in
-            if(self.type != .Question){
-                self.setProgressBarFill(bar: self.progressViewC, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[0].responses)!))
-                if(self.type == .Correct){
-                    if (self.result?.choices?[0].correct)!{
-                        self.showPlusOneFor(view: self.progressViewC)
-                    }
-                }
-            }
-        }
+        self.triviaTable.reloadData()
         
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            
-            self.questionLabel.alpha = 1.0
-            self.questionLabelWidth.constant = self.answerViewC.frame.width
-            self.timesUpLabel.alpha = 1.0
 
+            self.questionLabel.alpha = 1.0
+            self.questionLabelWidth.constant = self.view.frame.width - 20
+            self.timesUpLabel.alpha = 1.0
+            self.triviaTable.alpha = 1.0
+            
             self.view.layoutIfNeeded()
             //            self.progressViewC.layoutIfNeeded()
-            
+
         }) { (bool) in
             //na
         }
+        
+        var count = 0
+        if(type == .Question){
+            count = self.question!.choices!.count
+        }else{
+            count = self.result!.choices!.count
+        }
+        for index in 0...count - 1 {
+                    
+            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
+            
+            if(type == .Question){
+                cell.progressView.progressImage = self.selectedQuestionImage
+            }else if (type == .Correct && self.result?.selection != nil){
+                
+                let currentChoice = self.result!.choices![index]
+                
+                if (currentChoice.correct)!{
+                    cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+                }
+                if (currentChoice.id == self.result?.selection) {
+                    cell.progressView.progressImage = self.selectedImage
+                    cell.progressView.layer.borderColor = self.neutralBorderColor
+                    cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                    cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                }else{
+                    cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                }
+            
+            }else if(type == .Incorrect){
+                if(self.result != nil){
+                    let currentChoice = self.result!.choices![index]
+
+                    if(currentChoice.correct!){
+                        cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    }else{
+                        cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    }
+                    
+                    if(self.result?.selection != nil){
+                        if (currentChoice.id == self.result?.selection) {
+                            cell.progressView.progressImage = self.selectedImage
+                            cell.progressView.layer.borderColor = self.neutralBorderColor
+                            cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                            cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                        }
+                    }
+                }
+            }
+            
+            UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
+        
+                    cell.pvWidthConstraint.constant = cell.answerView.frame.width
+                    cell.questionLabel.alpha = 1.0
+                    if(self.type != .Question){
+                        cell.answerCountLabel.alpha = 1.0
+                        let b: Int! = self.result?.choices?[index].responses!
+                        cell.answerCountLabel.text = String(b)
+                        cell.ivWidthConstraint.constant = 30.0
+        
+                    }
+                    self.view.layoutIfNeeded()
+        
+                }) { (bool) in
+                    if(self.type != .Question){
+                        self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
+                        if(self.type == .Correct){
+                            if (self.result?.choices?[index].correct)!{
+                                self.showPlusOneFor(view: cell.progressView)
+                            }
+                        }
+                    }
+                }
+//            }
+        }
+        
     }
     
     func showPlusOneFor(view : UIView){
@@ -657,12 +367,12 @@ class FullScreenTriviaViewController: UIViewController {
         
         UIView.animate(withDuration: 0.25, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
             //            self.progressViewC.frame = originalC
-            
+
             //            self.pvaHeightConstraint.constant = 70.0
-            self.questionLabelA.alpha = 0.0
-            self.answerCountLabelA.alpha = 0.0
-            self.pvaWidthConstraint.constant = 0.0
-            self.ivaWidthConstraint.constant = 0.0
+//            self.questionLabelA.alpha = 0.0
+//            self.answerCountLabelA.alpha = 0.0
+//            self.pvaWidthConstraint.constant = 0.0
+//            self.ivaWidthConstraint.constant = 0.0
             self.view.layoutIfNeeded()
 //            self.view.alpha = 0.0
             //            self.progressViewA.layoutIfNeeded()
@@ -672,43 +382,15 @@ class FullScreenTriviaViewController: UIViewController {
             self.removeFromParent()
         }
         
-        UIView.animate(withDuration: 0.25, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            //            self.progressViewC.frame = originalC
-            //            self.pvbHeightConstraint.constant = 70.0
-            self.questionLabelB.alpha = 0.0
-            self.answerCountLabelB.alpha = 0.0
-            self.pvbWidthConstraint.constant = 0.0
-            self.ivbWidthConstraint.constant = 0.0
-            self.view.layoutIfNeeded()
-            //            self.progressViewB.layoutIfNeeded()
-            
-        }) { (bool) in
-            //na
-            
-        }
-        
-        UIView.animate(withDuration: 0.25, delay: 0.05, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            //            self.progressViewC.frame = originalC
-            //            self.pvcHeightConstraint.constant = 70.0
-            self.answerCountLabelC.alpha = 0.0
-            self.pvcWidthConstraint.constant = 0.0
-            self.questionLabelC.alpha = 0.0
-            self.ivcWidthConstraint.constant = 0.0
-            self.view.layoutIfNeeded()
-            //            self.progressViewC.layoutIfNeeded()
-            
-        }) { (bool) in
-            //na
-        }
-        
         UIView.animate(withDuration: 0.25, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            
+
             self.timesUpLabel.alpha = 0.0
             self.questionLabel.alpha = 0.0
             self.questionLabelWidth.constant = 0.0
+            self.triviaTable.alpha = 0.0
             self.view.layoutIfNeeded()
             //            self.progressViewC.layoutIfNeeded()
-            
+
         }) { (bool) in
             //na
         }
@@ -750,116 +432,220 @@ class FullScreenTriviaViewController: UIViewController {
                 }
             }
         }
-        
-        
-        
     }
-    
-    @objc func aTapped(_ sender: UITapGestureRecognizer) {
-        print("yo we tapped a")
-        if ((self.gameDelegate?.userSubmittedAnswer)!) {
-            self.view.makeToast("You already answered the question :)", duration: 2.0, position: .bottom)
-            
-        }else if (!(self.gameDelegate?.isQuestionActive)!) {
-            self.view.makeToast("Time has expired :(", duration: 2.0, position: .bottom)
-            
-            
-        }else{
-            
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                questionLabelA.textColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-            }else{
-                questionLabelA.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
-            }
-            
-            progressViewA.progressImage = self.selectedQuestionImage
-
-            progressViewA.setProgress(1.0, animated: false)
-            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[2].id)!, choiceText: (self.question?.choices?[2].choice)!)
-            
-//            showLoadingIndicatorFor(view: self.progressViewA)
-            progressViewA.alpha = 0.3
-        }
-        
-    }
-    
-    @objc func bTapped(_ sender: UITapGestureRecognizer) {
-        print("yo we tapped b")
-        if ((self.gameDelegate?.userSubmittedAnswer)!) {
-            self.view.makeToast("You already answered the question :)", duration: 2.0, position: .bottom)
-            
-        } else if (!(self.gameDelegate?.isQuestionActive)!) {
-            self.view.makeToast("Time has expired :(", duration: 2.0, position: .bottom)
-            
-            
-        }else{
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                questionLabelB.textColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-            }else{
-                questionLabelB.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
-            }
-            
-            progressViewB.progressImage = self.selectedQuestionImage
-
-            progressViewB.setProgress(1.0, animated: false)
-            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[1].id)!, choiceText: (self.question?.choices?[1].choice)!)
-            
-//            showLoadingIndicatorFor(view: self.progressViewB)
-            progressViewB.alpha = 0.3
-        }
-    }
-    @objc func cTapped(_ sender: UITapGestureRecognizer) {
-        print("yo we tapped c")
-        if ((self.gameDelegate?.userSubmittedAnswer)!) {
-            self.view.makeToast("You already answered the question :)", duration: 2.0, position: .bottom)
-            
-        }
-        else if (!(self.gameDelegate?.isQuestionActive)!) {
-            self.view.makeToast("Time has expired :(", duration: 2.0, position: .bottom)
-            
-            
-        }else{
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                questionLabelC.textColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-            }else{
-                questionLabelC.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
-            }
-            
-            progressViewC.progressImage = self.selectedQuestionImage
-
-            progressViewC.setProgress(1.0, animated: false)
-            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[0].id)!, choiceText: (self.question?.choices?[0].choice)!)
-            
-//            showLoadingIndicatorFor(view: self.progressViewC)
-            progressViewC.alpha = 0.3
-        }
-    }
-    
-//    func showLoadingIndicatorFor(view : UIView){
-//
-//#if !NEWSCORPUK
-//        let frame = self.view.convert(view.frame, from: view.superview)
-//
-//        self.linearBar.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: 3)
-//        self.linearBar.widthForLinearBar = frame.size.width
-//
-//        self.linearBar.heightForLinearBar = 3
-//        linearBar.backgroundColor = .clear
-//        if(self.currentQuestion.categoryId == nil || (self.currentQuestion.categoryId?.isEmpty)!){
-//            linearBar.progressBarColor = UIColor.init(Constants.GEN_COLOR_CODE, defaultColor: UIColor.blue)
-//        }else{
-//            linearBar.progressBarColor = (self.leaderboardDelegate?.getColorForID(catId: self.currentQuestion.categoryId!))!
-//        }
-//        self.linearBar.startAnimation()
-//#endif
-//    }
-    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func fadeAllCellsOut(){
+        var count = 0
+        if(type == .Question){
+            count = self.question!.choices!.count
+        }else{
+            count = self.result!.choices!.count
+        }
+        for index in 0...count - 1 {
+            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
+            cell.progressView.alpha = 0.0
+        }
+    }
+    
+    func fadeAllCellsIn(){
+        var count = 0
+        if(type == .Question){
+            count = self.question!.choices!.count
+        }else{
+            count = self.result!.choices!.count
+        }
+        for index in 0...count - 1 {
+            let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as! FullScreenTriviaCell
+            cell.progressView.alpha = 1.0
+        }
+    }
+}
 
 
+// MARK: TableView Delegate and Datasource
+extension FullScreenTriviaViewController : UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if(self.type != .Question){
+            return
+        }
+        
+        let cell = tableView.cellForRow(at: indexPath) as! FullScreenTriviaCell
+        
+        if ((self.gameDelegate?.userSubmittedAnswer)!) {
+            self.view.makeToast("You already answered the question :)", duration: 2.0, position: .bottom)
+        }else if (!(self.gameDelegate?.isQuestionActive)!) {
+            self.view.makeToast("Time has expired :(", duration: 2.0, position: .bottom)
+        }else{
+            
+            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
+                cell.questionLabel.textColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+            }else{
+                cell.questionLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+            }
+            
+            cell.progressView.progressImage = self.selectedQuestionImage
+
+            cell.progressView.setProgress(1.0, animated: false)
+            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[indexPath.row].id)!, choiceText: (self.question?.choices?[indexPath.row].choice)!)
+            
+            cell.progressView.alpha = 0.3
+                                    
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        var height : CGFloat = 70.0
+        if(type == .Question){
+            let x = CGFloat(tableView.frame.height) / CGFloat(self.question!.choices!.count)
+            height = (x >= 70 ? 70 : x)
+        }else{
+            let x = CGFloat(tableView.frame.height) / CGFloat(self.result!.choices!.count)
+            height = (x >= 70 ? 70 : x)
+        }
+        
+        return height <= 30 ? 30 : height
+        
+    }
+}
+
+extension FullScreenTriviaViewController : UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(type == .Question){
+            return self.question!.choices!.count
+        }else{
+            return self.result!.choices!.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "fullScreenTriviaCell", for: indexPath) as! FullScreenTriviaCell
+        
+        if(type == .Question){
+            cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
+            cell.progressView.progressImage = self.selectedQuestionImage
+        }else if (type == .Correct && self.result?.selection != nil){
+            
+            let currentChoice = self.result!.choices![indexPath.row]
+            cell.questionLabel.text = currentChoice.choice
+            
+            if (currentChoice.correct)!{
+                cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+            }
+            if (currentChoice.id == self.result?.selection) {
+                cell.progressView.progressImage = self.selectedImage
+                cell.progressView.layer.borderColor = self.neutralBorderColor
+                
+                cell.questionLabel.textColor = UIColor("#32C274")
+                cell.answerCountLabel.textColor = UIColor("#32C274")
+                
+                cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+            }else{
+                cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+            }
+        
+        }else if(type == .Incorrect){
+            
+            if(self.result != nil){
+                let currentChoice = self.result!.choices![indexPath.row]
+
+                cell.questionLabel.text = currentChoice.choice
+                
+                if(currentChoice.correct!){
+                    cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                }else{
+                    cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                }
+                
+                if(self.result?.selection != nil){
+                    if (currentChoice.id == self.result?.selection) {
+                        cell.progressView.progressImage = self.selectedImage
+                        cell.progressView.layer.borderColor = self.neutralBorderColor
+                        
+                        cell.questionLabel.textColor = UIColor("#E63462")
+                        cell.answerCountLabel.textColor = UIColor("#E63462")
+                        
+                        cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                        cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    }
+                }
+            }
+        }
+        
+        cell.pvWidthConstraint.constant = cell.answerView.frame.width
+        cell.questionLabel.alpha = 1.0
+        if(self.type != .Question){
+            let currentChoice = self.result!.choices![indexPath.row]
+            cell.answerCountLabel.alpha = 1.0
+            let a: Int! = currentChoice.responses!
+            cell.answerCountLabel.text = String(a)
+            cell.ivWidthConstraint.constant = 30.0
+        }else{
+            cell.ivWidthConstraint.constant = 0.0
+        }
+//        self.view.layoutIfNeeded()
+        
+
+        return cell
+    }
+    
+    
+}
+
+class FullScreenTriviaCell : UITableViewCell {
+        
+    @IBOutlet weak var answerView: UIView!
+    @IBOutlet weak var progressView: UIProgressView!
+    @IBOutlet weak var pvHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var pvWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var questionLabel: UILabel!
+    @IBOutlet weak var answerCountLabel: UILabel!
+    @IBOutlet weak var selectedImageView: UIImageView!
+    @IBOutlet weak var ivWidthConstraint: NSLayoutConstraint!
+    
+    
+    override func awakeFromNib() {
+           super.awakeFromNib()
+           // Initialization code
+        
+       }
+       
+       override func layoutSubviews() {
+           super.layoutSubviews()
+
+            progressView.layer.borderWidth = 2.0
+            progressView.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
+            progressView.clipsToBounds = true
+            progressView.backgroundColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+            answerView.isHidden = true
+            progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+            progressView.layer.cornerRadius = progressView.frame.size.height / 2
+            progressView.clipsToBounds = true
+            progressView.layer.sublayers![1].cornerRadius = progressView.frame.size.height / 2
+            progressView.subviews[1].clipsToBounds = true
+        
+//            pvWidthConstraint.constant = 0.0
+//            questionLabel.alpha = 0.0
+//            answerCountLabel.alpha = 0.0
+//            ivWidthConstraint.constant = 0.0
+        
+            progressView.setProgress(0.0, animated: false)
+            
+            answerView.isHidden = false
+        
+       }
+       
+       override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+
+           // Configure the view for the selected state
+       }
 }
 

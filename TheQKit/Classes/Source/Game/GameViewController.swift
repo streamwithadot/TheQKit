@@ -1549,9 +1549,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                     DispatchQueue.main.async(execute: {
 
-                        self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
-                        self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
-                        self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+//                        self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+//                        self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+//                        self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                        self.fullScreenTriviaViewController?.fadeAllCellsIn()
                         
                     })
                 }else{
@@ -1605,9 +1606,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                                 DispatchQueue.main.async(execute: {
                                     
-                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
-                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
-                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+//                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+//                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+//                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                                    self.fullScreenTriviaViewController?.fadeAllCellsIn()
                                     
                                 })
                             }else{
@@ -1662,9 +1664,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         UIView.animate(withDuration: 1.0, animations: {
 
                             if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
-                                self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
-                                self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
-                                self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+//                                self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+//                                self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+//                                self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                                self.fullScreenTriviaViewController?.fadeAllCellsIn()
                             }
 //                                self.linearBar.stopAnimation()
                         })
