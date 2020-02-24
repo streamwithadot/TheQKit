@@ -51,6 +51,7 @@ class FullScreenTriviaViewController: UIViewController {
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var questionLabelWidth: NSLayoutConstraint!
     @IBOutlet weak var timesUpLabel: UILabel!
+    @IBOutlet weak var triviaTableTopConstraint: NSLayoutConstraint!
     
     
     override func viewDidLoad() {
@@ -217,12 +218,28 @@ class FullScreenTriviaViewController: UIViewController {
         
         self.triviaTable.reloadData()
         
+        //get last visible cell
+        let lastCell = self.triviaTable.visibleCells.last
+        //get distance between the cell and bottom of safe area
+        let cellFrame = self.view.convert(lastCell!.frame, from: lastCell!.superview)
+        var distance : Double = 0.0
+        if #available(iOS 11.0, *) {
+            distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+        } else {
+            // Fallback on earlier versions
+            distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+        }
+        
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 
             self.questionLabel.alpha = 1.0
             self.questionLabelWidth.constant = self.view.frame.width - 20
             self.timesUpLabel.alpha = 1.0
             self.triviaTable.alpha = 1.0
+            
+            //adust the trivia table top constraint to half the distance from above
+            let halfDist = CGFloat(distance / 2)
+            self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
             
             self.view.layoutIfNeeded()
             //            self.progressViewC.layoutIfNeeded()
@@ -291,6 +308,9 @@ class FullScreenTriviaViewController: UIViewController {
                             cell.ivWidthConstraint.constant = 30.0
             
                         }
+                    
+                    
+                    
                         self.view.layoutIfNeeded()
             
                     }) { (bool) in

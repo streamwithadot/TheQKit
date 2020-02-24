@@ -407,6 +407,7 @@
                         <outlet property="timesUpLabel" destination="IRA-UU-VEv" id="KRQ-A9-GA5"/>
                         <outlet property="tintedView" destination="VbO-Iv-dIm" id="uMM-Kq-3Rj"/>
                         <outlet property="triviaTable" destination="iOH-wp-YPb" id="3su-Wt-KDJ"/>
+                        <outlet property="triviaTableTopConstraint" destination="kIU-2f-FpW" id="ZnL-eG-271"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1yy-DO-Gi5" sceneMemberID="firstResponder"/>
