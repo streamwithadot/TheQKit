@@ -290,10 +290,10 @@ extension TQKCardsViewController : UICollectionViewDataSource {
                 }
                 
                 cell.cardCollectionDelegate = self
-                cell.shareGameButton.isHidden = false
-                cell.shareGameButton.setTitleColor(UIColor.init((game?.theme.textColorCode)!), for: .normal)
-                cell.shareGameButton.layer.borderWidth = 2
-                cell.shareGameButton.layer.borderColor = UIColor.init((game?.theme.textColorCode)!, defaultColor: UIColor.clear).withAlphaComponent(1.0).cgColor
+                cell.shareGameButton.isHidden = true
+//                cell.shareGameButton.setTitleColor(UIColor.init((game?.theme.textColorCode)!), for: .normal)
+//                cell.shareGameButton.layer.borderWidth = 2
+//                cell.shareGameButton.layer.borderColor = UIColor.init((game?.theme.textColorCode)!, defaultColor: UIColor.clear).withAlphaComponent(1.0).cgColor
                 
                 
                 let formatter = NumberFormatter()
@@ -409,8 +409,8 @@ class CardCollectionViewCell : UICollectionViewCell, UIActivityItemSource {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.shareGameButton.layer.masksToBounds = true
-        self.shareGameButton.layer.cornerRadius = self.shareGameButton.frame.height / 2
+//        self.shareGameButton.layer.masksToBounds = true
+//        self.shareGameButton.layer.cornerRadius = self.shareGameButton.frame.height / 2
     }
     
     @IBAction func shareGameButtonPressed(_ sender: Any) {
