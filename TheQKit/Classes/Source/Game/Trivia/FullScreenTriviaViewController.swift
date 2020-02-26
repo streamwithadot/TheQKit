@@ -41,6 +41,7 @@ class FullScreenTriviaViewController: UIViewController {
     var type : FullScreenType?
     
     var useLongTimer : Bool = false
+    var didLayout : Bool = false
 //    var animationView : LOTAnimationView?
 
     
@@ -53,6 +54,8 @@ class FullScreenTriviaViewController: UIViewController {
     @IBOutlet weak var timesUpLabel: UILabel!
     @IBOutlet weak var triviaTableTopConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var triviaViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var containerViewHeightConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,6 +77,84 @@ class FullScreenTriviaViewController: UIViewController {
         super.viewDidLayoutSubviews()
         
         timesUpLabel.layer.cornerRadius = timesUpLabel.frame.size.height / 2
+        
+        if(!didLayout){
+            didLayout = true
+            if(type == .Question){
+                
+                var timerString : String
+                if(self.useLongTimer){
+                     timerString = "TimerUS15"
+                }else{
+                    timerString = "timer"
+                }
+                let animationView = AnimationView(name: timerString, bundle: TheQKit.bundle)
+                animationView.frame = self.containerView.bounds
+                animationView.backgroundColor = UIColor.clear
+                animationView.contentMode = .scaleAspectFit
+                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                self.containerView.addSubview(animationView)
+             
+                let timeLeft : CGFloat = CGFloat((self.question?.secondsToRespond)!)
+                if(self.useLongTimer){
+                    let beginProgress : CGFloat = 1.0 - (timeLeft / 15)
+                    self.perform(#selector(showTimeIsUp), with: self, afterDelay: TimeInterval(timeLeft))
+                    
+                    animationView.play(fromProgress: beginProgress, toProgress: 1.0){ (finished) in
+                        animationView.removeFromSuperview()
+                    }
+                }else{
+                    let beginProgress : CGFloat = 1.0 - (timeLeft / 10)
+                    self.perform(#selector(showTimeIsUp), with: self, afterDelay: TimeInterval(timeLeft))
+                    
+                    animationView.play(fromProgress: beginProgress, toProgress: 1.0){ (finished) in
+                        animationView.removeFromSuperview()
+                    }
+                }
+                
+                
+                if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
+                    tintedView.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+                }else{
+                    tintedView.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+                }
+
+                
+            }else if(type == .Correct){
+                let animationView = AnimationView(name: "correct", bundle: TheQKit.bundle)
+                animationView.frame = self.containerView.bounds
+                animationView.backgroundColor = UIColor.clear
+                animationView.contentMode = .scaleAspectFit
+                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                self.containerView.addSubview(animationView)
+                
+                animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                }
+                
+
+                self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
+                
+
+                tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
+
+
+            }else if(type == .Incorrect){
+                let animationView = AnimationView(name: "incorrect", bundle: TheQKit.bundle)
+                animationView.frame = self.containerView.bounds
+                animationView.backgroundColor = UIColor.clear
+                animationView.contentMode = .scaleAspectFit
+                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                self.containerView.addSubview(animationView)
+                
+                animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                }
+                self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
+
+                tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
+
+                
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -92,77 +173,7 @@ class FullScreenTriviaViewController: UIViewController {
         }
         
      
-        if(type == .Question){
-            
-            var timerString : String
-            if(self.useLongTimer){
-                 timerString = "TimerUS15"
-            }else{
-                timerString = "timer"
-            }
-            let animationView = AnimationView(name: timerString, bundle: TheQKit.bundle)
-            animationView.frame = self.containerView.bounds
-            animationView.backgroundColor = UIColor.clear
-            animationView.contentMode = .scaleAspectFit
-            self.containerView.addSubview(animationView)
-         
-            let timeLeft : CGFloat = CGFloat((self.question?.secondsToRespond)!)
-            if(self.useLongTimer){
-                let beginProgress : CGFloat = 1.0 - (timeLeft / 15)
-                self.perform(#selector(showTimeIsUp), with: self, afterDelay: TimeInterval(timeLeft))
-                
-                animationView.play(fromProgress: beginProgress, toProgress: 1.0){ (finished) in
-                    animationView.removeFromSuperview()
-                }
-            }else{
-                let beginProgress : CGFloat = 1.0 - (timeLeft / 10)
-                self.perform(#selector(showTimeIsUp), with: self, afterDelay: TimeInterval(timeLeft))
-                
-                animationView.play(fromProgress: beginProgress, toProgress: 1.0){ (finished) in
-                    animationView.removeFromSuperview()
-                }
-            }
-            
-            
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                tintedView.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-            }else{
-                tintedView.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
-            }
-
-            
-        }else if(type == .Correct){
-            let animationView = AnimationView(name: "correct", bundle: TheQKit.bundle)
-            animationView.frame = self.containerView.bounds
-            animationView.backgroundColor = UIColor.clear
-            animationView.contentMode = .scaleAspectFit
-            self.containerView.addSubview(animationView)
-            
-            animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-            }
-            
-
-            self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-            
-
-            tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
-
-
-        }else if(type == .Incorrect){
-            let animationView = AnimationView(name: "incorrect", bundle: TheQKit.bundle)
-            animationView.frame = self.containerView.bounds
-            animationView.backgroundColor = UIColor.clear
-            animationView.contentMode = .scaleAspectFit
-            self.containerView.addSubview(animationView)
-            
-            animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-            }
-            self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-
-            tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
-
-            
-        }
+    
         
         questionLabelWidth.constant = 0.0
         questionLabel.text = self.question?.question!
@@ -218,6 +229,7 @@ class FullScreenTriviaViewController: UIViewController {
         
         self.triviaTable.reloadData()
         
+        
         //get last visible cell
         let lastCell = self.triviaTable.visibleCells.last
         //get distance between the cell and bottom of safe area
@@ -230,6 +242,13 @@ class FullScreenTriviaViewController: UIViewController {
             distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
         }
         
+        var count = 0
+        if(type == .Question){
+            count = self.question!.choices!.count
+        }else{
+            count = self.result!.choices!.count
+        }
+        
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 
             self.questionLabel.alpha = 1.0
@@ -238,8 +257,15 @@ class FullScreenTriviaViewController: UIViewController {
             self.triviaTable.alpha = 1.0
             
             //adust the trivia table top constraint to half the distance from above
-            let halfDist = CGFloat(distance / 2)
-            self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+            if(self.triviaTable.visibleCells.count < count){
+                let x = count - self.triviaTable.visibleCells.count
+                self.triviaViewHeightConstraint.constant = self.triviaViewHeightConstraint.constant + CGFloat(50 * x)
+                self.containerViewHeightConstraint.constant = self.containerViewHeightConstraint.constant - CGFloat(50 * x)
+                self.view.layoutIfNeeded()
+            }else{
+                let halfDist = CGFloat(distance / 2)
+                self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+            }
             
             self.view.layoutIfNeeded()
             //            self.progressViewC.layoutIfNeeded()
@@ -247,16 +273,15 @@ class FullScreenTriviaViewController: UIViewController {
         }) { (bool) in
             //na
         }
-        
-        var count = 0
-        if(type == .Question){
-            count = self.question!.choices!.count
-        }else{
-            count = self.result!.choices!.count
-        }
-        for index in 0...count - 1 {
+                
+        for index in 0...count{
                     
             if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
+                
+                cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
+                cell.progressView.clipsToBounds = true
+                cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
+                cell.progressView.subviews[1].clipsToBounds = true
             
                 if(type == .Question){
                     cell.progressView.progressImage = self.selectedQuestionImage
@@ -466,7 +491,7 @@ class FullScreenTriviaViewController: UIViewController {
         }else{
             count = self.result!.choices!.count
         }
-        for index in 0...count - 1 {
+        for index in 0...count{
             if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
                 cell.progressView.alpha = 0.0
             }
@@ -480,7 +505,7 @@ class FullScreenTriviaViewController: UIViewController {
         }else{
             count = self.result!.choices!.count
         }
-        for index in 0...count - 1 {
+        for index in 0...count{
             if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
                 cell.progressView.alpha = 1.0
             }
@@ -548,7 +573,10 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "fullScreenTriviaCell", for: indexPath) as! FullScreenTriviaCell
-        
+        cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
+        cell.progressView.clipsToBounds = true
+        cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
+        cell.progressView.subviews[1].clipsToBounds = true
         if(type == .Question){
             cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
             cell.progressView.progressImage = self.selectedQuestionImage
@@ -652,11 +680,7 @@ class FullScreenTriviaCell : UITableViewCell {
             progressView.clipsToBounds = true
             progressView.layer.sublayers![1].cornerRadius = progressView.frame.size.height / 2
             progressView.subviews[1].clipsToBounds = true
-        
-//            pvWidthConstraint.constant = 0.0
-//            questionLabel.alpha = 0.0
-//            answerCountLabel.alpha = 0.0
-//            ivWidthConstraint.constant = 0.0
+    
         
             progressView.setProgress(0.0, animated: false)
             

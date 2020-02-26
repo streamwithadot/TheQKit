@@ -402,12 +402,14 @@
                     <connections>
                         <outlet property="blurView" destination="Qsc-qz-8Vo" id="sPr-cK-U0s"/>
                         <outlet property="containerView" destination="Kbs-KQ-7iQ" id="P3O-Vh-UIb"/>
+                        <outlet property="containerViewHeightConstraint" destination="z6q-4a-wfD" id="7jq-bA-RHy"/>
                         <outlet property="questionLabel" destination="uks-Fd-E4k" id="SL2-T2-8MA"/>
                         <outlet property="questionLabelWidth" destination="y6T-Q5-ofW" id="BHf-6S-fnd"/>
                         <outlet property="timesUpLabel" destination="IRA-UU-VEv" id="KRQ-A9-GA5"/>
                         <outlet property="tintedView" destination="VbO-Iv-dIm" id="uMM-Kq-3Rj"/>
                         <outlet property="triviaTable" destination="iOH-wp-YPb" id="3su-Wt-KDJ"/>
                         <outlet property="triviaTableTopConstraint" destination="kIU-2f-FpW" id="ZnL-eG-271"/>
+                        <outlet property="triviaViewHeightConstraint" destination="k8n-lv-UKZ" id="qrg-6E-yfo"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1yy-DO-Gi5" sceneMemberID="firstResponder"/>
