@@ -194,7 +194,7 @@ class FullScreenTriviaViewController: UIViewController {
         if(self.type == .Question){
             let qNum: Int! = self.question?.number
             
-            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                 self.timesUpLabel.text = String(format: NSLocalizedString(" Survey ", comment: ""))
             }else{
                 self.timesUpLabel.text = String(format: NSLocalizedString(" Question %@ ", comment: ""), "\(String(qNum))")
@@ -208,7 +208,7 @@ class FullScreenTriviaViewController: UIViewController {
 
             self.timesUpLabel.backgroundColor = UIColor.white
         }else if(self.type == .Correct){
-            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                 self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
             }else{
                 self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
@@ -217,7 +217,7 @@ class FullScreenTriviaViewController: UIViewController {
             self.timesUpLabel.backgroundColor = UIColor.white
 
         }else if(self.type == .Incorrect){
-            if(self.question?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
                 self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
             }else{
                 self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
@@ -341,7 +341,7 @@ class FullScreenTriviaViewController: UIViewController {
                     }) { (bool) in
                         if(self.type != .Question){
                             self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
-                            if(self.type == .Correct){
+                            if(self.type == .Correct && (self.result?.questionType != TQKQuestionType.CHOICE_SURVEY.rawValue)){
                                 if (self.result?.choices?[index].correct)!{
                                     self.showPlusOneFor(view: cell.progressView)
                                 }
