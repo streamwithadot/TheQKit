@@ -203,4 +203,4 @@ Spohn, spohn@stre.am and the lovely people at Stream Live, Inc.
 
 ## License
 
-Copyright (c) 2019 Stream Live, Inc.
+Copyright (c) 2020 Stream Live, Inc.

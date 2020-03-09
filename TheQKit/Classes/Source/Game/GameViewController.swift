@@ -1251,6 +1251,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         player.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         player.scalingMode = .aspectFill;
         player.view.frame = previewView.bounds
+        
        
         previewView.addSubview(player.view)
 

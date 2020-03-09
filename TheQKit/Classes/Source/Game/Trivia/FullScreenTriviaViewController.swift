@@ -256,13 +256,14 @@ class FullScreenTriviaViewController: UIViewController {
             self.timesUpLabel.alpha = 1.0
             self.triviaTable.alpha = 1.0
             
-            //adust the trivia table top constraint to half the distance from above
             if(self.triviaTable.visibleCells.count < count){
+                //If we have more cells that can currently be shown, adjust constraints to expand the choices and shrink the area above (lottie)
                 let x = count - self.triviaTable.visibleCells.count
                 self.triviaViewHeightConstraint.constant = self.triviaViewHeightConstraint.constant + CGFloat(50 * x)
                 self.containerViewHeightConstraint.constant = self.containerViewHeightConstraint.constant - CGFloat(50 * x)
                 self.view.layoutIfNeeded()
             }else{
+                //adust the trivia table top constraint to half the distance from above
                 let halfDist = CGFloat(distance / 2)
                 self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
             }
@@ -278,50 +279,6 @@ class FullScreenTriviaViewController: UIViewController {
                     
             if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
                 
-                cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
-                cell.progressView.clipsToBounds = true
-                cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
-                cell.progressView.subviews[1].clipsToBounds = true
-            
-                if(type == .Question){
-                    cell.progressView.progressImage = self.selectedQuestionImage
-                }else if (type == .Correct && self.result?.selection != nil){
-                    
-                    let currentChoice = self.result!.choices![index]
-                    
-                    if (currentChoice.correct)!{
-                        cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-                    }
-                    if (currentChoice.id == self.result?.selection) {
-                        cell.progressView.progressImage = self.selectedImage
-                        cell.progressView.layer.borderColor = self.neutralBorderColor
-                        cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                        cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    }else{
-                        cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                    }
-                
-                }else if(type == .Incorrect){
-                    if(self.result != nil){
-                        let currentChoice = self.result!.choices![index]
-
-                        if(currentChoice.correct!){
-                            cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        }else{
-                            cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
-                        }
-                        
-                        if(self.result?.selection != nil){
-                            if (currentChoice.id == self.result?.selection) {
-                                cell.progressView.progressImage = self.selectedImage
-                                cell.progressView.layer.borderColor = self.neutralBorderColor
-                                cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                                cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
-                            }
-                        }
-                    }
-                }
-                
                 UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
             
                         cell.pvWidthConstraint.constant = cell.answerView.frame.width
@@ -333,9 +290,6 @@ class FullScreenTriviaViewController: UIViewController {
                             cell.ivWidthConstraint.constant = 30.0
             
                         }
-                    
-                    
-                    
                         self.view.layoutIfNeeded()
             
                     }) { (bool) in
