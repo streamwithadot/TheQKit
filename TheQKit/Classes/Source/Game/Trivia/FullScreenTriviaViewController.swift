@@ -208,17 +208,11 @@ class FullScreenTriviaViewController: UIViewController {
             NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
         }
         
-     
-    
-        
         questionLabelWidth.constant = 0.0
         questionLabel.text = self.question?.question!
         
-        
         self.view.layoutIfNeeded()
         
-        
-
         var totalResponse = 0
         if(type != .Question && (self.result?.questionType != TQKQuestionType.POPULAR.rawValue && self.result?.questionType != TQKQuestionType.TEXT_SURVEY.rawValue)){
             for choice in (self.result?.choices!)! {
@@ -278,13 +272,14 @@ class FullScreenTriviaViewController: UIViewController {
         //get last visible cell
         let lastCell = self.triviaTable.visibleCells.last
         //get distance between the cell and bottom of safe area
-        let cellFrame = self.view.convert(lastCell!.frame, from: lastCell!.superview)
         var distance : Double = 0.0
-        if #available(iOS 11.0, *) {
-            distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
-        } else {
-            // Fallback on earlier versions
-            distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+        if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
+            if #available(iOS 11.0, *) {
+                distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+            } else {
+                // Fallback on earlier versions
+                distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+            }
         }
         
         var count = 0
@@ -408,34 +403,35 @@ class FullScreenTriviaViewController: UIViewController {
     }
     
     func showPlusOneFor(view : UIView){
-        let frame = self.view.convert(view.frame, from: view.superview)
-        let correctLabel = UILabel(frame: CGRect(x: frame.width, y: frame.origin.y, width: 30, height: 30))
-        correctLabel.text = "+1"
-        correctLabel.textAlignment = .center
-        correctLabel.textColor = UIColor.white
-        
+        if let frame = self.view?.convert(view.frame, from: view.superview) {
+            let correctLabel = UILabel(frame: CGRect(x: frame.width, y: frame.origin.y, width: 30, height: 30))
+            correctLabel.text = "+1"
+            correctLabel.textAlignment = .center
+            correctLabel.textColor = UIColor.white
+            
 
-        if(self.result?.categoryId == nil || (self.result?.categoryId!.isEmpty)!){
-            correctLabel.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-        }else{
-            correctLabel.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.result?.categoryId)!).withAlphaComponent(0.8)
-        }
-        
-        correctLabel.layer.cornerRadius = 15
-        correctLabel.clipsToBounds = true
-        
-        self.view.addSubview(correctLabel)
-        
-        //                    correctLabel.transform = CGAffineTransform(scaleX: 0, y: 0)
-        UIView.animateKeyframes(withDuration: 2.0, delay: 0, options: .calculationModeLinear, animations: {
-            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 2.0, animations: {
-                //                            correctLabel.transform = .identity
-                correctLabel.frame.origin =  CGPoint(x: correctLabel.frame.origin.x, y: correctLabel.frame.origin.y - 50)
-                correctLabel.alpha = 0.0
+            if(self.result?.categoryId == nil || (self.result?.categoryId!.isEmpty)!){
+                correctLabel.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+            }else{
+                correctLabel.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.result?.categoryId)!).withAlphaComponent(0.8)
+            }
+            
+            correctLabel.layer.cornerRadius = 15
+            correctLabel.clipsToBounds = true
+            
+            self.view.addSubview(correctLabel)
+            
+            //                    correctLabel.transform = CGAffineTransform(scaleX: 0, y: 0)
+            UIView.animateKeyframes(withDuration: 2.0, delay: 0, options: .calculationModeLinear, animations: {
+                UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 2.0, animations: {
+                    //                            correctLabel.transform = .identity
+                    correctLabel.frame.origin =  CGPoint(x: correctLabel.frame.origin.x, y: correctLabel.frame.origin.y - 50)
+                    correctLabel.alpha = 0.0
+                })
+            }, completion: {_ in
+                correctLabel.removeFromSuperview()
             })
-        }, completion: {_ in
-            correctLabel.removeFromSuperview()
-        })
+        }
     }
     
     func setProgressBarFill(bar: UIProgressView, totalResponses: Float, responses: Float )
