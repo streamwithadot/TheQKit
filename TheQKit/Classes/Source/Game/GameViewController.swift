@@ -161,7 +161,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var gameWinnersViewController : GameWinnersViewController?
     var fullScreenTriviaViewController : FullScreenTriviaViewController?
     var ssQuestionViewController : SSQuestionViewController?
-    var ssResultsViewController : SSResultViewController?
+//    var ssResultsViewController : SSResultViewController?
     
     var didOfferFreeTrial: Bool = false
     
@@ -655,23 +655,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
 
     fileprivate func showPopularChoiceResult(withType type:FullScreenType){
-        
-        let podBundle = Bundle(for: TheQKit.self)
-        let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
-        let bundle = Bundle(url: bundleURL!)!
-        let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
-        
-        self.ssResultsViewController = sb.instantiateViewController(withIdentifier: "SSResultViewController") as? SSResultViewController
-        self.ssResultsViewController?.view.frame = CGRect(x:0, y:0, width: self.view.frame.width, height: self.view.frame.height)
-        self.ssResultsViewController?.view.alpha = 1.0
-        self.ssResultsViewController?.gameDelegate = self
-        self.ssResultsViewController?.type = type
-        self.ssResultsViewController?.result = self.currentResult
-        self.ssResultsViewController?.question = self.currentQuestion
-        
-        self.addChild(self.ssResultsViewController!)
-        self.view.insertSubview(self.ssResultsViewController!.view, belowSubview: self.exitButton)
-        self.ssResultsViewController?.didMove(toParent: self)
+        self.showTriviaScreen(withType: type)
     }
     
     fileprivate func showTriviaScreen(withType type:FullScreenType){
@@ -1789,11 +1773,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.ssQuestionViewController?.view.removeFromSuperview()
             self.ssQuestionViewController?.removeFromParent()
         }
-        if(self.ssResultsViewController != nil){
-            self.ssResultsViewController?.willMove(toParent: nil)
-            self.ssResultsViewController?.view.removeFromSuperview()
-            self.ssResultsViewController?.removeFromParent()
-        }
+//        if(self.ssResultsViewController != nil){
+//            self.ssResultsViewController?.willMove(toParent: nil)
+//            self.ssResultsViewController?.view.removeFromSuperview()
+//            self.ssResultsViewController?.removeFromParent()
+//        }
     }
     
 }

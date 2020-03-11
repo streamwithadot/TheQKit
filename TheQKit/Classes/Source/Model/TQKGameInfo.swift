@@ -55,6 +55,10 @@ enum TQKGameType : String {
     case POPULAR = "POPULAR"
 }
 
+enum TQKWinCondition : String {
+    case POINTS = "POINTS"
+    case ELIMINATION = "ELIMINATION"
+}
 
 public struct TQKGame : Mappable {
     
@@ -90,6 +94,7 @@ public struct TQKGame : Mappable {
     public var testMode : Bool = false
     public var videoDisabled : Bool = false
     public var backgroundImageUrl : String?
+    public var winCondition : String?
     
     public init?(map: Map) {
         
@@ -119,6 +124,7 @@ public struct TQKGame : Mappable {
         testMode <- map["testMode"]
         videoDisabled <- map["videoDisabled"]
         backgroundImageUrl <- map["backgroundImageUrl"]
+        winCondition <- map["winCondition"]
         
         //TEST CODE
 //        adCode = Constants.AD_SECOND_CODE

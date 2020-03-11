@@ -115,32 +115,10 @@ class SSResultViewController: UIViewController {
             tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
         }
         
-        
-        //        if(self.type == .Correct){
-        //            self.timesUpLabel.text = "  Correct!  "
-        //            self.timesUpLabel.textColor = UIColor("#32C274")
-        //            self.timesUpLabel.backgroundColor = UIColor.white
-        //        }else{
-        //            self.timesUpLabel.text = "  Wrong Answer!  "
-        //            self.timesUpLabel.textColor = UIColor("#E63462")
-        //            self.timesUpLabel.backgroundColor = UIColor.white
-        //        }
-        
         self.timesUpLabel.text = self.result?.selection ?? NSLocalizedString("None", comment: "")
         self.timesUpLabel.textColor = UIColor.white
         self.timesUpLabel.backgroundColor = UIColor.clear
         
-        
-        UIView.animate(withDuration: 0.35, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            
-            //            self.pvaWidthConstraint.constant = self.answerViewA.frame.width
-            //            self.questionLabelA.alpha = 1.0
-            //
-            self.view.layoutIfNeeded()
-            
-        }) { (bool) in
-            
-        }
         
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
             
@@ -257,14 +235,3 @@ extension SSResultViewController : UITableViewDataSource {
     
     
 }
-
-extension Double {
-    func removeZerosFromEnd() -> String {
-        let formatter = NumberFormatter()
-        let number = NSNumber(value: self)
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 0 //maximum digits in Double after dot (maximum precision)
-        return String(formatter.string(from: number) ?? "")
-    }
-}
-

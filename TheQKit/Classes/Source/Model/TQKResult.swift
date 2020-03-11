@@ -46,6 +46,8 @@ struct TQKResult: Mappable{
     var results : [TQKPopularAnswers]?
     var questionType : String = "TRIVIA"
     var correctResponse : String?
+    var pointValue : NSNumber?
+    var score : NSNumber?
     
     init?(map: Map) {
         
@@ -65,6 +67,8 @@ struct TQKResult: Mappable{
         results <- map["results"]
         questionType <- map["questionType"]
         correctResponse <- map["correctResponse"]
+        pointValue <- map["pointValue"]
+        score <- map["score"]
     }
     
 }

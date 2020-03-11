@@ -52,10 +52,16 @@ class FullScreenTriviaViewController: UIViewController {
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var questionLabelWidth: NSLayoutConstraint!
     @IBOutlet weak var timesUpLabel: UILabel!
+    @IBOutlet weak var timesUpLabelWidth: NSLayoutConstraint!
+    @IBOutlet weak var timesUpLabelHeight: NSLayoutConstraint!
     @IBOutlet weak var triviaTableTopConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var triviaViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var containerViewHeightConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var yourAnswerLabel: UILabel!
+    @IBOutlet weak var yourAnswerLabelHeight: NSLayoutConstraint!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,6 +88,8 @@ class FullScreenTriviaViewController: UIViewController {
             didLayout = true
             if(type == .Question){
                 
+                self.timesUpLabel.removeConstraint(self.timesUpLabelWidth)
+
                 var timerString : String
                 if(self.useLongTimer){
                      timerString = "TimerUS15"
@@ -120,39 +128,67 @@ class FullScreenTriviaViewController: UIViewController {
                 }
 
                 
-            }else if(type == .Correct){
-                let animationView = AnimationView(name: "correct", bundle: TheQKit.bundle)
-                animationView.frame = self.containerView.bounds
-                animationView.backgroundColor = UIColor.clear
-                animationView.contentMode = .scaleAspectFit
-                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                self.containerView.addSubview(animationView)
+            }else{
                 
-                animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                    
+                    //Popular choice modes
+                    timesUpLabel.removeConstraint(timesUpLabelHeight)
+                    yourAnswerLabel.removeConstraint(yourAnswerLabelHeight)
+                    timesUpLabelWidth.constant = self.view.frame.width - 20
+                    timesUpLabel.textAlignment = .center
+                    
+                    self.timesUpLabel.textColor = UIColor.white
+                    self.timesUpLabel.backgroundColor = UIColor.clear
+                    
+                    self.timesUpLabel.font = UIFont.systemFont(ofSize: 25, weight: .medium)
+                    
+                    self.questionLabel.font = UIFont.systemFont(ofSize: 32, weight: .medium)
+                    
+                    var lottieName = ""
+                    if(type == .Correct){
+                       lottieName = "correct_PC"
+                       tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
+                   }else{
+                       lottieName = "incorrect_PC"
+                       tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
+                   }
+                    let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)
+                    animationView.frame = self.containerView.bounds
+                    animationView.backgroundColor = UIColor.clear
+                    animationView.contentMode = .scaleAspectFit
+                    animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    self.containerView.addSubview(animationView)
+                    animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                        //                animationView.removeFromSuperview()
+                    }
+                    
+                    self.perform(#selector(animateOut), with: self, afterDelay: 5.6)
+                
+                }else{
+                    //Multiple choice modes
+                    self.timesUpLabel.removeConstraint(self.timesUpLabelWidth)
+                    var lottieName = ""
+                    if(type == .Correct){
+                        lottieName = "correct"
+                        tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
+
+                    }else if(type == .Incorrect){
+                        lottieName = "incorrect"
+                        tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
+                    }
+                    let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)
+                    animationView.frame = self.containerView.bounds
+                    animationView.backgroundColor = UIColor.clear
+                    animationView.contentMode = .scaleAspectFit
+                    animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    self.containerView.addSubview(animationView)
+                    
+                    animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                    }
+                    self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
+
                 }
-                
-
-                self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-                
-
-                tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
-
-
-            }else if(type == .Incorrect){
-                let animationView = AnimationView(name: "incorrect", bundle: TheQKit.bundle)
-                animationView.frame = self.containerView.bounds
-                animationView.backgroundColor = UIColor.clear
-                animationView.contentMode = .scaleAspectFit
-                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                self.containerView.addSubview(animationView)
-                
-                animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-                }
-                self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-
-                tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
-
-                
             }
         }
     }
@@ -179,25 +215,25 @@ class FullScreenTriviaViewController: UIViewController {
         questionLabel.text = self.question?.question!
         
         
-        
         self.view.layoutIfNeeded()
         
         
 
         var totalResponse = 0
-        if(type != .Question){
+        if(type != .Question && (self.result?.questionType != TQKQuestionType.POPULAR.rawValue && self.result?.questionType != TQKQuestionType.TEXT_SURVEY.rawValue)){
             for choice in (self.result?.choices!)! {
                 totalResponse += choice.responses!
             }
         }
         
         if(self.type == .Question){
+
             let qNum: Int! = self.question?.number
             
             if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
-                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey ", comment: ""))
+                self.timesUpLabel.text = String(format: NSLocalizedString("  Survey  ", comment: ""))
             }else{
-                self.timesUpLabel.text = String(format: NSLocalizedString(" Question %@ ", comment: ""), "\(String(qNum))")
+                self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
             }
 
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
@@ -207,24 +243,33 @@ class FullScreenTriviaViewController: UIViewController {
             }
 
             self.timesUpLabel.backgroundColor = UIColor.white
-        }else if(self.type == .Correct){
-            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
-                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
+        }else{
+            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                //pop choice types
+                self.timesUpLabel.text = self.question?.question!
+                self.questionLabel.text = self.result?.selection ?? NSLocalizedString("None", comment: "")
+                
             }else{
-                self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
-            }
-            self.timesUpLabel.textColor = UIColor("#32C274")
-            self.timesUpLabel.backgroundColor = UIColor.white
+                //multiple choice types
+                if(self.type == .Correct){
+                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                        self.timesUpLabel.text = String(format: NSLocalizedString("  Survey Results  ", comment: ""))
+                    }else{
+                        self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
+                    }
+                    self.timesUpLabel.textColor = UIColor("#32C274")
+                    self.timesUpLabel.backgroundColor = UIColor.white
 
-        }else if(self.type == .Incorrect){
-            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
-                self.timesUpLabel.text = String(format: NSLocalizedString(" Survey Results ", comment: ""))
-            }else{
-                self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
+                }else if(self.type == .Incorrect){
+                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                        self.timesUpLabel.text = String(format: NSLocalizedString("  Survey Results  ", comment: ""))
+                    }else{
+                        self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
+                    }
+                    self.timesUpLabel.textColor = UIColor("#E63462")
+                    self.timesUpLabel.backgroundColor = UIColor.white
+                }
             }
-            self.timesUpLabel.textColor = UIColor("#E63462")
-            self.timesUpLabel.backgroundColor = UIColor.white
-
         }
         
         self.triviaTable.reloadData()
@@ -246,7 +291,7 @@ class FullScreenTriviaViewController: UIViewController {
         if(type == .Question){
             count = self.question!.choices!.count
         }else{
-            count = self.result!.choices!.count
+            count =  self.result!.choices == nil ? self.result!.results!.count : self.result!.choices!.count
         }
         
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
@@ -256,6 +301,7 @@ class FullScreenTriviaViewController: UIViewController {
             self.timesUpLabel.alpha = 1.0
             self.triviaTable.alpha = 1.0
             
+
             if(self.triviaTable.visibleCells.count < count){
                 //If we have more cells that can currently be shown, adjust constraints to expand the choices and shrink the area above (lottie)
                 let x = count - self.triviaTable.visibleCells.count
@@ -268,6 +314,7 @@ class FullScreenTriviaViewController: UIViewController {
                 self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
             }
             
+            
             self.view.layoutIfNeeded()
             //            self.progressViewC.layoutIfNeeded()
 
@@ -276,32 +323,85 @@ class FullScreenTriviaViewController: UIViewController {
         }
                 
         for index in 0...count{
-                    
-            if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
                 
-                UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            
-                        cell.pvWidthConstraint.constant = cell.answerView.frame.width
-                        cell.questionLabel.alpha = 1.0
-                        if(self.type != .Question){
-                            cell.answerCountLabel.alpha = 1.0
-                            let b: Int! = self.result?.choices?[index].responses!
-                            cell.answerCountLabel.text = String(b)
-                            cell.ivWidthConstraint.constant = 30.0
-            
-                        }
-                        self.view.layoutIfNeeded()
-            
-                    }) { (bool) in
-                        if(self.type != .Question){
-                            self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
-                            if(self.type == .Correct && (self.result?.questionType != TQKQuestionType.CHOICE_SURVEY.rawValue)){
-                                if (self.result?.choices?[index].correct)!{
-                                    self.showPlusOneFor(view: cell.progressView)
+            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                //pop choice
+                if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? SSResultsTableViewCell {
+                    //TODO: IF NEEDED?
+                }
+
+            }else{
+                //multi choice
+                if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? FullScreenTriviaCell {
+                    
+                    cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
+                        cell.progressView.clipsToBounds = true
+                        cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
+                        cell.progressView.subviews[1].clipsToBounds = true
+                    
+                        if(type == .Question){
+                            cell.progressView.progressImage = self.selectedQuestionImage
+                        }else if (type == .Correct && self.result?.selection != nil){
+                            
+                            let currentChoice = self.result!.choices![index]
+                            
+                            if (currentChoice.correct)!{
+                                cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+                            }
+                            if (currentChoice.id == self.result?.selection) {
+                                cell.progressView.progressImage = self.selectedImage
+                                cell.progressView.layer.borderColor = self.neutralBorderColor
+                                cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                                cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                            }else{
+                                cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                            }
+                        
+                        }else if(type == .Incorrect){
+                            if(self.result != nil){
+                                let currentChoice = self.result!.choices![index]
+
+                                if(currentChoice.correct!){
+                                    cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                                }else{
+                                    cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                                }
+                                
+                                if(self.result?.selection != nil){
+                                    if (currentChoice.id == self.result?.selection) {
+                                        cell.progressView.progressImage = self.selectedImage
+                                        cell.progressView.layer.borderColor = self.neutralBorderColor
+                                        cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                                        cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                                    }
                                 }
                             }
                         }
-                    }
+                    
+                    UIView.animate(withDuration: 0.35, delay: 0.05, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
+                
+                            cell.pvWidthConstraint.constant = cell.answerView.frame.width
+                            cell.questionLabel.alpha = 1.0
+                            if(self.type != .Question){
+                                cell.answerCountLabel.alpha = 1.0
+                                let b: Int! = self.result?.choices?[index].responses!
+                                cell.answerCountLabel.text = String(b)
+                                cell.ivWidthConstraint.constant = 30.0
+                
+                            }
+                            self.view.layoutIfNeeded()
+                
+                        }) { (bool) in
+                            if(self.type != .Question){
+                                self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
+                                if(self.type == .Correct && (self.result?.questionType != TQKQuestionType.CHOICE_SURVEY.rawValue)){
+                                    if (self.result?.choices?[index].correct)!{
+                                        self.showPlusOneFor(view: cell.progressView)
+                                    }
+                                }
+                            }
+                        }
+                }
             }
         }
         
@@ -501,16 +601,22 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        var height : CGFloat = 70.0
-        if(type == .Question){
-            let x = CGFloat(tableView.frame.height) / CGFloat(self.question!.choices!.count)
-            height = (x >= 70 ? 70 : x)
+        if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            let x = tableView.frame.height / 3
+            return x >= 90 ? 90 : x
         }else{
-            let x = CGFloat(tableView.frame.height) / CGFloat(self.result!.choices!.count)
-            height = (x >= 70 ? 70 : x)
-        }
+        
+            var height : CGFloat = 70.0
+            if(type == .Question){
+                let x = CGFloat(tableView.frame.height) / CGFloat(self.question!.choices!.count)
+                height = (x >= 70 ? 70 : x)
+            }else{
+                let x = CGFloat(tableView.frame.height) / CGFloat(self.result!.choices!.count)
+                height = (x >= 70 ? 70 : x)
+            }
 
-        return height <= 50 ? 50 : height
+            return height <= 50 ? 50 : height
+        }
         
     }
 }
@@ -520,84 +626,133 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
         if(type == .Question){
             return self.question!.choices!.count
         }else{
-            return self.result!.choices!.count
+            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                if(self.result?.results == nil){
+                    return 1
+                }else{
+                    return (self.result?.results?.count)! > 3 ? 3 : (self.result?.results?.count)!
+                }
+            }else{
+                return self.result!.choices!.count
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "fullScreenTriviaCell", for: indexPath) as! FullScreenTriviaCell
-        cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
-        cell.progressView.clipsToBounds = true
-        cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
-        cell.progressView.subviews[1].clipsToBounds = true
-        if(type == .Question){
-            cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
-            cell.progressView.progressImage = self.selectedQuestionImage
-        }else if (type == .Correct && self.result?.selection != nil){
+        if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SSResultsTableViewCell", for: indexPath) as! SSResultsTableViewCell
             
-            let currentChoice = self.result!.choices![indexPath.row]
-            cell.questionLabel.text = currentChoice.choice
-            
-            if (currentChoice.correct)!{
-                cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
-            }
-            if (currentChoice.id == self.result?.selection) {
-                cell.progressView.progressImage = self.selectedImage
-                cell.progressView.layer.borderColor = self.neutralBorderColor
+            if(self.result?.results != nil && !(self.result?.results?.isEmpty)!){
+                let popularChoice = self.result?.results![indexPath.row]
                 
-                cell.questionLabel.textColor = UIColor("#32C274")
-                cell.answerCountLabel.textColor = UIColor("#32C274")
+                cell.rankLabel.text = "\(indexPath.row + 1)"
+                cell.answerLabel.text = popularChoice!.response ?? "No Answers!"
+                let userResponseRatio = popularChoice!.userResponseRatio ?? 0
                 
-                cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                if(userResponseRatio < 1){
+                    cell.percentageLabel.text = "<1%"
+                }else{
+                    let myInt = Int(userResponseRatio.rounded(.up))
+                    cell.percentageLabel.text = "\(myInt)%"
+                }
+                
+                //            if((popularChoice?.correct)!){
+                if(self.result?.selection != nil && self.result?.results?[indexPath.row].response == self.result?.selection){
+                    cell.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.30)
+                }
+                //            }
+                
             }else{
-                cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                cell.rankLabel.text = "\(indexPath.row + 1)"
+                cell.answerLabel.text = "No Answers!"
+                cell.percentageLabel.text = "0%"
             }
-        
-        }else if(type == .Incorrect){
             
-            if(self.result != nil){
+            if(self.type == .Correct){
+                cell.rankLabel.textColor = UIColor("#32C274")
+                cell.rankLabel.backgroundColor = UIColor.white
+            }else{
+                cell.rankLabel.textColor = UIColor("#E63462")
+                cell.rankLabel.backgroundColor = UIColor.white
+            }
+            
+            return cell
+        }else{
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "fullScreenTriviaCell", for: indexPath) as! FullScreenTriviaCell
+            cell.progressView.layer.cornerRadius = cell.progressView.frame.size.height / 2
+            cell.progressView.clipsToBounds = true
+            cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
+            cell.progressView.subviews[1].clipsToBounds = true
+            if(type == .Question){
+                cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
+                cell.progressView.progressImage = self.selectedQuestionImage
+            }else if (type == .Correct && self.result?.selection != nil){
+                
                 let currentChoice = self.result!.choices![indexPath.row]
-
                 cell.questionLabel.text = currentChoice.choice
                 
-                if(currentChoice.correct!){
-                    cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                if (currentChoice.correct)!{
+                    cell.progressView.progressTintColor = UIColor.init("#152248", defaultColor: UIColor.clear).withAlphaComponent(0.15)
+                }
+                if (currentChoice.id == self.result?.selection) {
+                    cell.progressView.progressImage = self.selectedImage
+                    cell.progressView.layer.borderColor = self.neutralBorderColor
+                    
+                    cell.questionLabel.textColor = UIColor("#32C274")
+                    cell.answerCountLabel.textColor = UIColor("#32C274")
+                    
+                    cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                    cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
                 }else{
                     cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                 }
+            
+            }else if(type == .Incorrect){
                 
-                if(self.result?.selection != nil){
-                    if (currentChoice.id == self.result?.selection) {
-                        cell.progressView.progressImage = self.selectedImage
-                        cell.progressView.layer.borderColor = self.neutralBorderColor
-                        
-                        cell.questionLabel.textColor = UIColor("#E63462")
-                        cell.answerCountLabel.textColor = UIColor("#E63462")
-                        
-                        cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
-                        cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                if(self.result != nil){
+                    let currentChoice = self.result!.choices![indexPath.row]
+
+                    cell.questionLabel.text = currentChoice.choice
+                    
+                    if(currentChoice.correct!){
+                        cell.selectedImageView.image = UIImage(named: "qCorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    }else{
+                        cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
+                    }
+                    
+                    if(self.result?.selection != nil){
+                        if (currentChoice.id == self.result?.selection) {
+                            cell.progressView.progressImage = self.selectedImage
+                            cell.progressView.layer.borderColor = self.neutralBorderColor
+                            
+                            cell.questionLabel.textColor = UIColor("#E63462")
+                            cell.answerCountLabel.textColor = UIColor("#E63462")
+                            
+                            cell.progressView.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.70)
+                            cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                        }
                     }
                 }
             }
-        }
-        
-        cell.pvWidthConstraint.constant = cell.answerView.frame.width
-        cell.questionLabel.alpha = 1.0
-        if(self.type != .Question){
-            let currentChoice = self.result!.choices![indexPath.row]
-            cell.answerCountLabel.alpha = 1.0
-            let a: Int! = currentChoice.responses!
-            cell.answerCountLabel.text = String(a)
-            cell.ivWidthConstraint.constant = 30.0
-        }else{
-            cell.ivWidthConstraint.constant = 0.0
-        }
-//        self.view.layoutIfNeeded()
-        
+            
+            cell.pvWidthConstraint.constant = cell.answerView.frame.width
+            cell.questionLabel.alpha = 1.0
+            if(self.type != .Question){
+                let currentChoice = self.result!.choices![indexPath.row]
+                cell.answerCountLabel.alpha = 1.0
+                let a: Int! = currentChoice.responses!
+                cell.answerCountLabel.text = String(a)
+                cell.ivWidthConstraint.constant = 30.0
+            }else{
+                cell.ivWidthConstraint.constant = 0.0
+            }
+    //        self.view.layoutIfNeeded()
+            
 
-        return cell
+            return cell
+        }
     }
     
     
@@ -649,3 +804,12 @@ class FullScreenTriviaCell : UITableViewCell {
        }
 }
 
+extension Double {
+    func removeZerosFromEnd() -> String {
+        let formatter = NumberFormatter()
+        let number = NSNumber(value: self)
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 0 //maximum digits in Double after dot (maximum precision)
+        return String(formatter.string(from: number) ?? "")
+    }
+}

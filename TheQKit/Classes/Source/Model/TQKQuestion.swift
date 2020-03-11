@@ -48,7 +48,8 @@ struct TQKQuestion: Mappable{
     var wasMarkedIneligibleForTracking : Bool = false
     var questionType : String = "TRIVIA"
     var canRedeemHeart : Bool = false
-    
+    var pointValue : NSNumber?
+
     init?(map: Map) {
         
     }
@@ -65,6 +66,7 @@ struct TQKQuestion: Mappable{
         categoryId <- map ["categoryId"]
         questionType <- map["questionType"]
         canRedeemHeart <- map["canRedeemHeart"]
+        pointValue <- map["pointValue"]
     }
     
 }
@@ -74,6 +76,7 @@ struct TQKGameStatus: Mappable{
     var active: Bool?
     var question: TQKQuestion?
     var heartEligible : Bool = false
+    var score : NSNumber?
     
     init?(map: Map){
         
@@ -84,5 +87,6 @@ struct TQKGameStatus: Mappable{
         active <- map["active"]
         question <- map ["question"]
         heartEligible <- map["heartEligible"]
+        score <- map["score"]
     }
 }
