@@ -360,6 +360,7 @@ class TheQManager {
         
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
+//                vc.modalPresentationStyle = .fullScreen
                 topController.present(vc, animated: true) {
                     
                 }

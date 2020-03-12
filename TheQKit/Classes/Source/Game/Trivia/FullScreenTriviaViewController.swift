@@ -62,6 +62,7 @@ class FullScreenTriviaViewController: UIViewController {
     @IBOutlet weak var yourAnswerLabel: UILabel!
     @IBOutlet weak var yourAnswerLabelHeight: NSLayoutConstraint!
     
+    @IBOutlet weak var pointsLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -130,6 +131,7 @@ class FullScreenTriviaViewController: UIViewController {
                 
             }else{
                 
+                var lottieName = ""
                 if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                     
                     //Popular choice modes
@@ -140,54 +142,68 @@ class FullScreenTriviaViewController: UIViewController {
                     
                     self.timesUpLabel.textColor = UIColor.white
                     self.timesUpLabel.backgroundColor = UIColor.clear
-                    
                     self.timesUpLabel.font = UIFont.systemFont(ofSize: 25, weight: .medium)
-                    
                     self.questionLabel.font = UIFont.systemFont(ofSize: 32, weight: .medium)
                     
-                    var lottieName = ""
                     if(type == .Correct){
                        lottieName = "correct_PC"
                        tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
-                   }else{
+                    }else{
                        lottieName = "incorrect_PC"
                        tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
-                   }
-                    let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)
-                    animationView.frame = self.containerView.bounds
-                    animationView.backgroundColor = UIColor.clear
-                    animationView.contentMode = .scaleAspectFit
-                    animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                    self.containerView.addSubview(animationView)
-                    animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
-                        //                animationView.removeFromSuperview()
                     }
+                   
                     
                     self.perform(#selector(animateOut), with: self, afterDelay: 5.6)
                 
                 }else{
                     //Multiple choice modes
                     self.timesUpLabel.removeConstraint(self.timesUpLabelWidth)
-                    var lottieName = ""
                     if(type == .Correct){
                         lottieName = "correct"
                         tintedView.backgroundColor = UIColor("#32C274").withAlphaComponent(0.8)
 
-                    }else if(type == .Incorrect){
+                     }else if(type == .Incorrect){
                         lottieName = "incorrect"
                         tintedView.backgroundColor = UIColor("#E63462").withAlphaComponent(0.8)
+                     }
+                    
+                    self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
+
+                }
+                if(self.result?.pointValue != nil){
+                    //add a points label instead of a lottie animation
+                    if(type == .Correct){
+                       self.pointsLabel.text = "+\(self.result!.pointValue)"
+                    }else if(type == .Incorrect){
+                      self.pointsLabel.text = "+0"
                     }
+                    self.pointsLabel.alpha = 0.0
+                    self.pointsLabel.isHidden = false
+                    UIView.animateKeyframes(withDuration: 4.0, delay: 0, options: .calculationModeLinear, animations: {
+                        
+                        UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.5, animations: {
+                            self.pointsLabel.alpha = 1.0
+                            self.pointsLabel.transform = CGAffineTransform(scaleX: 2.0, y: 2.0)
+                        })
+                        UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 3.5, animations: {
+                            self.pointsLabel.transform = CGAffineTransform(scaleX: 0, y: 0)
+                            self.pointsLabel.center = CGPoint(x: self.view.frame.width - 100, y: 10)
+                        })
+                    }, completion: {_ in
+                        self.pointsLabel.removeFromSuperview()
+                    })
+
+                }else{
                     let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)
                     animationView.frame = self.containerView.bounds
                     animationView.backgroundColor = UIColor.clear
                     animationView.contentMode = .scaleAspectFit
                     animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                     self.containerView.addSubview(animationView)
-                    
                     animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                       //                animationView.removeFromSuperview()
                     }
-                    self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-
                 }
             }
         }

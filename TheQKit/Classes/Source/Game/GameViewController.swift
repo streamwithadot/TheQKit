@@ -175,6 +175,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 //    var heartAnimationView : LOTAnimationView?
     var gameStatusReceivedCount : Int = 0
     
+    @IBOutlet weak var gameHeaderView: UIView!
+    @IBOutlet weak var leftHeaderView: UIView!
+    @IBOutlet weak var centerHeaderView: UIView!
+    @IBOutlet weak var rightHeaderView: UIView!
+    
+    @IBOutlet weak var eliminationHeaderView: UIView!
+    
     var theGame : TQKGame?
     var didPurchaseSubscriptionFromApple : Bool = false
     
@@ -241,7 +248,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             name: UIApplication.didBecomeActiveNotification,
             object: nil)
         
-        
+        let tapGesuter = UITapGestureRecognizer(target: self, action: #selector(self.showExitDialog(_:)))
+        self.leftHeaderView.addGestureRecognizer(tapGesuter)
+        self.leftHeaderView.isUserInteractionEnabled = true
     }
     
     @objc func callConnected(){
@@ -625,14 +634,43 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.showTriviaScreen(withType: type)
             }
         }else{ // we are a result
+            
+            if(self.theGame?.winCondition == TQKWinCondition.POINTS.rawValue){
+                                
+                var lottieName = ""
+                if(self.currentResult.questionType == TQKQuestionType.POPULAR.rawValue || self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+
+                    if(type == .Correct){
+                       lottieName = "correct_PC"
+                   }else{
+                       lottieName = "incorrect_PC"
+                   }
+                }else{
+                    //Multiple choice modes
+                    if(type == .Correct){
+                        lottieName = "correct"
+                    }else if(type == .Incorrect){
+                        lottieName = "incorrect"
+                    }
+                  
+                }
+                let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)
+                animationView.frame = self.centerHeaderView.bounds
+                animationView.backgroundColor = UIColor.clear
+                animationView.contentMode = .scaleAspectFit
+                animationView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                self.centerHeaderView.addSubview(animationView)
+                animationView.play(fromProgress: 0.0, toProgress: 1.0){ (finished) in
+                }
+            }
+            
+            
             if(self.currentResult.questionType == "POPULAR" || self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
                 self.showPopularChoiceResult(withType: type)
             }else{
                 self.showTriviaScreen(withType: type)
             }
         }
-        
-        
     }
     
     fileprivate func showPopularChoiceQuestion(){
@@ -649,7 +687,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         self.ssQuestionViewController?.question = self.currentQuestion
        
         self.addChild(self.ssQuestionViewController!)
-        self.view.insertSubview(self.ssQuestionViewController!.view, belowSubview: self.exitButton)
+        self.view.insertSubview(self.ssQuestionViewController!.view, aboveSubview: self.previewView)
         self.ssQuestionViewController?.didMove(toParent: self)
     }
     
@@ -686,7 +724,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         self.addChild(self.fullScreenTriviaViewController!)
-        self.view.insertSubview(self.fullScreenTriviaViewController!.view, belowSubview: self.exitButton)
+        self.view.insertSubview(self.fullScreenTriviaViewController!.view, aboveSubview: self.previewView)
         self.fullScreenTriviaViewController?.didMove(toParent: self)
     }
     
@@ -1173,6 +1211,16 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     
     fileprivate func setupUI() {
+        
+        if(self.theGame?.winCondition == TQKWinCondition.POINTS.rawValue){
+            //show the points header instead of old header
+            self.gameHeaderView.isHidden = false
+            self.eliminationHeaderView.isHidden = true
+
+        }else{
+            self.eliminationHeaderView.isHidden = false
+            self.gameHeaderView.isHidden = true
+        }
         
         //If game object has a background, use it
         if(self.theGame?.backgroundImageUrl != nil && !(self.theGame?.backgroundImageUrl!.isEmpty)!){
