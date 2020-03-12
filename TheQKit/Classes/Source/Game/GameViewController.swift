@@ -1698,9 +1698,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         self.view.addSubview(animationView)
         animationView.play { (true) in
             animationView.removeFromSuperview()
-//            self.heartAnimationView?.play(completion: { (true) in
-//                self.heartAnimationView?.removeFromSuperview()
-//            })
             UIView.animate(withDuration: 1.0, animations: {
                 self.heartContainerView.alpha = 0
             })
@@ -1723,10 +1720,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     fileprivate func eliminateAndShowHeartOption(){
         
-//        let myUser = User(dictionary: UserDefaults.standard.object(forKey: "myUser") as! [String : Any])!
-//        let heartPieces = myUser.heartPieceCount
-//        let remainder = heartPieces! % 4
-//        let wholePieces = (heartPieces! - remainder) / 4
         self.eliminateUser()
         //check if already eliminated, if not then this is the first time and check to see if they can use a heart and present that dialogue
             //show heart use dialogue

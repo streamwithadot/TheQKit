@@ -461,16 +461,9 @@ class FullScreenTriviaViewController: UIViewController {
     @objc func animateOut(){
         
         UIView.animate(withDuration: 0.25, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-            //            self.progressViewC.frame = originalC
 
-            //            self.pvaHeightConstraint.constant = 70.0
-//            self.questionLabelA.alpha = 0.0
-//            self.answerCountLabelA.alpha = 0.0
-//            self.pvaWidthConstraint.constant = 0.0
-//            self.ivaWidthConstraint.constant = 0.0
             self.view.layoutIfNeeded()
-//            self.view.alpha = 0.0
-            //            self.progressViewA.layoutIfNeeded()
+            
         }) { (bool) in
             self.willMove(toParent: nil)
             self.view.removeFromSuperview()
@@ -484,7 +477,6 @@ class FullScreenTriviaViewController: UIViewController {
             self.questionLabelWidth.constant = 0.0
             self.triviaTable.alpha = 0.0
             self.view.layoutIfNeeded()
-            //            self.progressViewC.layoutIfNeeded()
 
         }) { (bool) in
             //na
