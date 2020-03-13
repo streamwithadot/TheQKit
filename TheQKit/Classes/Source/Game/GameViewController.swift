@@ -664,12 +664,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }
             }
             
+            self.showTriviaScreen(withType: type)
             
-            if(self.currentResult.isFreeformText){
-                self.showPopularChoiceResult(withType: type)
-            }else{
-                self.showTriviaScreen(withType: type)
-            }
         }
     }
     
@@ -689,11 +685,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         self.addChild(self.ssQuestionViewController!)
         self.view.insertSubview(self.ssQuestionViewController!.view, aboveSubview: self.previewView)
         self.ssQuestionViewController?.didMove(toParent: self)
-    }
-    
-
-    fileprivate func showPopularChoiceResult(withType type:FullScreenType){
-        self.showTriviaScreen(withType: type)
     }
     
     fileprivate func showTriviaScreen(withType type:FullScreenType){
