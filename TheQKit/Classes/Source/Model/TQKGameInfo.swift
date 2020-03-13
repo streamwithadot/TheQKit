@@ -50,12 +50,12 @@ public struct TQKGames : Mappable {
     }
 }
 
-enum TQKGameType : String {
+public enum TQKGameType : String {
     case TRIVIA = "TRIVIA"
     case POPULAR = "POPULAR"
 }
 
-enum TQKWinCondition : String {
+public enum TQKWinCondition : String {
     case POINTS = "POINTS"
     case ELIMINATION = "ELIMINATION"
 }
@@ -94,7 +94,7 @@ public struct TQKGame : Mappable {
     public var testMode : Bool = false
     public var videoDisabled : Bool = false
     public var backgroundImageUrl : String?
-    public var winCondition : String = "ELIMINATION"
+    public var winCondition : TQKWinCondition = .POINTS
     
     public init?(map: Map) {
         

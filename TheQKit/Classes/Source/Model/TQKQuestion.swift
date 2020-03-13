@@ -9,7 +9,7 @@
 import Foundation
 import ObjectMapper
 
-enum TQKQuestionType : String {
+public enum TQKQuestionType : String {
     case TRIVIA = "TRIVIA"
     case POPULAR = "POPULAR"
     case TEXT_SURVEY = "TEXT_SURVEY"
@@ -46,10 +46,13 @@ struct TQKQuestion: Mappable{
     var id : String?
     var categoryId : String = "GEN"
     var wasMarkedIneligibleForTracking : Bool = false
-    var questionType : String = "TRIVIA"
+    var questionType : TQKQuestionType = .TRIVIA
     var canRedeemHeart : Bool = false
     var pointValue : NSNumber?
 
+    var isMultipleChoice : Bool = false
+    var isFreeformText : Bool = false
+    
     init?(map: Map) {
         
     }
@@ -67,6 +70,9 @@ struct TQKQuestion: Mappable{
         questionType <- map["questionType"]
         canRedeemHeart <- map["canRedeemHeart"]
         pointValue <- map["pointValue"]
+        
+        isMultipleChoice = (questionType == TQKQuestionType.TRIVIA || questionType == TQKQuestionType.CHOICE_SURVEY)
+        isFreeformText = (questionType == TQKQuestionType.POPULAR || questionType == TQKQuestionType.TEXT_SURVEY)
     }
     
 }

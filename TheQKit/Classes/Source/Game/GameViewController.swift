@@ -487,7 +487,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.undoElimination()
             }
             
-            if(self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue || self.currentResult.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+            if(self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY || self.currentResult.questionType == TQKQuestionType.CHOICE_SURVEY){
                 //TODO: Default the UI to the correct
                 self.launchFullScreenTrivia(.Correct)
                 
@@ -628,17 +628,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     fileprivate func launchFullScreenTrivia(_ type: FullScreenType){
         
         if(type == .Question){
-            if(self.currentQuestion.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.currentQuestion.isFreeformText){
                 self.showPopularChoiceQuestion()
             }else{ // trivia
                 self.showTriviaScreen(withType: type)
             }
         }else{ // we are a result
             
-            if(self.theGame?.winCondition == TQKWinCondition.POINTS.rawValue){
+            if(self.theGame?.winCondition == TQKWinCondition.POINTS){
                                 
                 var lottieName = ""
-                if(self.currentResult.questionType == TQKQuestionType.POPULAR.rawValue || self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                if(self.currentResult.isFreeformText){
 
                     if(type == .Correct){
                        lottieName = "correct_PC"
@@ -665,7 +665,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             }
             
             
-            if(self.currentResult.questionType == "POPULAR" || self.currentResult.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.currentResult.isFreeformText){
                 self.showPopularChoiceResult(withType: type)
             }else{
                 self.showTriviaScreen(withType: type)
@@ -1212,7 +1212,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     fileprivate func setupUI() {
         
-        if(self.theGame?.winCondition == TQKWinCondition.POINTS.rawValue){
+        if(self.theGame?.winCondition == TQKWinCondition.POINTS){
             //show the points header instead of old header
             self.gameHeaderView.isHidden = false
             self.eliminationHeaderView.isHidden = true
@@ -1517,7 +1517,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         print(responseId)
         self.userSubmittedAnswer = true
         
-        if(self.currentQuestion.questionType == "POPULAR" || self.currentQuestion.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+        if(self.currentQuestion.isFreeformText){
             self.selectionChoiceText = responseId
         }else{
             self.selectionChoiceText = choiceText
@@ -1579,7 +1579,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 self.userSubmittedAnswer = false
                 self.isQuestionActive = true
                 
-                if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                if(self.currentQuestion.isMultipleChoice){
                     DispatchQueue.main.async(execute: {
 
 //                        self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
@@ -1636,7 +1636,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
                             errorMessage = NSLocalizedString("Please choose a shorter answer.", comment: "")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
-                            if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                            if(self.currentQuestion.isMultipleChoice){
                                 DispatchQueue.main.async(execute: {
                                     
 //                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
@@ -1696,7 +1696,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         
                         UIView.animate(withDuration: 1.0, animations: {
 
-                            if(self.currentQuestion.questionType == "TRIVIA" || self.currentQuestion.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                            if(self.currentQuestion.isMultipleChoice){
 //                                self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
 //                                self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
 //                                self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0

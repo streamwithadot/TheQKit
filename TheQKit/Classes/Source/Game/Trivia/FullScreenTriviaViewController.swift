@@ -132,7 +132,7 @@ class FullScreenTriviaViewController: UIViewController {
             }else{
                 
                 var lottieName = ""
-                if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+                if(self.result!.isFreeformText){
                     
                     //Popular choice modes
                     timesUpLabel.removeConstraint(timesUpLabelHeight)
@@ -230,7 +230,7 @@ class FullScreenTriviaViewController: UIViewController {
         self.view.layoutIfNeeded()
         
         var totalResponse = 0
-        if(type != .Question && (self.result?.questionType != TQKQuestionType.POPULAR.rawValue && self.result?.questionType != TQKQuestionType.TEXT_SURVEY.rawValue)){
+        if(type != .Question && !self.result!.isFreeformText){
             for choice in (self.result?.choices!)! {
                 totalResponse += choice.responses!
             }
@@ -240,7 +240,7 @@ class FullScreenTriviaViewController: UIViewController {
 
             let qNum: Int! = self.question?.number
             
-            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+            if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY){
                 self.timesUpLabel.text = String(format: NSLocalizedString("  Survey  ", comment: ""))
             }else{
                 self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
@@ -254,7 +254,7 @@ class FullScreenTriviaViewController: UIViewController {
 
             self.timesUpLabel.backgroundColor = UIColor.white
         }else{
-            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.result!.isFreeformText){
                 //pop choice types
                 self.timesUpLabel.text = self.question?.question!
                 self.questionLabel.text = self.result?.selection ?? NSLocalizedString("None", comment: "")
@@ -262,7 +262,7 @@ class FullScreenTriviaViewController: UIViewController {
             }else{
                 //multiple choice types
                 if(self.type == .Correct){
-                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY){
                         self.timesUpLabel.text = String(format: NSLocalizedString("  Survey Results  ", comment: ""))
                     }else{
                         self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
@@ -271,7 +271,7 @@ class FullScreenTriviaViewController: UIViewController {
                     self.timesUpLabel.backgroundColor = UIColor.white
 
                 }else if(self.type == .Incorrect){
-                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY.rawValue){
+                    if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY){
                         self.timesUpLabel.text = String(format: NSLocalizedString("  Survey Results  ", comment: ""))
                     }else{
                         self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
@@ -335,7 +335,7 @@ class FullScreenTriviaViewController: UIViewController {
                 
         for index in 0...count{
                 
-            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(type != .Question && self.result!.isFreeformText){
                 //pop choice
                 if let cell = self.triviaTable.cellForRow(at: IndexPath(row: index, section: 0)) as? SSResultsTableViewCell {
                     //TODO: IF NEEDED?
@@ -405,7 +405,7 @@ class FullScreenTriviaViewController: UIViewController {
                         }) { (bool) in
                             if(self.type != .Question){
                                 self.setProgressBarFill(bar: cell.progressView, totalResponses: Float(totalResponse), responses: Float((self.result?.choices?[index].responses)!))
-                                if(self.type == .Correct && (self.result?.questionType != TQKQuestionType.CHOICE_SURVEY.rawValue)){
+                                if(self.type == .Correct && (self.result?.questionType != TQKQuestionType.CHOICE_SURVEY)){
                                     if (self.result?.choices?[index].correct)!{
                                         self.showPlusOneFor(view: cell.progressView)
                                     }
@@ -605,7 +605,7 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+        if(type != .Question && self.result!.isFreeformText){
             let x = tableView.frame.height / 3
             return x >= 90 ? 90 : x
         }else{
@@ -630,7 +630,7 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
         if(type == .Question){
             return self.question!.choices!.count
         }else{
-            if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+            if(self.result!.isFreeformText){
                 if(self.result?.results == nil){
                     return 1
                 }else{
@@ -644,7 +644,7 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if(self.result?.questionType == TQKQuestionType.POPULAR.rawValue || self.result?.questionType == TQKQuestionType.TEXT_SURVEY.rawValue){
+        if(type != .Question && self.result!.isFreeformText){
             let cell = tableView.dequeueReusableCell(withIdentifier: "SSResultsTableViewCell", for: indexPath) as! SSResultsTableViewCell
             
             if(self.result?.results != nil && !(self.result?.results?.isEmpty)!){

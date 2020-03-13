@@ -44,10 +44,13 @@ struct TQKResult: Mappable{
     var canRedeemHeart : Bool = false
     var canUseSubscription : Bool = false
     var results : [TQKPopularAnswers]?
-    var questionType : String = "TRIVIA"
+    var questionType : TQKQuestionType = .TRIVIA
     var correctResponse : String?
     var pointValue : NSNumber?
     var score : NSNumber?
+    
+    var isMultipleChoice : Bool = false
+    var isFreeformText : Bool = false
     
     init?(map: Map) {
         
@@ -69,6 +72,9 @@ struct TQKResult: Mappable{
         correctResponse <- map["correctResponse"]
         pointValue <- map["pointValue"]
         score <- map["score"]
+        
+        isMultipleChoice = (questionType == TQKQuestionType.TRIVIA || questionType == TQKQuestionType.CHOICE_SURVEY)
+        isFreeformText = (questionType == TQKQuestionType.POPULAR || questionType == TQKQuestionType.TEXT_SURVEY)
     }
     
 }
