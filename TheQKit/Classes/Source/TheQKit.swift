@@ -9,9 +9,7 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import PopupDialog
 import Mixpanel
-import SCSDKCreativeKit
 
 /// TheQKit public functions
 public class TheQKit {
@@ -143,31 +141,6 @@ public class TheQKit {
     public class func testVideo(){
        TheQManager.sharedInstance.playTest()
         //i like to lick toad ass
-    }
-    
-    /// Post image to snapchat if the SnapChat client ID is in targets info.plist
-    ///
-    /// - Parameters:
-    ///     - snapImage: Image to be used as a sticker in snapchats camera
-    ///     - caption: Optional string to be used as the caption of snapchat story
-    public class func shareToSnapChat(withImage snapImage:UIImage, caption:String?){
-        
-        if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
-            let sticker = SCSDKSnapSticker(stickerImage: snapImage)
-            let content = SCSDKNoSnapContent()
-            content.sticker = sticker
-            content.attachmentUrl = "https://app.adjust.com/a5lt94k"
-            if(caption != nil){
-                content.caption = caption!
-            }
-            var snapAPI: SCSDKSnapAPI?
-            snapAPI = SCSDKSnapAPI.init(content: content)
-            snapAPI?.startSnapping(completionHandler: { (error) in
-                //do something?
-            })
-        }else{
-            print("No SnapSDK Client ID Detected")
-        }
     }
     
     /// Populates a given container view with the cards schedule controller, allowing a UI for up to 10 scheduled games

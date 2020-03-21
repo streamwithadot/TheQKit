@@ -14,8 +14,7 @@ import IJKMediaFramework
 
 import Toast_Swift
 import Alamofire
-import PopupDialog
-import UIColor_Hex_Swift 
+import UIColor_Hex_Swift
 import ObjectMapper
 import SwiftyJSON
 import Lottie
@@ -171,7 +170,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var heartsEnabled : Bool = false
     
     @IBOutlet weak var heartContainerView: UIView!
-    var heartPopup : PopupDialog?
+//    var heartPopup : PopupDialog?
 //    var heartAnimationView : LOTAnimationView?
     var gameStatusReceivedCount : Int = 0
     
@@ -409,30 +408,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         DispatchQueue.main.async(execute: {
             
-            if(self.heartPopup != nil){
-                self.heartPopup?.dismiss()
-            }
+//            if(self.heartPopup != nil){
+//                self.heartPopup?.dismiss()
+//            }
             
             if(self.currentEndQuestion != nil && (self.currentEndQuestion?.selection == nil || (self.currentEndQuestion?.selection.isEmpty)! || self.currentEndQuestion?.selection == "") && self.userSubmittedAnswer == true){
-                // A selection was not made for this game despite submitting a question - tell the user so
-                // Prepare the popup assets
-                let title = "Answer submission timed out"
-                let message = "We did not receive your answer in time due to a network issue. Please use wifi if it is avaliable! You may keep playing to increase your score on the Leaderboard!"
-                // Create the dialog
-                let popup = PopupDialog(title: title, message: message)
-                // This button will not the dismiss the dialog
-                let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
-                    
+                
+                let alert = UIAlertController(title: "Answer submission timed out", message: "We did not receive your answer in time due to a network issue. Please use wifi if it is avaliable! You may keep playing even when eliminated", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Continue Playing", style: .default, handler: { (alertAction) in
+                    //add an action if needed
+                }))
+            
+                if let topController = UIApplication.topViewController() {
+                    topController.present(alert, animated: true) {}
                 }
-                
-                // Add buttons to dialog
-                // Alternatively, you can use popup.addButton(buttonOne)
-                // to add a single button
-                popup.buttonAlignment = .horizontal
-                popup.addButtons([buttonTwo])
-                
-                // Present dialog
-                self.present(popup, animated: true, completion: nil)
             }
         })
         
@@ -1001,26 +990,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), asd ?? " ", TQKConstants.appName)
                 }
 
-                let popup = PopupDialog(title: title, message: message)
-                let buttonOne = DefaultButton(title: "Okay", dismissOnTap: true) {
-                    
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                    //add an action if needed
+                }))
+            
+                if let topController = UIApplication.topViewController() {
+                    topController.present(alert, animated: true) {}
                 }
-                
-                popup.buttonAlignment = .vertical
-                popup.addButtons([buttonOne])
-                if let _ = Bundle.main.object(forInfoDictionaryKey: "SCSDKClientId") {
-                    let buttonTwo = DefaultButton(title: "Share to Snapchat", dismissOnTap: true) {
-                        let object : Properties = ["Type" : "Game Won"]
-                        NotificationCenter.default.post(name: .sharedToSnapchat, object: object)
-                        TheQKit.shareToSnapChat(withImage: UIImage(named: "theQ_Winner.png")!, caption: nil)
-                    }
-                    popup.addButtons([buttonTwo])
-                }
-                
-
-                // Present dialog
-                self!.present(popup, animated: true, completion: nil)
-                
                 
             })
         }
@@ -1080,18 +1057,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         let userDefaults = UserDefaults.standard
                         let answersSaved = userDefaults.object(forKey: self!.myGameId!) as? String
                         if (answersSaved != "eliminated"){
-                            // Prepare the popup assets
-                            let title = "Sorry, you've joined late, or were previously eliminated"
-                            let message = "Either you joined late or missed a question due to network issues. You are not able to win this game, but keep playing to increase your score on the Leaderboards!"
-                            let popup = PopupDialog(title: title, message: message)
-                            let buttonTwo = DefaultButton(title: "Continue Playing", dismissOnTap: true) {
-                                
+                            let alert = UIAlertController(title: "Sorry, you've joined late, or were previously eliminated", message: "Either you joined late or missed a question due to network issues. You are not able to win this game, but are able to continue playing", preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "Continue Playing", style: .default, handler: { (alertAction) in
+                                //add an action if needed
+                            }))
+                        
+                            if let topController = UIApplication.topViewController() {
+                                topController.present(alert, animated: true) {}
                             }
-                            popup.buttonAlignment = .horizontal
-                            popup.addButtons([buttonTwo])
-                            
-                            // Present dialog
-                            self!.present(popup, animated: true, completion: nil)
                         }
                         
                         self!.eliminateUser()
@@ -1171,32 +1144,22 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         let title = "Are You Sure?"
         let message = "The game is in progress are you sure you want to leave?"
         
-        // Create the dialog
-        let popup = PopupDialog(title: title, message: message)
-        
-        // Create buttons
-        let buttonOne = CancelButton(title: "Cancel") {
-            
-        }
-        
-        // This button will not the dismiss the dialog
-        let buttonTwo = DefaultButton(title: "Yes", dismissOnTap: true) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Stay", style: .default, handler: { (alertAction) in
+            //add an action if needed
+        }))
+        alert.addAction(UIAlertAction(title: "Leave", style: .destructive, handler: { (alertAction) in
             self.dismiss(animated: true){
                 if(self.userEliminated && (self.currentQuestion != nil && (self.currentQuestion.number == self.currentQuestion.total))){
                     NotificationCenter.default.post(name: .gameEndedAndEliminated, object: nil)
                 }
                 self.completed!(true)
             }
+        }))
+        
+        if let topController = UIApplication.topViewController() {
+            topController.present(alert, animated: true) {}
         }
-        
-        // Add buttons to dialog
-        // Alternatively, you can use popup.addButton(buttonOne)
-        // to add a single button
-        popup.buttonAlignment = .horizontal
-        popup.addButtons([buttonOne, buttonTwo])
-        
-        // Present dialog
-        self.present(popup, animated: true, completion: nil)
         
     }
     
@@ -1653,23 +1616,21 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             print("An error occured recording your answer.")
                             self.currentQuestion.wasMarkedIneligibleForTracking = true
                         }
-                        
-                        //                        self.eliminateUser()
-                        
+                                                
                         // Prepare the popup assets
                         let title = NSLocalizedString("Sorry, an error has occured", comment: "")
                         let message = errorMessage + NSLocalizedString(" You may keep playing to increase your score on the Leaderboard!", comment: "")
-                        let popup = PopupDialog(title: title, message: message)
-                        let buttonTwo = DefaultButton(title: "Continue", dismissOnTap: true) {
-                            
-                        }
-                        popup.buttonAlignment = .horizontal
-                        popup.addButtons([buttonTwo])
-                        
-                        // Present dialog
+                        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (alertAction) in
+                            //add an action if needed
+                        }))
+                                                    
                         if(self.currentEndQuestion == nil && self.isQuestionActive != false){
-                            self.present(popup, animated: true, completion: nil)
+                            if let topController = UIApplication.topViewController() {
+                                topController.present(alert, animated: true) {}
+                            }
                         }
+                        
                         
                         let object : Properties = ["gameID" : self.myGameId!,
                                                      "questionID" : questionId,
@@ -1703,13 +1664,16 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             //Heart redemption failed - let user know heart wasn't used
                             let title = NSLocalizedString("Heart Redemption Failed", comment: "")
                             let message = NSLocalizedString("Looks like you tried to redeem an extra life but it was either the last question of the game or some network error occured. Your extra life was not used and is avaliable for use in the next game.", comment: "")
-                            let popup = PopupDialog(title: title, message: message)
-                            let buttonTwo = DefaultButton(title: NSLocalizedString("Continue", comment: ""), dismissOnTap: true) {
-                                
+
+                            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (alertAction) in
+                                //add an action if needed
+                            }))
+                        
+                            if let topController = UIApplication.topViewController() {
+                                topController.present(alert, animated: true) {}
                             }
-                            popup.buttonAlignment = .horizontal
-                            popup.addButtons([buttonTwo])
-                            self.present(popup, animated: true, completion: nil)
+                            
                         }
                         
                         
@@ -1764,10 +1728,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             //show heart use dialogue
         let useHeartViewController = UseHeartViewController(nibName: "UseHeartView", bundle: TheQKit.bundle)
         useHeartViewController.heartDelegate = self
-        self.heartPopup = PopupDialog(viewController: useHeartViewController, buttonAlignment: .vertical, transitionStyle: .bounceDown, preferredWidth: 290, tapGestureDismissal: false, hideStatusBar: true) {
-            //someting
-        }
-        self.present(self.heartPopup!, animated: true, completion: nil)
+        
+        self.addChild(useHeartViewController)
+        self.view.addSubview(useHeartViewController.view)
+        self.view.bringSubviewToFront(useHeartViewController.view)
+        useHeartViewController.didMove(toParent: self)
         
     }
     

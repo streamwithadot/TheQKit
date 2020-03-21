@@ -9,7 +9,6 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import PopupDialog
 
 class AuthenticationService {
     
@@ -516,36 +515,24 @@ class AuthenticationService {
 //    }
     
     func showLoginError() {
-        // Prepare the popup assets
-        let title = "Error"
-        let message = "Sorry an error has occured. Please try again."
-        let popup = PopupDialog(title: title, message: message)
-        let buttonTwo = DefaultButton(title: "Okay", dismissOnTap: true) {
-            
-        }
-        popup.buttonAlignment = .horizontal
-        popup.addButtons([buttonTwo])
+        let alert = UIAlertController(title: "Error", message: "Sorry an error has occured. Please try again.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+            //add an action if needed
+        }))
         
-        // Present dialog
         if let topController = UIApplication.topViewController() {
-            topController.present(popup, animated: true, completion: nil)
+            topController.present(alert, animated: true) {}
         }
     }
     
     func showBannedMessage() {
-        // Prepare the popup assets
-        let title = "Banned"
-        let message = "You have been banned."
-        let popup = PopupDialog(title: title, message: message)
-        let buttonTwo = DefaultButton(title: "Okay", dismissOnTap: true) {
-            
-        }
-        popup.buttonAlignment = .horizontal
-        popup.addButtons([buttonTwo])
-        
-        // Present dialog
+        let alert = UIAlertController(title: "Banned", message: "You have been banned.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+            //add an action if needed
+        }))
+    
         if let topController = UIApplication.topViewController() {
-            topController.present(popup, animated: true, completion: nil)
+            topController.present(alert, animated: true) {}
         }
     }
     

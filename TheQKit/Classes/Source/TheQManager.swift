@@ -8,7 +8,6 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import PopupDialog
 import Mixpanel
 
 class TheQManager {
@@ -447,27 +446,15 @@ class TheQManager {
             }
             
             if(!self.isValidEmail(testStr: email!)){
-                //not a valid email
-                let title = "Invalid Email"
-                let message = "Please enter a valid email address"
                 
-                // Create the dialog
-                let popup = PopupDialog(title: title, message: message)
-                
-                // Create buttons
-                let buttonOne = CancelButton(title: "Okay") {
-                    print("Exiting Dialog")
-                    
+                let alert = UIAlertController(title: "Invalid Email", message: "Please enter a valid email address", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                    //add an action if needed
+                }))
+            
+                if let topController = UIApplication.topViewController() {
+                    topController.present(alert, animated: true) {}
                 }
-                
-                // Add buttons to dialog
-                // Alternatively, you can use popup.addButton(buttonOne)
-                // to add a single button
-                popup.buttonAlignment = .horizontal
-                popup.addButtons([buttonOne])
-                
-                // Present dialog
-                UIApplication.topViewController()!.present(popup, animated: true, completion: nil)
                 
                 return
             }
@@ -508,16 +495,14 @@ class TheQManager {
                     }
                     
                     response.result.ifFailure {
-                        let title = "Error"
-                        let message = "An error has occured; please try again later"
-                        let popup = PopupDialog(title: title, message: message)
-                        let buttonOne = CancelButton(title: "Okay") {
-                            print("Exiting Dialog")
+                        let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                            //add an action if needed
+                        }))
+                    
+                        if let topController = UIApplication.topViewController() {
+                            topController.present(alert, animated: true) {}
                         }
-                        popup.buttonAlignment = .horizontal
-                        popup.addButtons([buttonOne])
-                        // Present dialog
-                        UIApplication.topViewController()!.present(popup, animated: true, completion: nil)
                     }
                     
                     response.result.ifSuccess {
@@ -528,16 +513,14 @@ class TheQManager {
                                 print("Result: \(response.result)")                         // response serialization result
                                 
                                 response.result.ifFailure {
-                                    let title = "Error"
-                                    let message = "An error has occured; please try again later"
-                                    let popup = PopupDialog(title: title, message: message)
-                                    let buttonOne = CancelButton(title: "Okay") {
-                                        print("Exiting Dialog")
+                                    let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
+                                    alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                                        //add an action if needed
+                                    }))
+                                
+                                    if let topController = UIApplication.topViewController() {
+                                        topController.present(alert, animated: true) {}
                                     }
-                                    popup.buttonAlignment = .horizontal
-                                    popup.addButtons([buttonOne])
-                                    // Present dialog
-                                    UIApplication.topViewController()!.present(popup, animated: true, completion: nil)
                                 }
                                 
                                 response.result.ifSuccess {
@@ -593,36 +576,26 @@ class TheQManager {
         // Prepare the popup assets
         var title = "Insufficient Funds"
         let message = "You must have at least $25 in your account to cashout"
-        // Create the dialog
-        let popup = PopupDialog(title: title, message: message)
-        
-        // Create buttons
-        let buttonOne = CancelButton(title: "Ok!") {
-            print("Exiting Dialog")
-            
+       
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Okay!", style: .default, handler: { (alertAction) in
+            //add an action if needed
+        }))
+    
+        if let topController = UIApplication.topViewController() {
+            topController.present(alert, animated: true) {}
         }
-        
-        // Add buttons to dialog
-        // Alternatively, you can use popup.addButton(buttonOne)
-        // to add a single button
-        popup.buttonAlignment = .horizontal
-        popup.addButtons([buttonOne])
-        
-        // Present dialog
-        UIApplication.topViewController()!.present(popup, animated: true, completion: nil)
     }
     
     func showPopUp() {
-        let title = "Congratulations!"
-        let message = "We payout on a monthly basis.  You will be notified once your prize payout has been processed via PayPal."
-        let popup = PopupDialog(title: title, message: message)
-        let buttonOne = CancelButton(title: "Ok!") {
-            print("Exiting Dialog")
+        let alert = UIAlertController(title: "Congratulations!", message: "We payout on a monthly basis.  You will be notified once your prize payout has been processed via PayPal.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+            //add an action if needed
+        }))
+    
+        if let topController = UIApplication.topViewController() {
+            topController.present(alert, animated: true) {}
         }
-        popup.buttonAlignment = .horizontal
-        popup.addButtons([buttonOne])
-        
-        UIApplication.topViewController()!.present(popup, animated: true, completion: nil)
     }
     
     func playTest() {
