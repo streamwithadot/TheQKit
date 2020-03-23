@@ -14,7 +14,7 @@ import IJKMediaFramework
 
 import Toast_Swift
 import Alamofire
-import UIColor_Hex_Swift
+//import UIColor_Hex_Swift
 import ObjectMapper
 import SwiftyJSON
 import Lottie
@@ -45,13 +45,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
-            return UIColor.init(colorOverride!, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+            return TheQKit.hexStringToUIColor(hex: colorOverride!)
         }
         let colorIndex = colorDict.index(forKey: catId)
         if colorIndex != nil {
-            return UIColor.init(colorDict[colorIndex!].value, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+            return TheQKit.hexStringToUIColor(hex: colorDict[colorIndex!].value)
         } else {
-            return UIColor.init(TQKConstants.GEN_COLOR_CODE, defaultColor: UIColor.init(TQKConstants.GEN_COLOR_CODE))
+            return TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
         }
     }
     
@@ -595,7 +595,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         correctLabel.textAlignment = .center
         correctLabel.textColor = UIColor.white
        
-        correctLabel.backgroundColor = UIColor(TQKConstants.GEN_COLOR_CODE)
+        correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
         
         correctLabel.layer.cornerRadius = 15
         correctLabel.clipsToBounds = true

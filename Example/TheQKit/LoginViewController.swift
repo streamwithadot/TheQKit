@@ -40,7 +40,7 @@ class LoginViewController: UIViewController {
         let providers: [FUIAuthProvider] = [
             FUIPhoneAuth(authUI:FUIAuth.defaultAuthUI()!)
         ]
-        
+
         self.authUI!.providers = providers
 
         let phoneProvider = FUIAuth.defaultAuthUI()!.providers.first as! FUIPhoneAuth
@@ -125,7 +125,7 @@ extension LoginViewController : GIDSignInDelegate {
       guard let authentication = user.authentication else { return }
       let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                         accessToken: authentication.accessToken)
-        
+
         Auth.auth().signIn(with: credential) { (authResult, error) in
             if let _ = error {
                 return
@@ -137,7 +137,7 @@ extension LoginViewController : GIDSignInDelegate {
             user!.getIDTokenResult(completion: { (result, error) in
                 let token = result?.token
                 print(token)
-                
+
                 TheQKit.LoginQUserWithFirebase(userId: uid, tokenString: token!, username: "FBGoogTester") { (success) in
                     if(success){
                         self.performSegue(withIdentifier: "Onward!", sender: self)
@@ -182,14 +182,14 @@ extension LoginViewController : ASAuthorizationControllerDelegate {
 
 // MARK: - FireBase UI
 extension LoginViewController: FUIAuthDelegate {
-    
+
     func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, url: URL?, error: Error?) {
         if let user = authDataResult?.user {
-            
+
             user.getIDTokenResult(completion: { (result, error) in
                 let token = result?.token
                 let userId:String = user.uid
-                
+
                 TheQKit.LoginQUserWithFirebase(userId: userId, tokenString: token!) { (success) in
                     if(success){
                         self.performSegue(withIdentifier: "Onward!", sender: self)

@@ -9,7 +9,7 @@
 import UIKit
 //import AVFoundation
 import Lottie
-import UIColor_Hex_Swift
+//import UIColor_Hex_Swift
 import Toast_Swift
 
 class SSQuestionViewController: UIViewController, UITextFieldDelegate {
@@ -20,11 +20,11 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
         set { self._orientations = newValue }
     }
     
-    let correctBorderColor = UIColor("#00A878").cgColor
-    let neutralBorderColor = UIColor("#FFFFFF").cgColor
-    let incorrectBorderColor = UIColor("#E93060").cgColor
+    let correctBorderColor = TheQKit.hexStringToUIColor(hex: "#00A878").cgColor
+    let neutralBorderColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").cgColor
+    let incorrectBorderColor = TheQKit.hexStringToUIColor(hex: "#E93060").cgColor
     
-    let popularChoiceDefaultColor = UIColor("#468EE5").cgColor
+    let popularChoiceDefaultColor = TheQKit.hexStringToUIColor(hex: "#468EE5").cgColor
     let popularChoiceDefaultColorString = "#468EE5"
     
     var gameDelegate : GameDelegate?
@@ -201,12 +201,12 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
                 animationView.removeFromSuperview()
             }
             
-            self.answerTextField.backgroundColor = UIColor.init("#000000", defaultColor: UIColor.clear).withAlphaComponent(0.12)
+            self.answerTextField.backgroundColor = TheQKit.hexStringToUIColor(hex: "#000000").withAlphaComponent(0.12)
             self.answerTextField.layer.borderWidth = 1
-            self.answerTextField.layer.borderColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.5).cgColor
+            self.answerTextField.layer.borderColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.5).cgColor
             self.answerTextField.layer.masksToBounds = true
 
-            self.answerTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Your Answer", comment: ""), attributes: [NSAttributedString.Key.foregroundColor: UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.5)])
+            self.answerTextField.attributedPlaceholder = NSAttributedString(string: NSLocalizedString("Your Answer", comment: ""), attributes: [NSAttributedString.Key.foregroundColor: TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.5)])
             
             //            self.submitButton.backgroundColor = UIColor.init("#FFFFFF", defaultColor: UIColor.clear).withAlphaComponent(0.30)
         }
@@ -226,64 +226,18 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
         
         NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
 
-//        do {
-//            audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: TheQKit.bundle.path(forResource: "Countdown", ofType:"wav")!))
-////            audioPlayer?.prepareToPlay()
-//            //TODO - make atTime work
-//            //        var startTime = 15 - self.currentQuestion!.secondsToRespond!
-//            //        if startTime < 0 { startTime = 0 }
-//            audioPlayer?.volume = 0.4
-//            DispatchQueue.global(qos: .background).async {
-//                self.audioPlayer?.play()//(atTime: TimeInterval(startTime))
-//            }
-//        } catch {
-//            // couldn't load file :(
-//            print("error playing audio")
-//        }
-//        
-//        self.gameDelegate?.beginAudio()
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(SSQuestionViewController.keyboardWillShowNotification(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(SSQuestionViewController.keyboardWillHideNotification(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+
         
         
-        //        progressViewA.layer.cornerRadius = progressViewA.frame.size.height / 2
-        //        progressViewA.clipsToBounds = true
-        //        progressViewA.layer.sublayers![1].cornerRadius = progressViewA.frame.size.height / 2
-        //        progressViewA.subviews[1].clipsToBounds = true
+        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: popularChoiceDefaultColorString).withAlphaComponent(0.8)
+
         
-        
-        
-        
-        
-        
-        tintedView.backgroundColor = UIColor(popularChoiceDefaultColorString).withAlphaComponent(0.8)
-        
-        
-        
-        //        questionLabelWidth.constant = 0.0
-        
-        //        pvaWidthConstraint.constant = 0.0
-        //        questionLabelA.alpha = 0.0
-        //        answerCountLabelA.alpha = 0.0
-        //        ivaWidthConstraint.constant = 0.0
-//        DispatchQueue.main.async {
             self.questionLabel.text = self.question?.question!
             self.view.layoutIfNeeded()
-//        }
-        
-        //        progressViewA.setProgress(0.0, animated: false)
-        //        answerViewA.isHidden = false
-        
-        //        let qNum: Int! = self.question?.number
-        //        self.timesUpLabel.text = "  Question \(String(qNum))  "
-        //        #if NEWSCORPUK
-        //        self.timesUpLabel.textColor = UIColor(Constants.GEN_COLOR_CODE)
-        //        #else
-        //        timesUpLabel.textColor = self.leaderboardDelegate?.getColorForID(catId: (self.question?.categoryId)!)
-        //        #endif
-        //        self.timesUpLabel.backgroundColor = UIColor.white
-        
+
         DispatchQueue.main.async {
             self.answerTextField.becomeFirstResponder()
         }

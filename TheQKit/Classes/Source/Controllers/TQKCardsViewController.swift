@@ -197,8 +197,9 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             cell.premiumGameLabel.isHidden = true
         }
         
-        cell.gameTypeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-        cell.triviaLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+        
+        cell.gameTypeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
+        cell.triviaLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.textColorCode)!)
         
         if(game?.gameType == "POPULAR"){
             cell.triviaLabel.text = NSLocalizedString("POPULAR CHOICE", comment: "")
@@ -210,7 +211,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             #endif
         }
         
-        cell.backgroundImageView.backgroundColor = UIColor.init((game?.theme.defaultColorCode)!)
+        cell.backgroundImageView.backgroundColor = TheQKit.hexStringToUIColor(hex: (game?.theme.defaultColorCode)!)
         cell.backgroundImageView.layer.masksToBounds = true
         cell.backgroundImageView.layer.cornerRadius = 10.0
         cell.backgroundImageView.contentMode = .scaleAspectFill
@@ -227,9 +228,9 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             cell.andLabel.isHidden = true
             cell.shareGameButton.isHidden = true
             
-            cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-            cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-            cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            cell.timeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.textColorCode)!)
+            cell.dayLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
+            cell.prizeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
             
         }else if(game?.title == "No Game Scheduled"){
             
@@ -244,9 +245,9 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             cell.andLabel.isHidden = true
             cell.shareGameButton.isHidden = true
             
-            cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-            cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-            cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+            cell.timeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.textColorCode)!)
+            cell.dayLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
+            cell.prizeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
             
             cell.gameTypeLabel.isHidden = true
             cell.triviaLabel.isHidden = true
@@ -261,7 +262,7 @@ extension TQKCardsViewController : UICollectionViewDataSource {
             cell.triviaLabel.isHidden = false
             
             if(game?.eligible == false && isAdmin == false){
-                cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
+                cell.timeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.textColorCode)!)
                 cell.timeLabel.text = game?.notEligibleMessage ?? "Not Eligible to Play"
                 cell.andLabel.isHidden = true
             }else{
@@ -274,15 +275,15 @@ extension TQKCardsViewController : UICollectionViewDataSource {
                 }
                 
                 
-                cell.dayLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
-                cell.timeLabel.textColor = UIColor.init((game?.theme.textColorCode)!)
-                cell.prizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                cell.dayLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
+                cell.timeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.textColorCode)!)
+                cell.prizeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
                 
                 if(game?.customRewardText != nil){
                     cell.optionalPrizeLabel.text = game?.customRewardText
-                    cell.optionalPrizeLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                    cell.optionalPrizeLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
                     cell.optionalPrizeLabel.isHidden = false
-                    cell.andLabel.textColor = UIColor.init((game?.theme.altTextColorCode)!)
+                    cell.andLabel.textColor = TheQKit.hexStringToUIColor(hex: (game?.theme.altTextColorCode)!)
                     cell.andLabel.isHidden = false
                 }else{
                     cell.optionalPrizeLabel.isHidden = true
