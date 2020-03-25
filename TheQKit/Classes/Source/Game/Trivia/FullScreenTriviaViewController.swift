@@ -176,25 +176,25 @@ class FullScreenTriviaViewController: UIViewController {
                 if(self.result?.pointValue != nil){
                     //add a points label instead of a lottie animation
                     if(type == .Correct){
-                       self.pointsLabel.text = "+\(self.result!.pointValue)"
+                       self.pointsLabel.text = "+\(self.result!.pointValue!)"
                     }else if(type == .Incorrect){
                       self.pointsLabel.text = "+0"
                     }
                     self.pointsLabel.alpha = 0.0
                     self.pointsLabel.isHidden = false
-                    UIView.animateKeyframes(withDuration: 4.0, delay: 0, options: .calculationModeLinear, animations: {
-                        
-                        UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.5, animations: {
-                            self.pointsLabel.alpha = 1.0
-                            self.pointsLabel.transform = CGAffineTransform(scaleX: 2.0, y: 2.0)
-                        })
-                        UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 3.5, animations: {
-                            self.pointsLabel.transform = CGAffineTransform(scaleX: 0, y: 0)
-                            self.pointsLabel.center = CGPoint(x: self.view.frame.width - 100, y: 10)
-                        })
-                    }, completion: {_ in
-                        self.pointsLabel.removeFromSuperview()
-                    })
+                    
+                
+                    UIView.animate(withDuration: 3.0, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1.0, options: .curveLinear, animations: {
+                       self.pointsLabel.alpha = 1.0
+                       self.pointsLabel.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
+                    }) { (bool) in
+//                        UIView.animate(withDuration: 1.0, delay: 0.25, usingSpringWithDamping: 0.0, initialSpringVelocity: 0, options: .curveLinear, animations: {
+//                            self.pointsLabel.transform = CGAffineTransform(scaleX: 0.25, y: 0.25)
+//                            self.pointsLabel.center = CGPoint(x: self.view.frame.width, y: 0)
+//                          }) { (bool) in
+//                                self.pointsLabel.removeFromSuperview()
+//                          }
+                    }
 
                 }else{
                     let animationView = AnimationView(name: lottieName, bundle: TheQKit.bundle)

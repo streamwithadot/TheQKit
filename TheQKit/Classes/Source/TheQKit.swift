@@ -135,14 +135,6 @@ public class TheQKit {
         return TheQManager.sharedInstance.CashOut()
     }
     
-    /// Dummy function for testing
-    /// 
-    /// - TODO: Should probably remove this function, may crash
-    public class func testVideo(){
-       TheQManager.sharedInstance.playTest()
-        //i like to lick toad ass
-    }
-    
     /// Populates a given container view with the cards schedule controller, allowing a UI for up to 10 scheduled games
     ///
     /// - Parameters:
