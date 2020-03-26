@@ -94,7 +94,7 @@ public struct TQKGame : Mappable {
     public var testMode : Bool = false
     public var videoDisabled : Bool = false
     public var backgroundImageUrl : String?
-    public var winCondition : TQKWinCondition = .POINTS
+    public var winCondition : TQKWinCondition = .ELIMINATION
     
     public init?(map: Map) {
         
