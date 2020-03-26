@@ -118,13 +118,13 @@ public class TheQKit {
     ///     - theGame: TQKGame object
     ///     - colorCode: *Optional* override the color theme of the game
     ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
-    public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false, completed: @escaping (_ success : Bool) -> Void ){
-        TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer, completed: completed)
+    public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false, logoOverride: UIImage? = nil, completed: @escaping (_ success : Bool) -> Void ){
+        TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer,logoOverride: logoOverride,completed: completed)
     }
     
     /// Launches the most recent active game
-    public class func LaunchActiveGame(completed: @escaping (_ success : Bool) -> Void) {
-        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil, completed: completed)
+    public class func LaunchActiveGame(logoOverride: UIImage? = nil, completed: @escaping (_ success : Bool) -> Void) {
+        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil, logoOverride: logoOverride,completed: completed)
     }
     
     /// Prompts the user for an email and performs a cash out request

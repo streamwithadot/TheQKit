@@ -50,6 +50,10 @@ class ViewController: UIViewController {
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
                 hud.label.text = "Active Games Found"
                 hud.hide(animated: true, afterDelay: 2.0)
+                let x = UIImage(named: "test")
+                TheQKit.LaunchGame(theGame: gamesArray!.first!, colorCode: nil, logoOverride: x) { (success) in
+                    //launched
+                }
             }else{
                 print("no active games")
                 let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
@@ -60,8 +64,11 @@ class ViewController: UIViewController {
     }
     
     @IBAction func joinGame(_ sender: Any) {
-        TheQKit.LaunchActiveGame {_ in
-            //do something?
+        let x = UIImage(named: "test")
+        
+        
+        TheQKit.LaunchActiveGame(logoOverride: x) {_ in
+            
         }
     }
     

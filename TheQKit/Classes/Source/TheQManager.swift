@@ -324,7 +324,7 @@ class TheQManager {
         }
     }
     
-    func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false,completed: @escaping (_ success : Bool) -> Void ) {
+    func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false, logoOverride: UIImage?, completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
             print("TheQKit ERROR: GAME IS NOT ACTIVE - CAN NOT LAUNCH GAME")
@@ -353,6 +353,10 @@ class TheQManager {
         vc.theGame = theGame
         vc.completed = completed
         
+        if(logoOverride != nil){
+            vc.logo = logoOverride
+        }
+        
         if(colorCode != nil){
             vc.colorOverride = colorCode
         }
@@ -368,7 +372,7 @@ class TheQManager {
     }
     
     
-    func LaunchActiveGame(colorCode : String?, completed: @escaping (_ success : Bool) -> Void ) {
+    func LaunchActiveGame(colorCode : String?, logoOverride: UIImage?, completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
             let gameHeaders : HTTPHeaders = [
@@ -410,7 +414,7 @@ class TheQManager {
                                 
                                 if (json["games"][0]["active"] == true) {
                                     if let game = TQKGame(JSON: json["games"][0].dictionaryObject!) {
-                                        self.LaunchGame(theGame: game, colorCode: colorCode, completed: completed)
+                                        self.LaunchGame(theGame: game, colorCode: colorCode, logoOverride: logoOverride,completed: completed)
                                     }
                                 }
                             }catch{

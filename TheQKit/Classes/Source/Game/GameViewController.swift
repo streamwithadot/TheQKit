@@ -182,6 +182,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     @IBOutlet weak var eliminationHeaderView: UIView!
     
     var theGame : TQKGame?
+    var logo : UIImage?
     var didPurchaseSubscriptionFromApple : Bool = false
     
     var start : CFTimeInterval?
@@ -209,6 +210,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         self.setupUI()
         // self.setUpAV()
+        
+        if(self.logo != nil){
+            self.exitButton.setImage(self.logo , for: .normal)
+        }
         
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
@@ -1189,7 +1194,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         if(self.useLongTimer == true){
             //swap out exist button
-            exitButton.setImage(UIImage(named: "qTriviaNetworkLogo"), for: .normal)
+//            exitButton.setImage(UIImage(named: "qTriviaNetworkLogo"), for: .normal)
             exitButton.layer.cornerRadius = 5.0
             exitButton.clipsToBounds = true
             exitButton.imageView?.contentMode = .scaleAspectFit
