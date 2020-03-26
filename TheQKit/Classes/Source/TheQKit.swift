@@ -135,6 +135,16 @@ public class TheQKit {
         return TheQManager.sharedInstance.CashOut()
     }
     
+    /// Uses the specified email and performs a cash out request
+    ///
+    /// - Parameters:
+    ///     - email: email
+    /// - Returns: bool for success/failer
+    @discardableResult
+    public class func CashOutNoUI(email:String) -> Bool {
+        return TheQManager.sharedInstance.CashOutNoUI(email: email)
+    }
+    
     /// Populates a given container view with the cards schedule controller, allowing a UI for up to 10 scheduled games
     ///
     /// - Parameters:

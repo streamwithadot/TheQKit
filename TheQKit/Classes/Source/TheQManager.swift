@@ -426,6 +426,109 @@ class TheQManager {
     }
     
     @discardableResult
+    func CashOutNoUI(email:String) -> Bool {
+        
+        if(TheQManager.sharedInstance.loggedInUser == nil){
+            return false
+        }
+        
+        let balance = TheQManager.sharedInstance.loggedInUser?.balance
+        
+        if(balance! <= 0.0 ){
+            return false
+        }
+        
+        if(!self.isValidEmail(testStr: email)){
+            return false
+        }
+        
+        let finalUrl:String = TQKConstants.baseUrl + "users/\(TheQManager.sharedInstance.loggedInUser!.id!)/withdrawal-request"
+        
+        let key = "token"
+        let preferences = UserDefaults.standard
+        let bearerToken = preferences.string(forKey: key)
+        var finalBearerToken:String = "Bearer " + (bearerToken as! String)
+        let userId:String = (preferences.string(forKey: "userId")!)
+        let parameters: Parameters = ["email": email,
+                                      "userId":userId,
+                                      "uid":userId]
+        
+        let headers: HTTPHeaders = [
+            "Authorization": finalBearerToken,
+            "Accept": "application/json"
+        ]
+        
+        let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
+        
+        Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON
+            { response in
+                print("Request: \(String(describing: response.request))")   // original url request
+                print("Response: \(String(describing: response.response))") // http url response
+                print("Result: \(response.result)")                         // response serialization result
+                
+                if var json = response.result.value as? [String: Any] {
+                    print("JSON: \(json)") // serialized json response
+                }
+                
+                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                    print("Data: \(utf8Text)") // original server data as UTF8 string
+                }
+                
+                response.result.ifFailure {
+                    let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                        //add an action if needed
+                    }))
+                
+                    if let topController = UIApplication.topViewController() {
+                        topController.present(alert, animated: true) {}
+                    }
+                }
+                
+                response.result.ifSuccess {
+                    Alamofire.request(finalUrl, method: .put, parameters: nil, encoding: JSONEncoding.default, headers: headers).responseJSON
+                        { response in
+                            print("Request: \(String(describing: response.request))")   // original url request
+                            print("Response: \(String(describing: response.response))") // http url response
+                            print("Result: \(response.result)")                         // response serialization result
+                            
+                            response.result.ifFailure {
+                                let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                                    //add an action if needed
+                                }))
+                            
+                                if let topController = UIApplication.topViewController() {
+                                    topController.present(alert, animated: true) {}
+                                }
+                            }
+                            
+                            response.result.ifSuccess {
+                                if let json = response.result.value as? [String: Any] {
+                                    print("JSON: \(json)") // serialized json response
+                                    if ( !(json["success"] as! Bool) ) {
+                                        if (String(describing: json["errorCode"]!) == "INSUFFICIENT_FUNDS") {
+                                            self.showInsufficientFundsPopUp()
+                                        }
+                                    }else{
+                                        //TODO: maybe a good spot to make sure the user can get notifications
+                                        self.showPopUp()
+                                        
+                                        let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
+                                        TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
+                                        
+                                    }
+                                }
+                            }
+                    }
+                }
+        }
+        
+        return true
+    }
+    
+    
+    @discardableResult
     func CashOut() -> Bool {
         
         if(TheQManager.sharedInstance.loggedInUser == nil){
