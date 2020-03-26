@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '1.0.17'
+  s.version          = '1.0.18'
   s.summary          = 'TheQKit SDK allows your own app to run game from The Q Trivia Network'
   
   s.swift_version = '4.2'

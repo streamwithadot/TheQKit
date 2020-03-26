@@ -213,7 +213,21 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         if(self.logo != nil){
             self.exitButton.setImage(self.logo , for: .normal)
+        }else if(theGame?.theme.networkBadgeUrl != nil){
+            DispatchQueue.global().async { [weak self] in
+                if let url = try? URL(string: (self!.theGame?.theme.networkBadgeUrl)!) {
+                    if let data = try? Data(contentsOf: url!) {
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                self!.exitButton.setImage(image , for: .normal)
+                            }
+                        }
+                    }
+                }
+            }
         }
+        
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)

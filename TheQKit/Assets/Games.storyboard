@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="ipad12_9rounded" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -102,7 +102,7 @@
                                             <constraint firstAttribute="height" constant="40" id="CXw-kB-m49"/>
                                             <constraint firstAttribute="width" constant="43" id="SYK-Xb-oR1"/>
                                         </constraints>
-                                        <state key="normal" image="whiteTheQ"/>
+                                        <state key="normal" image="pointsExitButton"/>
                                         <connections>
                                             <action selector="showExitDialog:" destination="3dM-Ei-n1Y" eventType="touchUpInside" id="6ap-HC-aDt"/>
                                         </connections>
@@ -992,6 +992,5 @@
         <image name="pointsExitButton" width="66.5" height="66.5"/>
         <image name="pointsStatsButton" width="78" height="78.5"/>
         <image name="users.png" width="42" height="42"/>
-        <image name="whiteTheQ" width="122.5" height="82.5"/>
     </resources>
 </document>
