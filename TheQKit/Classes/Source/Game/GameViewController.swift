@@ -1751,8 +1751,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         self.addChild(useHeartViewController)
         self.view.addSubview(useHeartViewController.view)
         self.view.bringSubviewToFront(useHeartViewController.view)
-        useHeartViewController.didMove(toParent: self)
         
+        useHeartViewController.view.center = self.view.center
+        useHeartViewController.didMove(toParent: self)
     }
     
     fileprivate func undoElimination(){

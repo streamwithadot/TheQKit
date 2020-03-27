@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -39,19 +37,19 @@
                             <constraints>
                                 <constraint firstAttribute="height" constant="33" id="0rM-MM-u7D"/>
                             </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heartContainer_LG_Full" translatesAutoresizingMaskIntoConstraints="NO" id="LIh-Gn-cow">
-                            <rect key="frame" x="91" y="75" width="117" height="102"/>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heart" translatesAutoresizingMaskIntoConstraints="NO" id="LIh-Gn-cow">
+                            <rect key="frame" x="14" y="75" width="270" height="87"/>
                         </imageView>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use it to stay in the Game!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eOo-j8-SCc">
                             <rect key="frame" x="28" y="192" width="242" height="33"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="33" id="jtY-xY-aT5"/>
                             </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                             <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -94,6 +92,8 @@
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="mEh-xF-kDy" firstAttribute="trailing" secondItem="vt5-gH-tkf" secondAttribute="trailing" id="GIV-hu-Qdf"/>
+                        <constraint firstAttribute="trailing" secondItem="LIh-Gn-cow" secondAttribute="trailing" constant="14" id="GfX-GG-grY"/>
+                        <constraint firstItem="LIh-Gn-cow" firstAttribute="leading" secondItem="y6l-v0-XHw" secondAttribute="leading" constant="14" id="Kdf-Ue-DE9"/>
                         <constraint firstItem="Is0-zR-9rc" firstAttribute="top" secondItem="vt5-gH-tkf" secondAttribute="bottom" constant="31" id="N8E-2r-kGo"/>
                         <constraint firstAttribute="bottom" secondItem="Is0-zR-9rc" secondAttribute="bottom" constant="18" id="NgD-RE-xBl"/>
                         <constraint firstItem="vt5-gH-tkf" firstAttribute="trailing" secondItem="eOo-j8-SCc" secondAttribute="trailing" id="NtE-fF-g6e"/>
@@ -105,7 +105,7 @@
                         <constraint firstItem="mEh-xF-kDy" firstAttribute="leading" secondItem="vt5-gH-tkf" secondAttribute="leading" id="hvg-4r-Oz0"/>
                         <constraint firstItem="LIh-Gn-cow" firstAttribute="centerX" secondItem="vt5-gH-tkf" secondAttribute="centerX" id="k2X-yM-RoR"/>
                         <constraint firstItem="mEh-xF-kDy" firstAttribute="leading" secondItem="y6l-v0-XHw" secondAttribute="leading" constant="28" id="lQf-ai-Bq2"/>
-                        <constraint firstItem="eOo-j8-SCc" firstAttribute="top" secondItem="LIh-Gn-cow" secondAttribute="bottom" constant="15" id="rp9-a3-5bt"/>
+                        <constraint firstItem="eOo-j8-SCc" firstAttribute="top" secondItem="LIh-Gn-cow" secondAttribute="bottom" constant="30" id="rp9-a3-5bt"/>
                         <constraint firstItem="LIh-Gn-cow" firstAttribute="top" secondItem="mEh-xF-kDy" secondAttribute="bottom" constant="8" symbolic="YES" id="tKj-Zf-qcw"/>
                         <constraint firstItem="vt5-gH-tkf" firstAttribute="leading" secondItem="eOo-j8-SCc" secondAttribute="leading" id="tNB-9g-wO8"/>
                     </constraints>
@@ -120,10 +120,10 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <viewLayoutGuide key="safeArea" id="fEX-Ix-UIp"/>
-            <point key="canvasLocation" x="-166" y="-84.5"/>
+            <point key="canvasLocation" x="-166.40000000000001" y="-85.007496251874073"/>
         </view>
     </objects>
     <resources>
-        <image name="heartContainer_LG_Full" width="117" height="102"/>
+        <image name="heart" width="452" height="396"/>
     </resources>
 </document>

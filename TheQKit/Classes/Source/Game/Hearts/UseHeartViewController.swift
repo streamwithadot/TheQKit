@@ -23,12 +23,20 @@ class UseHeartViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+    }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        
         dontUseButton.layer.cornerRadius = dontUseButton.frame.height / 2
         useButton.layer.cornerRadius = useButton.frame.height / 2
-        self.view.layer.cornerRadius = 5.0
+        self.view.layer.cornerRadius = 20.0
+        self.view.clipsToBounds = true
         
-        // Do any additional setup after loading the view.
+        super.viewDidLayoutSubviews()
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,14 +45,14 @@ class UseHeartViewController: UIViewController {
     }
     
     @IBAction func useItPressed(_ sender: Any) {
-        let userDefaults = UserDefaults.standard
         self.heartDelegate?.useHeart()
-        self.dismiss(animated: false, completion: nil)
+        self.view.removeFromSuperview()
+        self.removeFromParent()
     }
     
     @IBAction func dontPressed(_ sender: Any) {
-        let userDefaults = UserDefaults.standard
-        self.dismiss(animated: false, completion: nil)
+        self.view.removeFromSuperview()
+        self.removeFromParent()
     }
     
 }
