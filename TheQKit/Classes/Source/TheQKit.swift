@@ -149,7 +149,7 @@ public class TheQKit {
     ///
     /// - Parameters:
     ///     - viewController: container view where the cards controller will populate
-    public class func showCardsController(fromViewController viewController : UIViewController){
+    public class func showCardsController(fromViewController viewController : UIViewController, logoOverride: UIImage? = nil){
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
@@ -158,6 +158,10 @@ public class TheQKit {
         let vc = storyboard.instantiateViewController(withIdentifier: "TQKCardsViewController") as! TQKCardsViewController
         
         vc.view.bounds = CGRect(x: 0, y: 0, width: viewController.view.frame.width, height: viewController.view.frame.height)
+        
+        if(logoOverride != nil){
+            vc.logoOverride = logoOverride
+        }
         
         viewController.addChild(vc)
         viewController.view.addSubview(vc.view)
