@@ -14,10 +14,6 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 2) To use the Example app either Firebase or AccountKit (with "Sign in with Apple" coming soon) will need to be utilized and setup on the app and that login flow implemented. Once a user has been authenticated through these services can you pass the relative information to the SDK to create a user on The Q platform. 
 
     2a) For Firebase this includes adding the GoogleServices.plist file and any info.plist modifications
-    2b) For AccountKit modifications to the app's info.plist are necessary
-    
-3) Sharing to snapchat is provided through the SDK, if the `SCSDKClientID` is found in the target's info.plist file it will use the account associated with that (or fail without it)
-
 
 # Installation 
 
@@ -61,8 +57,12 @@ The `THEQKIT_TOKEN` allows for only this tenants games to be visable by TheQKit 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provided Base Url>")
+    
     //Optional - Disable the built in profanity filter on freeform user answers
     //TheQKit.disableProfanityFilter()
+    
+    //Optional - Allow users to screen record during games
+    //TheQKit.enableScreenRecording()
 }
 ```
 
@@ -155,6 +155,7 @@ TheQKit.CheckForGames { (isActive, gamesArray) in
 TheQKit.LaunchGame(theGame : TQKGame) //Checks if specified game is active and launches it
 TheQKit.LaunchActiveGame()            //checks for an active game and launches it if avaliable
 ```
+
 
 ## Customize Color Theme
 Games have a default color theme, if you wish to over ride that, pass in the colorCode as a hex string to the launch functions
