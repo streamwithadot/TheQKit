@@ -860,7 +860,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }
             })
             
-            if(self!.currentQuestion.number >= self!.lastQuestionHeartEligible){
+            if(self!.currentQuestion.number >= self!.lastQuestionHeartEligible && self!.heartsEnabled){
                 //                self.heartAnimationView?.removeFromSuperview()
                 //                UIView.animate(withDuration: 1.0, animations: {
                 for views in (self?.heartContainerView.subviews)! {
