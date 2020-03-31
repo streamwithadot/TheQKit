@@ -233,7 +233,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
         
         if #available(iOS 11.0, *) {
-            NotificationCenter.default.addObserver(self, selector: #selector(checkIFScreenIsCapture), name: UIScreen.capturedDidChangeNotification, object: nil)
+            if(!TheQKit.canRecordScreen()){
+                NotificationCenter.default.addObserver(self, selector: #selector(checkIFScreenIsCapture), name: UIScreen.capturedDidChangeNotification, object: nil)
+            }
         }
         if #available(iOS 10.0, *) {
             if(!self.theGame!.videoDisabled){
@@ -287,7 +289,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
         
             if #available(iOS 11.0, *) {
-                if screen.isCaptured == true && myUser.admin == false {
+                if screen.isCaptured == true && myUser.tester == false {
                     //screen is being captured by non admin
                     self.blockScreen()
                 }else{
@@ -304,7 +306,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         if userDefaults.object(forKey: "myUser") != nil {
             let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
             if #available(iOS 11.0, *) {
-                if UIScreen.screens[0].isCaptured == true && myUser.admin == false {
+                if UIScreen.screens[0].isCaptured == true && myUser.tester == false {
                     //screen is being captured by non admin
                     self.blockScreen()
                 }else{
@@ -1448,7 +1450,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             // Fallback on earlier versions
         }
         
-        self.checkIfScreenIsCapturedNoNotification()
+        if(!TheQKit.canRecordScreen()){
+            self.checkIfScreenIsCapturedNoNotification()
+        }
         
         if (myGameId != nil && !(myGameId?.isEmpty)!) {
             print("loading event source")

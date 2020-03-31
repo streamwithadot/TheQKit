@@ -51,11 +51,23 @@ public class TheQKit {
         TheQManager.sharedInstance.disableProfanityFilter()
     }
     
+    /// Disable the built in screen recording prevention
+    public class func enableScreenRecording(){
+        TheQManager.sharedInstance.enableScreenRecording()
+    }
+    
     /// Getter for profanity filter override flag
     ///
     /// - Returns: A bool representing the profanity override flag
     public class func profanityFilter() -> Bool{
         return TheQManager.sharedInstance.profanityFlag
+    }
+        
+    /// Getter for profanity filter override flag
+    ///
+    /// - Returns: A bool representing if screen recording is enabled
+    public class func canRecordScreen() -> Bool{
+        return TheQManager.sharedInstance.canRecordScreen
     }
     
     /// Logs a user in using AccountKit, setting a user object into NSUserDefaults
