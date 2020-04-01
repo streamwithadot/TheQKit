@@ -584,9 +584,9 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath) as! FullScreenTriviaCell
         
         if ((self.gameDelegate?.userSubmittedAnswer)!) {
-            self.view.makeToast("You already answered the question :)", duration: 2.0, position: .bottom)
+            self.view.makeToast(NSLocalizedString("You already answered the question :)", comment: ""), duration: 2.0, position: .bottom)
         }else if (!(self.gameDelegate?.isQuestionActive)!) {
-            self.view.makeToast("Time has expired :(", duration: 2.0, position: .bottom)
+            self.view.makeToast(NSLocalizedString("Time has expired :(",comment: ""), duration: 2.0, position: .bottom)
         }else{
             
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){

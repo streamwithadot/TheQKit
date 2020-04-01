@@ -435,8 +435,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             
             if(self.currentEndQuestion != nil && (self.currentEndQuestion?.selection == nil || (self.currentEndQuestion?.selection.isEmpty)! || self.currentEndQuestion?.selection == "") && self.userSubmittedAnswer == true){
                 
-                let alert = UIAlertController(title: "Answer submission timed out", message: "We did not receive your answer in time due to a network issue. Please use wifi if it is avaliable! You may keep playing even when eliminated", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Continue Playing", style: .default, handler: { (alertAction) in
+                let title = NSLocalizedString("Answer submission timed out",comment: "")
+                let message = NSLocalizedString("We did not receive your answer in time due to a network issue. Please use wifi if it is avaliable! You may keep playing even when eliminated",comment: "")
+                let title2 = NSLocalizedString("Continue Playing",comment: "")
+
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: title2, style: .default, handler: { (alertAction) in
                     //add an action if needed
                 }))
             
@@ -885,22 +889,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         eSource?.addEventListener("QuestionEnd") { [weak self] id, event, data in
             self?.currentEndQuestion =  TQKResult(JSONString: data!)
             self?.handleQuestionEnd()
-            
-            /*
-             QuestionEnd %@ {
-             "gameId" : "3499d74d-b825-4b96-8dcd-60805a9bfbf2",
-             "selection" : "c29c883d-2c59-11e8-870e-ed96b952a681",
-             "id" : 1521563873051,
-             "questionId" : "c29c883c-2c59-11e8-870e-ed96b952a681"
-             }
-             
-             QuestionEnd %@ {
-             "gameId" : "3499d74d-b825-4b96-8dcd-60805a9bfbf2",
-             "selection" : null,
-             "id" : 1521563890552,
-             "questionId" : "c29c8840-2c59-11e8-870e-ed96b952a681"
-             }
-             */
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
@@ -930,30 +918,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             })
         }
         
-//        eSource?.addEventListener("GameWarn") { [weak self] id, event, data in
-//            //            var json = JSON.parse((e?.data)!)
-//            let seconds : TimeInterval = 20 //TimeInterval(json["duration"].doubleValue).truncatingRemainder(dividingBy: 60)
-//            let interval = seconds / 5
-//
-//            DispatchQueue.main.async(execute: {
-//                //vibrate 5 times over 20 seconds
-//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval)
-//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 2)
-//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 3)
-//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 4)
-//                self.perform(#selector(self.vibrate), with: nil, afterDelay: interval * 5)
-//
-//
-//                //show "get ready" screen for 1 x interval
-//                //                self.getReadyView.isHidden = false
-//                self.perform(#selector(self.hideGetReadyView), with: nil, afterDelay: 5.0)
-//
-//                //show "countdown" screen for 4 x interval
-//                let secondsToShow = Int(seconds) - 5
-//                self.gameWarnCountdownLabel.text = String(secondsToShow)
-//                self.perform(#selector(self.hideCountdownView), with: nil, afterDelay: interval * 5)
-//            })
-//        }
         eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
             //show winners screen
             let gameWinners = GameWinners(JSONString: data!)
@@ -1010,7 +974,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }
 
                 let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Okay",comment: ""), style: .default, handler: { (alertAction) in
                     //add an action if needed
                 }))
             
@@ -1076,8 +1040,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         let userDefaults = UserDefaults.standard
                         let answersSaved = userDefaults.object(forKey: self!.myGameId!) as? String
                         if (answersSaved != "eliminated"){
-                            let alert = UIAlertController(title: "Sorry, you've joined late, or were previously eliminated", message: "Either you joined late or missed a question due to network issues. You are not able to win this game, but are able to continue playing", preferredStyle: .alert)
-                            alert.addAction(UIAlertAction(title: "Continue Playing", style: .default, handler: { (alertAction) in
+                            let title = NSLocalizedString("Sorry, you've joined late, or were previously eliminated",comment: "")
+                            let message = NSLocalizedString("Either you joined late or missed a question due to network issues. You are not able to win this game, but are able to continue playing",comment: "")
+                            let subtitle = NSLocalizedString("Continue Playing",comment: "")
+                            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: subtitle, style: .default, handler: { (alertAction) in
                                 //add an action if needed
                             }))
                         
@@ -1114,60 +1081,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 
     }
     
-//    @objc func countdownGameWarn(){
-//        let currentTime = (self.gameWarnCountdownLabel.text! as NSString).integerValue
-//
-//        self.gameWarnCountdownLabel.text = String(currentTime - 1)
-//
-//        if(currentTime - 1 <= 0){
-//            self.gameWarnTimer.invalidate()
-//            self.gameWarnTimer = nil
-//        }
-//    }
-    
-//    @objc func hideCountdownView(){
-//        self.countdownView.isHidden = true
-//    }
-    
-//    @objc func hideGetReadyView(){
-//        self.getReadyView.isHidden = true
-//        self.countdownView.isHidden = false
-//
-//        if(self.gameWarnTimer != nil){
-//            self.gameWarnTimer.invalidate()
-//            self.gameWarnTimer = nil
-//        }
-//        self.gameWarnTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.countdownGameWarn), userInfo: nil, repeats: true)
-//
-//    }
-    
-//    @objc func vibrate(){
-//        if #available(iOS 10.0, *) {
-//            let generator = UINotificationFeedbackGenerator()
-//            //            generator.prepare()
-//            generator.notificationOccurred(.error)
-//
-//            let feedback = UIDevice.current.value(forKey: "_feedbackSupportLevel") as! Int
-//            if (feedback == 0 || feedback == 1){
-//                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-//            }
-//
-//        }else{
-//            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-//        }
-//    }
-    
     @IBAction func showExitDialog(_ sender: Any) {
         
         // Prepare the popup assets
-        let title = "Are You Sure?"
-        let message = "The game is in progress are you sure you want to leave?"
+        let title = NSLocalizedString("Are You Sure?", comment: "")
+        let message = NSLocalizedString("The game is in progress are you sure you want to leave?", comment: "")
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Stay", style: .default, handler: { (alertAction) in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Stay",comment: ""), style: .default, handler: { (alertAction) in
             //add an action if needed
         }))
-        alert.addAction(UIAlertAction(title: "Leave", style: .destructive, handler: { (alertAction) in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Leave",comment: ""), style: .destructive, handler: { (alertAction) in
             self.dismiss(animated: true){
                 if(self.userEliminated && (self.currentQuestion != nil && (self.currentQuestion.number == self.currentQuestion.total))){
                     NotificationCenter.default.post(name: .gameEndedAndEliminated, object: nil)
@@ -1642,7 +1566,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                         let title = NSLocalizedString("Sorry, an error has occured", comment: "")
                         let message = errorMessage + NSLocalizedString(" You may keep playing to increase your score on the Leaderboard!", comment: "")
                         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (alertAction) in
+                        alert.addAction(UIAlertAction(title: NSLocalizedString("Continue",comment: ""), style: .default, handler: { (alertAction) in
                             //add an action if needed
                         }))
                                                     
@@ -1687,7 +1611,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                             let message = NSLocalizedString("Looks like you tried to redeem an extra life but it was either the last question of the game or some network error occured. Your extra life was not used and is avaliable for use in the next game.", comment: "")
 
                             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                            alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { (alertAction) in
+                            alert.addAction(UIAlertAction(title: NSLocalizedString("Continue",comment: ""), style: .default, handler: { (alertAction) in
                                 //add an action if needed
                             }))
                         
