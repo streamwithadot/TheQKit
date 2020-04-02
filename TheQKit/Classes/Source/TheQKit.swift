@@ -131,16 +131,35 @@ public class TheQKit {
     ///     - colorCode: *Optional* override the color theme of the game
     ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    public class func LaunchGame(theGame : TQKGame, colorCode : String? = nil ,useLongTimer : Bool? = false, logoOverride: UIImage? = nil, completed: @escaping (_ success : Bool) -> Void ){
-        TheQManager.sharedInstance.LaunchGame(theGame: theGame, colorCode: colorCode, useLongTimer: useLongTimer,logoOverride: logoOverride,completed: completed)
+    public class func LaunchGame(theGame : TQKGame,
+                                 colorCode : String? = nil ,
+                                 useLongTimer : Bool? = false,
+                                 logoOverride: UIImage? = nil,
+                                 playerBackgroundColor: UIColor? = nil,
+                                 useThemeAsBackground: Bool? = false,
+                                 completed: @escaping (_ success : Bool) -> Void ){
+        TheQManager.sharedInstance.LaunchGame(theGame: theGame,
+                                              colorCode: colorCode,
+                                              useLongTimer: useLongTimer,
+                                              logoOverride: logoOverride,
+                                              playerBackgroundColor: playerBackgroundColor,
+                                              useThemeAsBackground: useThemeAsBackground,
+                                              completed: completed)
     }
     
     /// Launches the most recent active game
     ///
     /// - Parameters:
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    public class func LaunchActiveGame(logoOverride: UIImage? = nil, completed: @escaping (_ success : Bool) -> Void) {
-        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil, logoOverride: logoOverride,completed: completed)
+    public class func LaunchActiveGame(logoOverride: UIImage? = nil,
+                                       playerBackgroundColor: UIColor? = nil,
+                                       useThemeAsBackground: Bool? = false,
+                                       completed: @escaping (_ success : Bool) -> Void) {
+        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil,
+                                                    logoOverride: logoOverride,
+                                                    playerBackgroundColor: playerBackgroundColor,
+                                                    useThemeAsBackground: useThemeAsBackground,
+                                                    completed: completed)
     }
     
     /// Prompts the user for an email and performs a cash out request
@@ -166,7 +185,10 @@ public class TheQKit {
     /// - Parameters:
     ///     - viewController: container view where the cards controller will populate
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    public class func showCardsController(fromViewController viewController : UIViewController, logoOverride: UIImage? = nil){
+    public class func showCardsController(fromViewController viewController : UIViewController,
+                                          logoOverride: UIImage? = nil,
+                                          playerBackgroundColor: UIColor? = nil,
+                                          useThemeAsBackground: Bool? = false){
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
@@ -179,6 +201,9 @@ public class TheQKit {
         if(logoOverride != nil){
             vc.logoOverride = logoOverride
         }
+        
+        vc.playerBackgroundColor = playerBackgroundColor
+        vc.useThemeAsBackground = useThemeAsBackground!
         
         viewController.addChild(vc)
         viewController.view.addSubview(vc.view)

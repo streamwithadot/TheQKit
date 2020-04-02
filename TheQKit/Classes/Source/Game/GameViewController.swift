@@ -170,8 +170,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var heartsEnabled : Bool = false
     
     @IBOutlet weak var heartContainerView: UIView!
-//    var heartPopup : PopupDialog?
-//    var heartAnimationView : LOTAnimationView?
     var gameStatusReceivedCount : Int = 0
     
     @IBOutlet weak var gameHeaderView: UIView!
@@ -184,7 +182,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var theGame : TQKGame?
     var logo : UIImage?
     var didPurchaseSubscriptionFromApple : Bool = false
-    
+    var playerBackgroundColor : UIColor?
+    var useThemeAsBackground : Bool = false
     var start : CFTimeInterval?
     var version : String?
     
@@ -1181,9 +1180,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         player.scalingMode = .aspectFill;
         player.view.frame = previewView.bounds
         
+        if(self.playerBackgroundColor != nil){
+            player.view.backgroundColor = playerBackgroundColor!
+        }
        
         previewView.addSubview(player.view)
 
+        if(self.useThemeAsBackground == true){
+            self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
+            self.customBackgroundImageView!.contentMode = .scaleAspectFill
+            self.customBackgroundImageView!.backgroundColor = UIColor.clear
+            previewView.addSubview(self.customBackgroundImageView!)
+            previewView.insertSubview(self.customBackgroundImageView!, belowSubview: player.view)
+            self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
+        }
         
         player.prepareToPlay()
         print("Player is preparing to play")

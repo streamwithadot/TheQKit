@@ -26,6 +26,8 @@ class TQKCardsViewController : UIViewController, CardCollectionViewCellDelegate 
     var myTimer:Timer!
     
     var logoOverride : UIImage? = nil
+    var playerBackgroundColor : UIColor?
+    var useThemeAsBackground : Bool = false
     
     // MARK: Polling from old lobby
     @objc func run(_ timer: AnyObject) {
@@ -146,7 +148,10 @@ extension TQKCardsViewController : UICollectionViewDelegate {
             let game = self.games![indexPath.item]
             
             if((game.active)){
-                TheQKit.LaunchGame(theGame: game, logoOverride: logoOverride) {_ in
+                TheQKit.LaunchGame(theGame: game,
+                                   logoOverride: logoOverride,
+                                   playerBackgroundColor: playerBackgroundColor,
+                                   useThemeAsBackground: useThemeAsBackground) {_ in
                     //do something?
                 }
             }else{

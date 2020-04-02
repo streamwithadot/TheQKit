@@ -242,7 +242,7 @@ class TheQManager {
                         
                     }else{
                         
-                        do {
+                        do {6
                             let json = try JSON(data: response.data!)
                             print("JSON: \(json)") // serialized json response
                             let games = TQKGames(JSON: json.dictionaryObject!)
@@ -329,7 +329,13 @@ class TheQManager {
         }
     }
     
-    func LaunchGame(theGame : TQKGame, colorCode : String?, useLongTimer : Bool? = false, logoOverride: UIImage?, completed: @escaping (_ success : Bool) -> Void ) {
+    func LaunchGame(theGame : TQKGame,
+                    colorCode : String?,
+                    useLongTimer : Bool? = false,
+                    logoOverride: UIImage?,
+                    playerBackgroundColor: UIColor? = nil,
+                    useThemeAsBackground: Bool? = false,
+                    completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
             print("TheQKit ERROR: GAME IS NOT ACTIVE - CAN NOT LAUNCH GAME")
@@ -382,6 +388,8 @@ class TheQManager {
         vc.useLongTimer = useLongTimer!
         vc.theGame = theGame
         vc.completed = completed
+        vc.playerBackgroundColor = playerBackgroundColor
+        vc.useThemeAsBackground = useThemeAsBackground!
         
         if(logoOverride != nil){
             vc.logo = logoOverride
@@ -402,7 +410,11 @@ class TheQManager {
     }
     
     
-    func LaunchActiveGame(colorCode : String?, logoOverride: UIImage?, completed: @escaping (_ success : Bool) -> Void ) {
+    func LaunchActiveGame(colorCode : String?,
+                          logoOverride: UIImage?,
+                          playerBackgroundColor: UIColor? = nil,
+                          useThemeAsBackground: Bool? = false,
+                          completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
             let gameHeaders : HTTPHeaders = [
@@ -444,7 +456,12 @@ class TheQManager {
                                 
                                 if (json["games"][0]["active"] == true) {
                                     if let game = TQKGame(JSON: json["games"][0].dictionaryObject!) {
-                                        self.LaunchGame(theGame: game, colorCode: colorCode, logoOverride: logoOverride,completed: completed)
+                                        self.LaunchGame(theGame: game,
+                                                        colorCode: colorCode,
+                                                        logoOverride: logoOverride,
+                                                        playerBackgroundColor: playerBackgroundColor,
+                                                        useThemeAsBackground: useThemeAsBackground,
+                                                        completed: completed)
                                     }
                                 }
                             }catch{
