@@ -121,14 +121,20 @@ extension GameWinnersViewController : UITableViewDataSource {
                 cell.winnerCountLabel.text = String(format: NSLocalizedString(" %@ Winners! ", comment: ""), "\(gameWinners.winnerCount)")
             }
             
-            let formatter = NumberFormatter()              // Cache this, NumberFormatter creation is expensive.
-            formatter.locale = Locale(identifier: TQKConstants.LOCALE) // Here indian locale with english language is used
-            formatter.numberStyle = .currency               // Change to `.currency` if needed
-            
-            let asd = formatter.string(from: NSNumber(value: Int(reward!)!)) // "10,00,000"
-            
-            
-            cell.prizeAmountLabel.text = "\(asd!) Prize"
+            if(self.reward == nil || Int(self.reward!) == 0){
+                cell.prizeAmountLabel.isHidden = true
+                cell.prizeLabelHeight.constant = 0
+            }else{
+                cell.prizeAmountLabel.isHidden = false
+                cell.prizeLabelHeight.constant = 50
+                let formatter = NumberFormatter()              // Cache this, NumberFormatter creation is expensive.
+                formatter.locale = Locale(identifier: TQKConstants.LOCALE) // Here indian locale with english language is used
+                formatter.numberStyle = .currency               // Change to `.currency` if needed
+                
+                let asd = formatter.string(from: NSNumber(value: Int(reward!)!)) // "10,00,000"
+                
+                cell.prizeAmountLabel.text = String(format: NSLocalizedString("%@ Prize", comment: ""), "\(asd!)")
+            }
             
             return cell
         }else{
@@ -160,23 +166,24 @@ extension GameWinnersViewController : UITableViewDataSource {
             
             
             
-            
-            let amount = (Double(Int(self.reward!)!) / Double(gameWinners.winnerCount))
-//            let formattedString = String(format:"%.2f",amount)
-//            amount = Double(formattedString)!
-            
-            let formatter = NumberFormatter()              // Cache this, NumberFormatter creation is expensive.
-            formatter.locale = Locale(identifier: TQKConstants.LOCALE) // Here indian locale with english language is used
-            formatter.numberStyle = .currency               // Change to `.currency` if needed
-            
-            let asd = formatter.string(from: NSNumber(value: amount)) // "10,00,000"
-            
-            cell.winningsLabel.text = "\(asd!)"
-            
-            if(indexPath.row % 2 == 0) {
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.03)
-            } else {
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+            if(self.reward == nil || Int(self.reward!) == 0){
+                cell.winningsLabel.isHidden = true
+            }else{
+                cell.winningsLabel.isHidden = false
+                let amount = (Double(Int(self.reward!)!) / Double(gameWinners.winnerCount))
+                let formatter = NumberFormatter()
+                formatter.locale = Locale(identifier: TQKConstants.LOCALE)
+                formatter.numberStyle = .currency
+                
+                let asd = formatter.string(from: NSNumber(value: amount))
+                
+                cell.winningsLabel.text = "\(asd!)"
+                
+                if(indexPath.row % 2 == 0) {
+                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.03)
+                } else {
+                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                }
             }
             
             return cell

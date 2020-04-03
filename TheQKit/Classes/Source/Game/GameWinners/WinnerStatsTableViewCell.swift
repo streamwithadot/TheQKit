@@ -12,6 +12,7 @@ class WinnerStatsTableViewCell: UITableViewCell {
     
     @IBOutlet weak var winnerCountLabel: UILabel!
     @IBOutlet weak var prizeAmountLabel: UILabel!
+    @IBOutlet weak var prizeLabelHeight: NSLayoutConstraint!
     
 
     override func awakeFromNib() {
