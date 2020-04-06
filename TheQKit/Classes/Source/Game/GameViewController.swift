@@ -1158,7 +1158,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
        
         previewView.addSubview(player.view)
 
-        if(self.useThemeAsBackground == true){
+        if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
             self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
             self.customBackgroundImageView!.contentMode = .scaleAspectFill
             self.customBackgroundImageView!.backgroundColor = UIColor.clear
