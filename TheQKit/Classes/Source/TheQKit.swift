@@ -299,12 +299,10 @@ extension Notification.Name {
     static let userBanned = Notification.Name("TQK_USER_BANNED")
     static let showEliminatedAd = Notification.Name("TQK_SHOW_ELIMINATED_AD")
     static let showEndgameAd = Notification.Name("TQK_SHOW_ENDGAME_AD")
-    
     static let userLogout = Notification.Name("TQK_USER_LOGOUT")
     
     static let playQuestionAudio = Notification.Name("TQK_PLAY_QUESTION_AUDIO")
     static let stopQuestionAudio = Notification.Name("TQK_STOP_QUESTION_AUDIO")
-    
     static let sharedToSnapchat = Notification.Name("TQK_SNAPCHAT_SHARE")
     
     static let gameEndedAndEliminated = Notification.Name("TQK_GAME_END_ELIMINATED")

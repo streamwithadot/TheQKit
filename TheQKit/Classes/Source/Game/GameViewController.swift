@@ -950,38 +950,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameWon") { [weak self] id, event, data in
-            //listen for gamewon event
-            DispatchQueue.main.async(execute: {
-                
-                var json = JSON.init(parseJSON: data!)
-
-                NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
-
-                let amount = json["amount"]
-                let formatter = NumberFormatter()              // Cache this, NumberFormatter creation is expensive.
-                formatter.locale = Locale(identifier: TQKConstants.LOCALE) // Here indian locale with english language is used
-                formatter.numberStyle = .currency               // Change to `.currency` if needed
-                let asd = formatter.string(from: NSNumber(value: amount.floatValue)) // "10,00,000"
-                
-                let title =  NSLocalizedString("Winner!", comment: "")
-
-                var message = ""
-                if(self!.useLongTimer){
-                    message = "You WON \(asd ?? " ") voucher! Congrats and thanks for playing \(TQKConstants.appName)! Your balance usually updates within 5 minutes."
-                }else{
-                    message = String(format: NSLocalizedString("You WON %@! Congrats and thanks for playing %@! Your balance usually updates within 5 minutes.", comment: ""), asd ?? " ", TQKConstants.appName)
-                }
-
-                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: NSLocalizedString("Okay",comment: ""), style: .default, handler: { (alertAction) in
-                    //add an action if needed
-                }))
             
-                if let topController = UIApplication.topViewController() {
-                    topController.present(alert, animated: true) {}
-                }
-                
-            })
+            let json = JSON.init(parseJSON: data!)
+            NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
+            
         }
         
         eSource?.addEventListener("GameStatus") { [weak self] id, event, data in
@@ -1395,21 +1367,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             let userDefaults = UserDefaults.standard
             let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
             if (!alreadyJoined){
-                
                 userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
-                
-                let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-                let joinedCount = i + 1
-                userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-                userDefaults.synchronize()
-                
-                let object : Properties = ["gameID" : myGameId!,
-                                           "gameTitle": (theGame?.theme.displayName)!,
-                                             "scheduled": String(format:"%f", (theGame?.scheduled)!),
-                                             "count" : joinedCount]
-                
-                NotificationCenter.default.post(name: .enteredGame, object: object)
             }
+            let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            let joinedCount = i + 1
+            userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            userDefaults.synchronize()
+            
+            let object : Properties = ["gameID" : myGameId!,
+                                       "gameTitle": (theGame?.theme.displayName)!,
+                                         "scheduled": String(format:"%f", (theGame?.scheduled)!),
+                                         "count" : joinedCount]
+            
+            NotificationCenter.default.post(name: .enteredGame, object: object)
+
         }else{
             //Game ID is missing - exit the game before bad things happen
             self.dismiss(animated: true){
