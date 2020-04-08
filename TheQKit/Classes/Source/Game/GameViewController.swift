@@ -859,7 +859,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     //                self.currentQuestionNumberLabel.sizeToFit()
                     
                 }else{
-                    self!.currentQuestionNumberLabel.text = "Q \(num)"
+                    self!.currentQuestionNumberLabel.text = String(format: NSLocalizedString("Q %@", comment: ""), num)
                     self!.currentQuestionNumberLabel.isHidden = false
                     //                self.currentQuestionNumberLabel.sizeToFit()
                 }
