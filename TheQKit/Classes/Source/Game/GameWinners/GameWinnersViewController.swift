@@ -51,7 +51,7 @@ class GameWinnersViewController: UIViewController {
 //        gameWinnerTableView.backgroundView = blurEffectView
         gameWinnerTableView.backgroundColor =  UIColor.clear
 
-        closeButton.setTitle(NSLocalizedString("Close Winners Screen", comment: nil), for: .normal)
+        closeButton.setTitle(NSLocalizedString("Close Winners Screen", comment: ""), for: .normal)
         
     }
 

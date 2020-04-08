@@ -512,7 +512,7 @@ class FullScreenTriviaViewController: UIViewController {
         }) { (bool) in
             //na
             
-            self.timesUpLabel.text = NSLocalizedString("  Time's up!  ", comment: nil)
+            self.timesUpLabel.text = NSLocalizedString("  Time's up!  ", comment: "")
 
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
                 self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
