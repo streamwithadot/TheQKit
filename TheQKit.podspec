@@ -49,7 +49,7 @@ TODO: Add long description of the pod here.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   s.frameworks = 'UIKit', 'VideoToolbox', 'QuartzCore', 'OpenGLES', 'MobileCoreServices', 'MediaPlayer', 'CoreVideo', 'CoreMedia', 'CoreGraphics', 'AVFoundation', 'AudioToolbox'
   
-  s.libraries = 'z', 'bz2', 'stdc++'
+#  s.libraries = 'z', 'bz2', 'stdc++'
   
   s.dependency 'Alamofire', '~> 4.9.1'
   s.dependency 'lottie-ios'
@@ -59,7 +59,7 @@ TODO: Add long description of the pod here.
   s.dependency 'SwiftyAttributes'
   s.dependency 'Kingfisher'
   s.dependency 'Mixpanel-swift'
-  s.dependency 'ijkplayer', '1.1.2'
+#  s.dependency 'ijkplayer', '1.1.2'
   s.dependency 'IKEventSource'
 
   

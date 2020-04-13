@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import VideoToolbox
 
-import IJKMediaFramework
+//import IJKMediaFramework
 
 import Toast_Swift
 import Alamofire
@@ -22,6 +22,8 @@ import Lottie
 import IKEventSource
 
 import Mixpanel
+
+import AVFoundation
 
 //test
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -93,8 +95,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Setup
     
-    var player: IJKFFMoviePlayerController!
-
+//    var player: IJKFFMoviePlayerController!
+    
+    
+    var asset: AVAsset!
+    var avPlayer: AVPlayer!
+    var avPlayerLayer: AVPlayerLayer!
+    var avPlayerItem: AVPlayerItem!
+    
+    // Key-value observing context
+    private var playerItemContext = 0
+    private var playerContext = 0
 
     @IBOutlet weak var viewCount: UILabel!
     
@@ -207,6 +218,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         super.viewDidLoad()
         
+        UIApplication.shared.isIdleTimerDisabled = true
+        
         self.setupUI()
         // self.setUpAV()
         
@@ -273,11 +286,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     }
     
     @objc func callConnected(){
-        self.player.playbackVolume = 0.0
+//        self.player.playbackVolume = 0.0
     }
     
     @objc func callDisconnected(){
-        self.player.playbackVolume = 1.0
+//        self.player.playbackVolume = 1.0
     }
     
     @objc func checkIFScreenIsCapture(notification:Notification){
@@ -320,7 +333,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     func unblockScreen(){
         if(self.view.viewWithTag(888) != nil){
             self.view.viewWithTag(888)?.removeFromSuperview()
-            self.player.playbackVolume = 1.0
+//            self.player.playbackVolume = 1.0
         }
     }
     
@@ -349,7 +362,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.view.addSubview(fullScreenView)
             self.view.bringSubviewToFront(fullScreenView)
             
-            self.player.playbackVolume = 0.0
+//            self.player.playbackVolume = 0.0
             
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
@@ -399,14 +412,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         //                lastPlayerTimeStamp = player.currentPlaybackTime
         //            }else{
         //
-        if(lastPlayerTimeStamp == player.currentPlaybackTime && shouldReconnect){
-            //they haven't moved - reconnect if not buffering
-            lastPlayerTimeStamp = 0.0
-            self.stopStreamAndReset()
-        }else{
-            //they have moved
-            lastPlayerTimeStamp = player.currentPlaybackTime
-        }
+       
+        
+        
+//        if(lastPlayerTimeStamp == player.currentPlaybackTime && shouldReconnect){
+//            //they haven't moved - reconnect if not buffering
+//            lastPlayerTimeStamp = 0.0
+//            self.stopStreamAndReset()
+//        }else{
+//            //they have moved
+//            lastPlayerTimeStamp = player.currentPlaybackTime
+//        }
     }
     
     
@@ -1123,9 +1139,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         eliminatedLabel.text = NSLocalizedString("Eliminated", comment: "")
         
         if(!self.theGame!.videoDisabled){
-            spinnerView.animate()
-            self.spinnerView.isHidden = false
-            initializePlayer(url: self.rtmpUrl)
+//            spinnerView.animate()
+            self.spinnerView.isHidden = true
+            if self.theGame?.hlsUrl != nil {
+                initializePlayer(url: (self.theGame?.hlsUrl)!)
+            }
         }else{
             self.spinnerView.isHidden = true
         }
@@ -1138,107 +1156,214 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     func initializePlayer(url: String) {
         
-        player = nil
-        player = IJKFFMoviePlayerController(contentURLString: url, with: IJKFFOptions.byDefault())
-        IJKFFMoviePlayerController.setLogLevel(k_IJK_LOG_SILENT)
-        IJKFFMoviePlayerController.setLogReport(false)
-        //        IJKFFMonitor
-//        if(TQKConstants.SHOULD_SHOW_HUD){
-//            player.shouldShowHudView = true
-//        }else{
-            player.shouldShowHudView = false
-//        }
-        player.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        player.scalingMode = .aspectFill;
-        player.view.frame = previewView.bounds
         
-        if(self.playerBackgroundColor != nil){
-            player.view.backgroundColor = playerBackgroundColor!
-        }
-       
-        previewView.addSubview(player.view)
+        avPlayer = nil
+        asset = AVAsset(url: URL(string: url)!)
+        avPlayerItem = AVPlayerItem(asset: asset)
+        avPlayerItem.addObserver(self,
+                               forKeyPath: #keyPath(AVPlayerItem.status),
+                               options: [.old, .new],
+                               context: &playerItemContext)
+        
+        
+        //New with low latency HLS - keep it live and other stuff
+        if #available(iOS 13.0, *) {
+            let howFarNow = avPlayerItem.configuredTimeOffsetFromLive
+            let recommended = avPlayerItem.recommendedTimeOffsetFromLive
 
+            print(howFarNow)
+            print(recommended)
+            print("check this")
+            if(howFarNow < recommended){
+                avPlayerItem.configuredTimeOffsetFromLive = recommended
+            }
+//            avPlayerItem.configuredTimeOffsetFromLive = CMTime(seconds: 2, preferredTimescale: 0)
+
+            avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        // Associate the player item with the player
+        avPlayer = AVPlayer(playerItem: avPlayerItem)
+        
+        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
+        
+        
+        avPlayerLayer = AVPlayerLayer(player: avPlayer)
+        avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        avPlayer.actionAtItemEnd = .none
+        
+        
+        avPlayerLayer.frame = view.layer.bounds
+        previewView.backgroundColor = .clear
+        previewView.layer.insertSublayer(avPlayerLayer, at: 0)
+
+        avPlayer.play()
+        
         if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
             self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
             self.customBackgroundImageView!.contentMode = .scaleAspectFill
             self.customBackgroundImageView!.backgroundColor = UIColor.clear
             previewView.addSubview(self.customBackgroundImageView!)
-            previewView.insertSubview(self.customBackgroundImageView!, belowSubview: player.view)
+            previewView.sendSubviewToBack(self.customBackgroundImageView!)
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
         }
+
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?,
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
         
-        player.prepareToPlay()
-        print("Player is preparing to play")
-        print("player is going to play again")
+        // Only handle observations for the playerItemContext
+        if( context == &playerItemContext ) {
+            
+            if keyPath == #keyPath(AVPlayerItem.status) {
+                        let status: AVPlayerItem.Status
+                        if let statusNumber = change?[.newKey] as? NSNumber {
+                            status = AVPlayerItem.Status(rawValue: statusNumber.intValue)!
+                        } else {
+                            status = .unknown
+                        }
+                
+                if let isPlaybackLikelyToKeepUp = self.avPlayer.currentItem?.isPlaybackLikelyToKeepUp {
+                    //do what ever you want with isPlaybackLikelyToKeepUp value, for example, show or hide a activity indicator.
+                    if(isPlaybackLikelyToKeepUp == false){
+                        print("am buffering")
+                    }
+                    
+                }
+                        
+                        // Switch over status value
+                        switch status {
+                        case .readyToPlay:
+                            // Player item is ready to play.
+                            print("AVPlayerItem READY TO PLAY")
+            //                self.player.play()
+                            
+                            break
+                        case .failed:
+                            print("AVPlayerItem FAILED")
+                            // Player item failed. See error.
+                            break
+                        case .unknown:
+                            print("AVPlayerItem UNKNOWN")
+                            // Player item is not yet ready.
+                            break
+                        @unknown default:
+                            //default
+                            fatalError()
+                        }
+                    }
+            
+        }else {
+            if keyPath == #keyPath(AVPlayer.status) {
+                        let status: AVPlayer.Status
+                        if let statusNumber = change?[.newKey] as? NSNumber {
+                            status = AVPlayer.Status(rawValue: statusNumber.intValue)!
+                        } else {
+                            status = .unknown
+                        }
+                        
+                
+                if let isPlaybackLikelyToKeepUp = self.avPlayer.currentItem?.isPlaybackLikelyToKeepUp {
+                    //do what ever you want with isPlaybackLikelyToKeepUp value, for example, show or hide a activity indicator.
+                    if(isPlaybackLikelyToKeepUp == false){
+                        print("am buffering")
+                    }
+                }
+                
+                        // Switch over status value
+                        switch status {
+                        case .readyToPlay:
+                            // Player item is ready to play.
+                            print("AVPlayer READY TO PLAY")
+                            
+            //                self.player.play()
+                            break
+                        case .failed:
+                            print("AVPlayer FAILED")
+                            // Player item failed. See error.
+                            break
+                        case .unknown:
+                            print("AVPlayer UNKNOWN")
+                            // Player item is not yet ready.
+                            break
+                        @unknown default:
+                            //default
+                            fatalError()
+                        }
+                    }
+        }
         
-        self.initObservers()
         
-        playStream()
     }
     
     @objc func playStream() {
         print("reloading the video to buffering")
         
-        player.play()
+//        player.play()
         shouldReconnect = true
         self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
     }
     
     func initObservers(){
-        NotificationCenter.default.addObserver(forName: NSNotification.Name.IJKMPMoviePlayerLoadStateDidChange, object: player, queue: OperationQueue.main, using: { [weak self] notification in
-            
-            guard let this = self else {
-                return
-            }
-            
-            //I have no idea why this case happens - TODO
-            if(this.player == nil){
-                return
-            }
-            
-            let state = this.player.loadState
-            
-            switch state {
-            case IJKMPMovieLoadState.playable:
-                print("Playable")
-                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-                self?.bufferTimer?.invalidate()
-                self?.bufferTimer = nil
-                self?.player.play()
-            case IJKMPMovieLoadState.playthroughOK:
-                self?.spinnerView.isHidden = true
-                print( "Playing")
-                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-                self?.bufferTimer?.invalidate()
-                self?.bufferTimer = nil
-                self?.player.play()
-                
-            case IJKMPMovieLoadState.stalled:
-                print("Buffering in load state")
-                //                self?.playStream()
-                self?.spinnerView.isHidden = false
-                
-                if(self?.bufferTimer != nil){
-                    self?.bufferTimer?.invalidate()
-                    self?.bufferTimer = nil
-                }
-                self?.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self!, selector: #selector(self?.timerAction), userInfo: nil, repeats: true)
-                //                self?.bufferTimer?.fire()
-                //reset after 2 seconds unless default is hit
-                //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
-                
-                
-            default:
-                self?.spinnerView.isHidden = true
-                print("Playing")
-                
-                //Kill the operation
-                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-                self?.bufferTimer?.invalidate()
-                self?.bufferTimer = nil
-                self?.player.play()
-            }
-        })
+//        NotificationCenter.default.addObserver(forName: NSNotification.Name.IJKMPMoviePlayerLoadStateDidChange, object: player, queue: OperationQueue.main, using: { [weak self] notification in
+//
+//            guard let this = self else {
+//                return
+//            }
+//
+//            //I have no idea why this case happens - TODO
+//            if(this.player == nil){
+//                return
+//            }
+//
+//            let state = this.player.loadState
+//
+//            switch state {
+//            case IJKMPMovieLoadState.playable:
+//                print("Playable")
+//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+//                self?.bufferTimer?.invalidate()
+//                self?.bufferTimer = nil
+//                self?.player.play()
+//            case IJKMPMovieLoadState.playthroughOK:
+//                self?.spinnerView.isHidden = true
+//                print( "Playing")
+//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+//                self?.bufferTimer?.invalidate()
+//                self?.bufferTimer = nil
+//                self?.player.play()
+//
+//            case IJKMPMovieLoadState.stalled:
+//                print("Buffering in load state")
+//                //                self?.playStream()
+//                self?.spinnerView.isHidden = false
+//
+//                if(self?.bufferTimer != nil){
+//                    self?.bufferTimer?.invalidate()
+//                    self?.bufferTimer = nil
+//                }
+//                self?.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self!, selector: #selector(self?.timerAction), userInfo: nil, repeats: true)
+//                //                self?.bufferTimer?.fire()
+//                //reset after 2 seconds unless default is hit
+//                //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
+//
+//
+//            default:
+//                self?.spinnerView.isHidden = true
+//                print("Playing")
+//
+//                //Kill the operation
+//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
+//                self?.bufferTimer?.invalidate()
+//                self?.bufferTimer = nil
+//                self?.player.play()
+//            }
+//        })
     }
     
     @objc func timerAction(){
@@ -1265,17 +1390,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         shouldReconnect = false
         
-        player.stop()
+//        player.stop()
         
-        NotificationCenter.default.removeObserver(player)
+//        NotificationCenter.default.removeObserver(player)
         
         print("resetting the stream")
-        player.view.removeFromSuperview()
+//        player.view.removeFromSuperview()
         
-        player.shutdown()
+//        player.shutdown()
         
         if(!self.theGame!.videoDisabled){
-            self.initializePlayer(url: self.rtmpUrl)
+            if self.theGame?.hlsUrl != nil {
+                self.initializePlayer(url: (self.theGame?.hlsUrl)!)
+            }
         }
         
     }
@@ -1318,7 +1445,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         NotificationCenter.default.removeObserver(self)
         if(!self.theGame!.videoDisabled){
-            NotificationCenter.default.removeObserver(player)
+//            NotificationCenter.default.removeObserver(player)
         }
         
         if(self.eSource != nil){
@@ -1333,10 +1460,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.bufferTimer?.invalidate()
             self.bufferTimer = nil
         }
-        if(self.player != nil){
-            self.player.stop()
-            self.player.shutdown()
-            self.player = nil
+//        if(self.player != nil){
+//            self.player.stop()
+//            self.player.shutdown()
+//            self.player = nil
+//        }
+        if(self.avPlayer != nil){
+            self.avPlayer.pause()
+            self.avPlayer = nil
         }
     }
     
