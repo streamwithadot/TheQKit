@@ -319,7 +319,11 @@ class FullScreenTriviaViewController: UIViewController {
         if(type == .Question){
             count = self.question!.choices!.count
         }else{
-            count =  self.result!.choices == nil ? self.result!.results!.count : self.result!.choices!.count
+            if(self.result!.isFreeformText){
+                count = (self.result?.results?.count)! > 3 ? 3 : (self.result?.results?.count)!
+            }else{
+                count =  self.result!.choices!.count
+            }
         }
         
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {

@@ -41,7 +41,11 @@ protocol GameDelegate {
 //    var colorArray : Dictionary<String, String> { get }
 }
 
-class GameViewController: UIViewController, HeartDelegate, GameDelegate {
+protocol StatsDelegate {
+    func leaderBoardGoDown()
+}
+
+class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
@@ -289,11 +293,16 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             // These values can be played around with, depending on how much you want the view to show up when it starts.
             gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
             self.gameStatsViewController?.view.alpha = 0.0
+            
+            self.gameStatsViewController?.statsDelegate = self
+            self.gameStatsViewController?.gameId = self.theGame?.id
 
             self.addChild(gameStatsViewController!)
             self.view.addSubview(gameStatsViewController!.view)
             gameStatsViewController?.didMove(toParent: self)
         }
+        
+        gameStatsViewController!.refreshStats()
         
         UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
             self.gameStatsViewController?.view!.center = self.view.center
