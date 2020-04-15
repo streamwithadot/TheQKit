@@ -238,6 +238,9 @@ class FullScreenTriviaViewController: UIViewController {
             }
         }
         
+        self.triviaTable.reloadData()
+        var distance : Double = 0.0
+        
         if(self.type == .Question){
 
             let qNum: Int! = self.question?.number
@@ -252,6 +255,20 @@ class FullScreenTriviaViewController: UIViewController {
                 self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
             }else{
                 self.timesUpLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+            }
+            
+            if(self.question!.isMultipleChoice){
+                //get last visible cell
+                let lastCell = self.triviaTable.visibleCells.last
+                //get distance between the cell and bottom of safe area
+                if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
+                    if #available(iOS 11.0, *) {
+                        distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+                    } else {
+                        // Fallback on earlier versions
+                        distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+                    }
+                }
             }
 
             self.timesUpLabel.backgroundColor = UIColor.white
@@ -281,24 +298,22 @@ class FullScreenTriviaViewController: UIViewController {
                     self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: "#E63462")
                     self.timesUpLabel.backgroundColor = UIColor.white
                 }
+                
+                //get last visible cell
+                let lastCell = self.triviaTable.visibleCells.last
+                //get distance between the cell and bottom of safe area
+                if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
+                    if #available(iOS 11.0, *) {
+                        distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+                    } else {
+                        // Fallback on earlier versions
+                        distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+                    }
+                }
+                
             }
         }
         
-        self.triviaTable.reloadData()
-        
-        
-        //get last visible cell
-        let lastCell = self.triviaTable.visibleCells.last
-        //get distance between the cell and bottom of safe area
-        var distance : Double = 0.0
-        if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
-            if #available(iOS 11.0, *) {
-                distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
-            } else {
-                // Fallback on earlier versions
-                distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
-            }
-        }
         
         var count = 0
         if(type == .Question){
@@ -315,16 +330,17 @@ class FullScreenTriviaViewController: UIViewController {
             self.triviaTable.alpha = 1.0
             
 
-            if(self.triviaTable.visibleCells.count < count){
+            if( (count > 4) && self.triviaTable.visibleCells.count <= count){
                 //If we have more cells that can currently be shown, adjust constraints to expand the choices and shrink the area above (lottie)
-                let x = count - self.triviaTable.visibleCells.count
+                let x = (count + 1) - self.triviaTable.visibleCells.count
                 self.triviaViewHeightConstraint.constant = self.triviaViewHeightConstraint.constant + CGFloat(50 * x)
                 self.containerViewHeightConstraint.constant = self.containerViewHeightConstraint.constant - CGFloat(50 * x)
                 self.view.layoutIfNeeded()
             }else{
                 //adust the trivia table top constraint to half the distance from above
-                let halfDist = CGFloat(distance / 2)
-                self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+                    let halfDist = CGFloat(distance / 2)
+                    self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+                
             }
             
             

@@ -161,6 +161,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var fullScreenTriviaViewController : FullScreenTriviaViewController?
     var ssQuestionViewController : SSQuestionViewController?
 //    var ssResultsViewController : SSResultViewController?
+    var gameStatsViewController : GameStatsViewController?
     
     var didOfferFreeTrial: Bool = false
     
@@ -226,8 +227,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             }
         }
         
-        
-        
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
         
@@ -270,6 +269,52 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         let tapGesuter = UITapGestureRecognizer(target: self, action: #selector(self.showExitDialog(_:)))
         self.leftHeaderView.addGestureRecognizer(tapGesuter)
         self.leftHeaderView.isUserInteractionEnabled = true
+        
+        let tapForLB : UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(leaderBoardGoUp))
+        tapForLB.numberOfTapsRequired = 1
+        self.rightHeaderView.addGestureRecognizer(tapForLB)
+        self.rightHeaderView.isUserInteractionEnabled = true
+    }
+    
+    @objc func leaderBoardGoUp(){
+        
+        if(gameStatsViewController == nil){
+            let podBundle = Bundle(for: TheQKit.self)
+            let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+            let bundle = Bundle(url: bundleURL!)!
+            let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+            // I have identified the view inside my storyboard.
+            gameStatsViewController = sb.instantiateViewController(withIdentifier: "GameStatsViewController") as? GameStatsViewController
+            
+            // These values can be played around with, depending on how much you want the view to show up when it starts.
+            gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+            self.gameStatsViewController?.view.alpha = 0.0
+
+            self.addChild(gameStatsViewController!)
+            self.view.addSubview(gameStatsViewController!.view)
+            gameStatsViewController?.didMove(toParent: self)
+        }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
+            self.gameStatsViewController?.view!.center = self.view.center
+            self.gameStatsViewController?.view.alpha = 1.0
+        }) { (true) in
+            
+            //refresh data
+//            self.gameStatsViewController?.getUserScore()
+//            self.gameStatsViewController?.refreshLB()
+            
+        }
+    }
+    
+    @objc func leaderBoardGoDown(){
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, options: UIView.AnimationOptions.curveEaseOut, animations: {
+            self.gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+            self.gameStatsViewController?.view.alpha = 0.0
+        }, completion: { (true) in
+            //
+        })
     }
     
     @objc func callConnected(){
@@ -839,6 +884,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
                         
+            self?.leaderBoardGoDown()
+            
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
             
             self?.start = CACurrentMediaTime()
@@ -891,6 +938,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
+
             var json = JSON.init(parseJSON: data!)
             print(json)
             self?.currentResult = TQKResult(JSONString: data!)
@@ -898,6 +947,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
+
             var json = JSON.init(parseJSON: data!)
             self?.eSource?.disconnect()
             self?.eSource = nil
@@ -918,6 +969,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
             //show winners screen
             let gameWinners = GameWinners(JSONString: data!)
             
@@ -950,7 +1002,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameWon") { [weak self] id, event, data in
-            
+            self?.leaderBoardGoDown()
             let json = JSON.init(parseJSON: data!)
             NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
             
