@@ -32,7 +32,10 @@ class ViewController: UIViewController {
         if segue.identifier == "cardTest" {
             let connectContainerViewController = segue.destination as UIViewController
             //            containerViewController = connectContainerViewController
-            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+            TheQKit.showCardsController(fromViewController: connectContainerViewController,
+                                        logoOverride: UIImage(named: "test"),
+                                        playerBackgroundColor: UIColor.clear,
+                                        useThemeAsBackground: false)
         }
     }
     
