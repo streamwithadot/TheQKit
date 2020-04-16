@@ -248,7 +248,13 @@ class FullScreenTriviaViewController: UIViewController {
             if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY){
                 self.timesUpLabel.text = String(format: NSLocalizedString("  Survey  ", comment: ""))
             }else{
-                self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
+                if(self.question?.pointValue != nil &&  !self.question!.pointOverride){
+                    //Show pointvalue here instead
+                    self.timesUpLabel.text = String(format: NSLocalizedString("  %@ Points  ", comment: ""), "\(self.question!.pointValue!)")
+                }else{
+                    self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
+                }
+                
             }
 
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
@@ -712,7 +718,19 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
             cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
             cell.progressView.subviews[1].clipsToBounds = true
             if(type == .Question){
-                cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
+                
+                let item = self.question?.choices?[indexPath.row]
+                if(self.question?.pointValue != nil){
+                    //handle points values
+                    if(self.question!.pointOverride){
+                       // show individual points on questins
+                        let pointValue = item!.pointValue != nil ? item!.pointValue : self.question?.pointValue
+                        cell.answerCountLabel.text = "+\(pointValue!)"
+                        cell.answerCountLabel.alpha = 1.0
+                    }
+                }
+                    
+                cell.questionLabel.text = "\(item!.choice!)"
                 cell.progressView.progressImage = self.selectedQuestionImage
             }else if (type == .Correct && self.result?.selection != nil){
                 

@@ -302,6 +302,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             gameStatsViewController?.didMove(toParent: self)
         }
         
+        if(self.currentResult != nil){
+            gameStatsViewController?.currentScore = self.currentResult.score
+        }
+        
+        if(self.currentQuestion != nil){
+            gameStatsViewController?.currentQuestionNum = self.currentQuestion.number
+            gameStatsViewController?.totalQuestionNum = self.currentQuestion.total
+        }
+        
         gameStatsViewController!.refreshStats()
         
         UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
@@ -811,12 +820,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             print("onOpen")
         }
         
-        eSource?.onMessage({ (idString, eventString, dataString) in
-            //This is onMessage
-            print("id: %@", idString!)
-            print("event: %@", eventString!)
-            print("data: %@", dataString!)
-        })
+//        eSource?.onMessage({ (idString, eventString, dataString) in
+//            //This is onMessage
+//            print("id: %@", idString!)
+//            print("event: %@", eventString!)
+//            print("data: %@", dataString!)
+//        })
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
             let json = JSON.init(parseJSON: data!)
