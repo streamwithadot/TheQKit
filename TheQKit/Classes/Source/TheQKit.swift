@@ -244,6 +244,11 @@ public class TheQKit {
         TheQManager.sharedInstance.updateUserObject()
     }
     
+    /// Update certain values of the user
+    public class func updateUser(email: String? = nil, phoneNumber: String? = nil){
+        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber)
+    }
+    
     class func hexStringToUIColor (hex:String) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
 

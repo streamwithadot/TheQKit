@@ -169,6 +169,56 @@ class TheQManager {
     }
     
     @discardableResult
+    func updateUser(email: String? = nil, phoneNumber: String? = nil) -> Bool{
+        if(TheQManager.sharedInstance.loggedInUser == nil){
+            return false
+        }
+        
+        if(email != nil && !self.isValidEmail(testStr: email!)){
+            return false
+        }
+        
+        
+        let key = "token"
+        let preferences = UserDefaults.standard
+        let bearerToken = preferences.string(forKey: key)
+        let finalBearerToken:String = "Bearer " + (bearerToken as! String)
+        
+        var parameters: Parameters = [:]
+        
+        if(email != nil){
+            parameters.updateValue(email, forKey: "email")
+        }
+        if(phoneNumber != nil){
+            parameters.updateValue(phoneNumber , forKey: "phoneNumber ")
+        }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": finalBearerToken,
+            "Accept": "application/json"
+        ]
+        
+        let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
+        
+        Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON
+            { response in
+                print("Request: \(String(describing: response.request))")   // original url request
+                print("Response: \(String(describing: response.response))") // http url response
+                print("Result: \(response.result)")                         // response serialization result
+                
+                response.result.ifFailure {
+                    print("USER UPDATED: FAILURE")
+                }
+                
+                response.result.ifSuccess {
+                    print("USER UPDATED: SUCCESS")
+                }
+        }
+        
+        return true
+    }
+    
+    @discardableResult
     func LoginQUserWithFB(UserID: String, TokenString: String) -> Bool {
         AuthenticationService.sharedInstance.FacebookLogin(UserID: UserID, TokenString: TokenString, apiToken: TheQManager.sharedInstance.apiToken!)
         return true
