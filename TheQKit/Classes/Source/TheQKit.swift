@@ -239,8 +239,8 @@ public class TheQKit {
         TheQManager.sharedInstance.refreshToken(completionHandler: completionHandler)
     }
     
-    /// Manually update the user object (this cannot occur more than once every 5 minutes to prevent spamming)
-    public class func updateUserObject() {
+    /// Manually refresh the user object (this cannot occur more than once every 5 minutes to prevent spamming)
+    public class func refreshUserObject() {
         TheQManager.sharedInstance.updateUserObject()
     }
     

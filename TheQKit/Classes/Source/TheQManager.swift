@@ -190,7 +190,7 @@ class TheQManager {
             parameters.updateValue(email, forKey: "email")
         }
         if(phoneNumber != nil){
-            parameters.updateValue(phoneNumber , forKey: "phoneNumber ")
+            parameters.updateValue(phoneNumber , forKey: "phoneNumber")
         }
         
         let headers: HTTPHeaders = [
