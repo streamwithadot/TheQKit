@@ -318,7 +318,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         NotificationCenter.default.removeObserver(self)
         if(!self.theGame!.videoDisabled){
-            NotificationCenter.default.removeObserver(player)
+//            NotificationCenter.default.removeObserver(player)
         }
         
         if(self.eSource != nil){
@@ -337,10 +337,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.bufferTimer?.invalidate()
             self.bufferTimer = nil
         }
-        if(self.player != nil){
-            self.player.stop()
-            self.player.shutdown()
-            self.player = nil
+        if(self.avPlayer != nil){
+            self.avPlayer.pause()
+            self.avPlayer = nil
         }
     }
     
@@ -447,12 +446,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     @objc func callConnected(){
-        self.player.playbackVolume = 0.0
+//        self.player.playbackVolume = 0.0
         self.isCallConnected = true
     }
     
     @objc func callDisconnected(){
-        self.player.playbackVolume = 1.0
+//        self.player.playbackVolume = 1.0
         self.isCallConnected = false
     }
     
@@ -496,7 +495,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     func unblockScreen(){
         if(self.view.viewWithTag(888) != nil){
             self.view.viewWithTag(888)?.removeFromSuperview()
-            self.player.playbackVolume = 1.0
+//            self.player.playbackVolume = 1.0
             self.isScreenBlocked = false
         }
     }
@@ -526,7 +525,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.view.addSubview(fullScreenView)
             self.view.bringSubviewToFront(fullScreenView)
             
-            self.player.playbackVolume = 0.0
+//            self.player.playbackVolume = 0.0
             self.isScreenBlocked = true
             
             let userDefaults = UserDefaults.standard
@@ -573,9 +572,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     @objc func audioCheck(){
-        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
-            self.player.playbackVolume = 1.0
-        }
+//        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
+//            self.player.playbackVolume = 1.0
+//        }
     }
     
     @objc func reconnectTimerCheck() {
@@ -1347,17 +1346,24 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         countdownView.isHidden = true
     }
     
+    @objc func itemStalled(){
+        print("***   stall detected ***")
+        
+    }
+    
     func initializePlayer(url: String) {
         
         
         avPlayer = nil
         asset = AVAsset(url: URL(string: url)!)
         avPlayerItem = AVPlayerItem(asset: asset)
-        avPlayerItem.addObserver(self,
-                               forKeyPath: #keyPath(AVPlayerItem.status),
-                               options: [.old, .new],
-                               context: &playerItemContext)
+//        avPlayerItem.addObserver(self,
+//                               forKeyPath: #keyPath(AVPlayerItem.status),
+//                               options: [.old, .new],
+//                               context: &playerItemContext)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
+        name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
         
         //New with low latency HLS - keep it live and other stuff
         if #available(iOS 13.0, *) {
@@ -1380,7 +1386,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         // Associate the player item with the player
         avPlayer = AVPlayer(playerItem: avPlayerItem)
         
-        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
+//        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
         
         
         avPlayerLayer = AVPlayerLayer(player: avPlayer)
@@ -1403,95 +1409,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
         }
 
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?,
-                               of object: Any?,
-                               change: [NSKeyValueChangeKey : Any]?,
-                               context: UnsafeMutableRawPointer?) {
-        
-        // Only handle observations for the playerItemContext
-        if( context == &playerItemContext ) {
-            
-            if keyPath == #keyPath(AVPlayerItem.status) {
-                        let status: AVPlayerItem.Status
-                        if let statusNumber = change?[.newKey] as? NSNumber {
-                            status = AVPlayerItem.Status(rawValue: statusNumber.intValue)!
-                        } else {
-                            status = .unknown
-                        }
-                
-                if let isPlaybackLikelyToKeepUp = self.avPlayer.currentItem?.isPlaybackLikelyToKeepUp {
-                    //do what ever you want with isPlaybackLikelyToKeepUp value, for example, show or hide a activity indicator.
-                    if(isPlaybackLikelyToKeepUp == false){
-                        print("am buffering")
-                    }
-                    
-                }
-                        
-                        // Switch over status value
-                        switch status {
-                        case .readyToPlay:
-                            // Player item is ready to play.
-                            print("AVPlayerItem READY TO PLAY")
-            //                self.player.play()
-                            
-                            break
-                        case .failed:
-                            print("AVPlayerItem FAILED")
-                            // Player item failed. See error.
-                            break
-                        case .unknown:
-                            print("AVPlayerItem UNKNOWN")
-                            // Player item is not yet ready.
-                            break
-                        @unknown default:
-                            //default
-                            fatalError()
-                        }
-                    }
-            
-        }else {
-            if keyPath == #keyPath(AVPlayer.status) {
-                        let status: AVPlayer.Status
-                        if let statusNumber = change?[.newKey] as? NSNumber {
-                            status = AVPlayer.Status(rawValue: statusNumber.intValue)!
-                        } else {
-                            status = .unknown
-                        }
-                        
-                
-                if let isPlaybackLikelyToKeepUp = self.avPlayer.currentItem?.isPlaybackLikelyToKeepUp {
-                    //do what ever you want with isPlaybackLikelyToKeepUp value, for example, show or hide a activity indicator.
-                    if(isPlaybackLikelyToKeepUp == false){
-                        print("am buffering")
-                    }
-                }
-                
-                        // Switch over status value
-                        switch status {
-                        case .readyToPlay:
-                            // Player item is ready to play.
-                            print("AVPlayer READY TO PLAY")
-                            
-            //                self.player.play()
-                            break
-                        case .failed:
-                            print("AVPlayer FAILED")
-                            // Player item failed. See error.
-                            break
-                        case .unknown:
-                            print("AVPlayer UNKNOWN")
-                            // Player item is not yet ready.
-                            break
-                        @unknown default:
-                            //default
-                            fatalError()
-                        }
-                    }
-        }
-        
-        
     }
     
     @objc func playStream() {
