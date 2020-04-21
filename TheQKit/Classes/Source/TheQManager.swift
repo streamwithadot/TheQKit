@@ -452,8 +452,13 @@ class TheQManager {
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
 //                vc.modalPresentationStyle = .fullScreen
-                topController.present(vc, animated: true) {
-                    
+                if(topController.navigationController != nil){
+                    topController.navigationController?.pushViewController(vc, animated: true)
+                    topController.navigationController?.navigationBar.isHidden = true
+                }else{
+                    topController.present(vc, animated: true) {
+
+                    }
                 }
             })
         }

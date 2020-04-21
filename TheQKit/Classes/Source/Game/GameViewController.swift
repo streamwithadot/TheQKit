@@ -133,7 +133,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var reloadVideoTimer:Timer!
     var lastPlayerTimeStamp : TimeInterval = 0.0
     var reconnectTimer : Timer!
+    var audioCheckTimer : Timer!
     var shouldReconnect : Bool = false
+    var isScreenBlocked : Bool = false
+    var isCallConnected : Bool = false
     
     var joinedLate : Bool = false
 
@@ -280,8 +283,108 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         self.rightHeaderView.isUserInteractionEnabled = true
     }
     
-    @objc func leaderBoardGoUp(){
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //        eliminatedLabel.isHidden = true
         
+        print("viewWillAppear")
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        print("player is shutting down")
+        print("viewWillDisappear")
+        
+        if(self.gameWinnersViewController != nil){
+            self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
+        }
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
+        
+        NotificationCenter.default.removeObserver(self)
+        if(!self.theGame!.videoDisabled){
+            NotificationCenter.default.removeObserver(player)
+        }
+        
+        if(self.eSource != nil){
+            self.eSource?.disconnect()
+            self.eSource = nil
+        }
+        if(self.reconnectTimer != nil){
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+        }
+        if(self.audioCheckTimer != nil){
+            self.audioCheckTimer.invalidate()
+            self.audioCheckTimer = nil
+        }
+        if(self.bufferTimer != nil){
+            self.bufferTimer?.invalidate()
+            self.bufferTimer = nil
+        }
+        if(self.player != nil){
+            self.player.stop()
+            self.player.shutdown()
+            self.player = nil
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        print("viewDidDisappear")
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if #available(iOS 13.0, *) {
+            self.isModalInPresentation = true
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        if(!TheQKit.canRecordScreen()){
+            self.checkIfScreenIsCapturedNoNotification()
+        }
+        
+        if (myGameId != nil && !(myGameId?.isEmpty)!) {
+            print("loading event source")
+            self.setUpEventSource()
+            
+            let userDefaults = UserDefaults.standard
+            let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
+            if (!alreadyJoined){
+                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
+            }
+            let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            let joinedCount = i + 1
+            userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            userDefaults.synchronize()
+            
+            let object : Properties = ["gameID" : myGameId!,
+                                       "gameTitle": (theGame?.theme.displayName)!,
+                                         "scheduled": String(format:"%f", (theGame?.scheduled)!),
+                                         "count" : joinedCount]
+            
+            NotificationCenter.default.post(name: .enteredGame, object: object)
+
+        }else{
+            //Game ID is missing - exit the game before bad things happen
+            self.dismiss(animated: true){
+                self.completed!(true)
+            }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+        
+    }
+    
+    @objc func leaderBoardGoUp(){
         if(gameStatsViewController == nil){
             let podBundle = Bundle(for: TheQKit.self)
             let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
@@ -318,15 +421,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.gameStatsViewController?.view.alpha = 1.0
         }) { (true) in
             
-            //refresh data
-//            self.gameStatsViewController?.getUserScore()
-//            self.gameStatsViewController?.refreshLB()
-            
         }
     }
     
     @objc func leaderBoardGoDown(){
-        
         UIView.animate(withDuration: 0.5, delay: 0.0, options: UIView.AnimationOptions.curveEaseOut, animations: {
             self.gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
             self.gameStatsViewController?.view.alpha = 0.0
@@ -337,10 +435,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func callConnected(){
         self.player.playbackVolume = 0.0
+        self.isCallConnected = true
     }
     
     @objc func callDisconnected(){
         self.player.playbackVolume = 1.0
+        self.isCallConnected = false
     }
     
     @objc func checkIFScreenIsCapture(notification:Notification){
@@ -384,6 +484,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(self.view.viewWithTag(888) != nil){
             self.view.viewWithTag(888)?.removeFromSuperview()
             self.player.playbackVolume = 1.0
+            self.isScreenBlocked = false
         }
     }
     
@@ -413,6 +514,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.view.bringSubviewToFront(fullScreenView)
             
             self.player.playbackVolume = 0.0
+            self.isScreenBlocked = true
             
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
@@ -444,6 +546,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func applicationDidEnterBackground(_ notification: NSNotification) {
         self.dismiss(animated: false, completion: nil)
+        if(self.navigationController != nil){
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     @objc func applicationWillEnterForeground(_ notification: NSNotification) {
@@ -451,6 +556,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(!self.theGame!.videoDisabled){
             spinnerView.animate()
             self.stopStreamAndReset()
+        }
+    }
+    
+    @objc func audioCheck(){
+        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
+            self.player.playbackVolume = 1.0
         }
     }
     
@@ -476,6 +587,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @IBAction func close(_ sender: UIButton) {
         self.dismiss(animated: true) {
             self.completed!(true)
+        }
+        if(self.navigationController != nil){
+            self.navigationController?.popViewController(animated: true)
         }
     }
     
@@ -804,6 +918,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.dismiss(animated: true){
                 self.completed!(true)
             }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
+            }
             return
         }
         
@@ -976,6 +1093,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 }
                 self?.completed!(true)
             })
+            if(self?.navigationController != nil){
+                self?.navigationController?.popViewController(animated: true)
+            }
         }
         
         eSource?.addEventListener("ViewCountUpdate") { [weak self] id, event, data in
@@ -1139,6 +1259,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 }
                 self.completed!(true)
             }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
+            }
         }))
         
         if let topController = UIApplication.topViewController() {
@@ -1252,6 +1375,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         player.play()
         shouldReconnect = true
         self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+        self.audioCheckTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(audioCheck), userInfo: nil, repeats: true)
     }
     
     func initObservers(){
@@ -1328,6 +1452,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     func stopStreamAndReset() {
         print("stopping the stream")
         
+        if(self.audioCheckTimer != nil){
+            self.audioCheckTimer.invalidate()
+            self.audioCheckTimer = nil
+        }
         
         if(self.reconnectTimer != nil){
             self.reconnectTimer.invalidate()
@@ -1366,99 +1494,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //        eliminatedLabel.isHidden = true
-        
-        print("viewWillAppear")
-        
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        print("player is shutting down")
-        print("viewWillDisappear")
-        
-        if(self.gameWinnersViewController != nil){
-            self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
-        }
-        
-        NSObject.cancelPreviousPerformRequests(withTarget: self)
-        
-        NotificationCenter.default.removeObserver(self)
-        if(!self.theGame!.videoDisabled){
-            NotificationCenter.default.removeObserver(player)
-        }
-        
-        if(self.eSource != nil){
-            self.eSource?.disconnect()
-            self.eSource = nil
-        }
-        if(self.reconnectTimer != nil){
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-        }
-        if(self.bufferTimer != nil){
-            self.bufferTimer?.invalidate()
-            self.bufferTimer = nil
-        }
-        if(self.player != nil){
-            self.player.stop()
-            self.player.shutdown()
-            self.player = nil
-        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        print("viewDidDisappear")
-        
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        if #available(iOS 13.0, *) {
-            self.isModalInPresentation = true
-        } else {
-            // Fallback on earlier versions
-        }
-        
-        if(!TheQKit.canRecordScreen()){
-            self.checkIfScreenIsCapturedNoNotification()
-        }
-        
-        if (myGameId != nil && !(myGameId?.isEmpty)!) {
-            print("loading event source")
-            self.setUpEventSource()
-            
-            let userDefaults = UserDefaults.standard
-            let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
-            if (!alreadyJoined){
-                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
-            }
-            let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-            let joinedCount = i + 1
-            userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-            userDefaults.synchronize()
-            
-            let object : Properties = ["gameID" : myGameId!,
-                                       "gameTitle": (theGame?.theme.displayName)!,
-                                         "scheduled": String(format:"%f", (theGame?.scheduled)!),
-                                         "count" : joinedCount]
-            
-            NotificationCenter.default.post(name: .enteredGame, object: object)
-
-        }else{
-            //Game ID is missing - exit the game before bad things happen
-            self.dismiss(animated: true){
-                self.completed!(true)
-            }
-        }
-        
-    }
     
     func submitAnswer(questionId: String, responseId: String, choiceText: String?){
         
