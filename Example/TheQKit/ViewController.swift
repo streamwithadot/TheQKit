@@ -8,7 +8,7 @@
 
 import UIKit
 import TheQKit
-import MBProgressHUD
+//import MBProgressHUD
 import Firebase
 
 class ViewController: UIViewController {
@@ -32,7 +32,10 @@ class ViewController: UIViewController {
         if segue.identifier == "cardTest" {
             let connectContainerViewController = segue.destination as UIViewController
             //            containerViewController = connectContainerViewController
-            TheQKit.showCardsController(fromViewController: connectContainerViewController)
+            TheQKit.showCardsController(fromViewController: connectContainerViewController,
+                                        logoOverride: UIImage(named: "test"),
+                                        playerBackgroundColor: UIColor.clear,
+                                        useThemeAsBackground: false)
         }
     }
     
@@ -42,23 +45,26 @@ class ViewController: UIViewController {
     }
     
     @IBAction func checkForGame(_ sender: Any) {
+        
+//        TheQKit.updateUser(email: "hello@yo.com", phoneNumber: "(555)555-5555")
+        
         TheQKit.CheckForGames { (isActive, gamesArray) in
             //isActive : Bool
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.label.text = "Active Games Found"
-                hud.hide(animated: true, afterDelay: 2.0)
+//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+//                hud.label.text = "Active Games Found"
+//                hud.hide(animated: true, afterDelay: 2.0)
                 let x = UIImage(named: "test")
                 TheQKit.LaunchGame(theGame: gamesArray!.first!, colorCode: nil, logoOverride: x) { (success) in
                     //launched
                 }
             }else{
                 print("no active games")
-                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-                hud.label.text = "No Active Games"
-                hud.hide(animated: true, afterDelay: 2.0)
+//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
+//                hud.label.text = "No Active Games"
+//                hud.hide(animated: true, afterDelay: 2.0)
             }
         }
     }

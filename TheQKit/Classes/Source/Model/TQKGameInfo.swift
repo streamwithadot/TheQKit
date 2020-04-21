@@ -166,3 +166,48 @@ public struct TQKTheme : Mappable {
 }
 
 
+
+
+struct TQKGameStats : Mappable {
+    
+    var leaderBoardList : [TQKGameStatItem]?
+    
+    init?(map: Map) {
+        
+    }
+    
+    init () {
+        
+    }
+    
+    mutating func mapping(map: Map) {
+        leaderBoardList <- map["leaderboard"]
+    }
+}
+
+
+struct TQKGameStatItem : Mappable {
+
+    var score : NSNumber?
+    var username : String?
+    var profilePicUrl : String?
+    var id : String?
+    
+    init?(map: Map) {
+        
+    }
+    
+    init () {
+        
+    }
+    
+    mutating func mapping(map: Map) {
+        score <- map["score"]
+        username <- map["username"]
+        profilePicUrl <- map["profilePicUrl"]
+        id <- map["id"]
+    }
+
+}
+
+

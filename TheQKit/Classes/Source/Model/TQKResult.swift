@@ -86,7 +86,7 @@ struct TQKChoice: Mappable{
     var questionId: String?
     var correct: Bool?
     var responses: Int?
-    
+    var pointValue : NSNumber?
     
     init?(map: Map) {
         
@@ -99,7 +99,7 @@ struct TQKChoice: Mappable{
         choice <- map["choice"]
         correct <- map["correct"]
         responses <- map["responses"]
-        
+        pointValue <- map["pointValue"]
     }
 }
 

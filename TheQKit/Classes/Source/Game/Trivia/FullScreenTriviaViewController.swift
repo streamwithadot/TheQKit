@@ -238,6 +238,9 @@ class FullScreenTriviaViewController: UIViewController {
             }
         }
         
+        self.triviaTable.reloadData()
+        var distance : Double = 0.0
+        
         if(self.type == .Question){
 
             let qNum: Int! = self.question?.number
@@ -245,13 +248,33 @@ class FullScreenTriviaViewController: UIViewController {
             if(self.question?.questionType == TQKQuestionType.CHOICE_SURVEY){
                 self.timesUpLabel.text = String(format: NSLocalizedString("  Survey  ", comment: ""))
             }else{
-                self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
+                if(self.question?.pointValue != nil &&  !self.question!.pointOverride){
+                    //Show pointvalue here instead
+                    self.timesUpLabel.text = String(format: NSLocalizedString("  %@ Points  ", comment: ""), "\(self.question!.pointValue!)")
+                }else{
+                    self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
+                }
+                
             }
 
             if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
                 self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
             }else{
                 self.timesUpLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+            }
+            
+            if(self.question!.isMultipleChoice){
+                //get last visible cell
+                let lastCell = self.triviaTable.visibleCells.last
+                //get distance between the cell and bottom of safe area
+                if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
+                    if #available(iOS 11.0, *) {
+                        distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+                    } else {
+                        // Fallback on earlier versions
+                        distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+                    }
+                }
             }
 
             self.timesUpLabel.backgroundColor = UIColor.white
@@ -281,30 +304,32 @@ class FullScreenTriviaViewController: UIViewController {
                     self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: "#E63462")
                     self.timesUpLabel.backgroundColor = UIColor.white
                 }
+                
+                //get last visible cell
+                let lastCell = self.triviaTable.visibleCells.last
+                //get distance between the cell and bottom of safe area
+                if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
+                    if #available(iOS 11.0, *) {
+                        distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
+                    } else {
+                        // Fallback on earlier versions
+                        distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
+                    }
+                }
+                
             }
         }
         
-        self.triviaTable.reloadData()
-        
-        
-        //get last visible cell
-        let lastCell = self.triviaTable.visibleCells.last
-        //get distance between the cell and bottom of safe area
-        var distance : Double = 0.0
-        if let cellFrame = self.view?.convert(lastCell!.frame, from: lastCell!.superview) {
-            if #available(iOS 11.0, *) {
-                distance = Double((self.view.frame.height - self.view.safeAreaInsets.bottom) - (cellFrame.origin.y + cellFrame.height))
-            } else {
-                // Fallback on earlier versions
-                distance = Double(self.view.frame.height - (cellFrame.origin.y + cellFrame.height))
-            }
-        }
         
         var count = 0
         if(type == .Question){
             count = self.question!.choices!.count
         }else{
-            count =  self.result!.choices == nil ? self.result!.results!.count : self.result!.choices!.count
+            if(self.result!.isFreeformText){
+                count = (self.result?.results?.count)! > 3 ? 3 : (self.result?.results?.count)!
+            }else{
+                count =  self.result!.choices!.count
+            }
         }
         
         UIView.animate(withDuration: 0.35, delay: 0.15, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
@@ -315,16 +340,17 @@ class FullScreenTriviaViewController: UIViewController {
             self.triviaTable.alpha = 1.0
             
 
-            if(self.triviaTable.visibleCells.count < count){
+            if( (count > 4) && self.triviaTable.visibleCells.count <= count){
                 //If we have more cells that can currently be shown, adjust constraints to expand the choices and shrink the area above (lottie)
-                let x = count - self.triviaTable.visibleCells.count
+                let x = (count + 1) - self.triviaTable.visibleCells.count
                 self.triviaViewHeightConstraint.constant = self.triviaViewHeightConstraint.constant + CGFloat(50 * x)
                 self.containerViewHeightConstraint.constant = self.containerViewHeightConstraint.constant - CGFloat(50 * x)
                 self.view.layoutIfNeeded()
             }else{
                 //adust the trivia table top constraint to half the distance from above
-                let halfDist = CGFloat(distance / 2)
-                self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+                    let halfDist = CGFloat(distance / 2)
+                    self.triviaTableTopConstraint.constant = halfDist <= 5 ? 5 : halfDist
+                
             }
             
             
@@ -692,7 +718,19 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
             cell.progressView.layer.sublayers![1].cornerRadius = cell.progressView.frame.size.height / 2
             cell.progressView.subviews[1].clipsToBounds = true
             if(type == .Question){
-                cell.questionLabel.text = self.question?.choices?[indexPath.row].choice
+                
+                let item = self.question?.choices?[indexPath.row]
+                if(self.question?.pointValue != nil){
+                    //handle points values
+                    if(self.question!.pointOverride){
+                       // show individual points on questins
+                        let pointValue = item!.pointValue != nil ? item!.pointValue : self.question?.pointValue
+                        cell.answerCountLabel.text = "+\(pointValue!)"
+                        cell.answerCountLabel.alpha = 1.0
+                    }
+                }
+                    
+                cell.questionLabel.text = "\(item!.choice!)"
                 cell.progressView.progressImage = self.selectedQuestionImage
             }else if (type == .Correct && self.result?.selection != nil){
                 

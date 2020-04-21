@@ -53,6 +53,8 @@ struct TQKQuestion: Mappable{
     var isMultipleChoice : Bool = false
     var isFreeformText : Bool = false
     
+    var pointOverride : Bool = false
+    
     init?(map: Map) {
         
     }
@@ -73,6 +75,10 @@ struct TQKQuestion: Mappable{
         
         isMultipleChoice = (questionType == TQKQuestionType.TRIVIA || questionType == TQKQuestionType.CHOICE_SURVEY)
         isFreeformText = (questionType == TQKQuestionType.POPULAR || questionType == TQKQuestionType.TEXT_SURVEY)
+        
+        if let _ = choices?.first(where: {$0.pointValue != nil}) {
+            pointOverride = true
+        }
     }
     
 }

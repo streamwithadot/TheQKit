@@ -43,7 +43,11 @@ protocol GameDelegate {
 //    var colorArray : Dictionary<String, String> { get }
 }
 
-class GameViewController: UIViewController, HeartDelegate, GameDelegate {
+protocol StatsDelegate {
+    func leaderBoardGoDown()
+}
+
+class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
@@ -140,7 +144,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var reloadVideoTimer:Timer!
     var lastPlayerTimeStamp : TimeInterval = 0.0
     var reconnectTimer : Timer!
+    var audioCheckTimer : Timer!
     var shouldReconnect : Bool = false
+    var isScreenBlocked : Bool = false
+    var isCallConnected : Bool = false
     
     var joinedLate : Bool = false
 
@@ -172,6 +179,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     var fullScreenTriviaViewController : FullScreenTriviaViewController?
     var ssQuestionViewController : SSQuestionViewController?
 //    var ssResultsViewController : SSResultViewController?
+    var gameStatsViewController : GameStatsViewController?
     
     var didOfferFreeTrial: Bool = false
     
@@ -239,8 +247,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             }
         }
         
-        
-        
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
         
@@ -283,14 +289,171 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         let tapGesuter = UITapGestureRecognizer(target: self, action: #selector(self.showExitDialog(_:)))
         self.leftHeaderView.addGestureRecognizer(tapGesuter)
         self.leftHeaderView.isUserInteractionEnabled = true
+        
+        let tapForLB : UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(leaderBoardGoUp))
+        tapForLB.numberOfTapsRequired = 1
+        self.rightHeaderView.addGestureRecognizer(tapForLB)
+        self.rightHeaderView.isUserInteractionEnabled = true
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //        eliminatedLabel.isHidden = true
+        
+        print("viewWillAppear")
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        print("player is shutting down")
+        print("viewWillDisappear")
+        
+        if(self.gameWinnersViewController != nil){
+            self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
+        }
+        
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
+        
+        NotificationCenter.default.removeObserver(self)
+        if(!self.theGame!.videoDisabled){
+            NotificationCenter.default.removeObserver(player)
+        }
+        
+        if(self.eSource != nil){
+            self.eSource?.disconnect()
+            self.eSource = nil
+        }
+        if(self.reconnectTimer != nil){
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+        }
+        if(self.audioCheckTimer != nil){
+            self.audioCheckTimer.invalidate()
+            self.audioCheckTimer = nil
+        }
+        if(self.bufferTimer != nil){
+            self.bufferTimer?.invalidate()
+            self.bufferTimer = nil
+        }
+        if(self.player != nil){
+            self.player.stop()
+            self.player.shutdown()
+            self.player = nil
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        print("viewDidDisappear")
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if #available(iOS 13.0, *) {
+            self.isModalInPresentation = true
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        if(!TheQKit.canRecordScreen()){
+            self.checkIfScreenIsCapturedNoNotification()
+        }
+        
+        if (myGameId != nil && !(myGameId?.isEmpty)!) {
+            print("loading event source")
+            self.setUpEventSource()
+            
+            let userDefaults = UserDefaults.standard
+            let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
+            if (!alreadyJoined){
+                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
+            }
+            let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            let joinedCount = i + 1
+            userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
+            userDefaults.synchronize()
+            
+            let object : Properties = ["gameID" : myGameId!,
+                                       "gameTitle": (theGame?.theme.displayName)!,
+                                         "scheduled": String(format:"%f", (theGame?.scheduled)!),
+                                         "count" : joinedCount]
+            
+            NotificationCenter.default.post(name: .enteredGame, object: object)
+
+        }else{
+            //Game ID is missing - exit the game before bad things happen
+            self.dismiss(animated: true){
+                self.completed!(true)
+            }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+        
+    }
+    
+    @objc func leaderBoardGoUp(){
+        if(gameStatsViewController == nil){
+            let podBundle = Bundle(for: TheQKit.self)
+            let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+            let bundle = Bundle(url: bundleURL!)!
+            let sb = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+            // I have identified the view inside my storyboard.
+            gameStatsViewController = sb.instantiateViewController(withIdentifier: "GameStatsViewController") as? GameStatsViewController
+            
+            // These values can be played around with, depending on how much you want the view to show up when it starts.
+            gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+            self.gameStatsViewController?.view.alpha = 0.0
+            
+            self.gameStatsViewController?.statsDelegate = self
+            self.gameStatsViewController?.gameId = self.theGame?.id
+
+            self.addChild(gameStatsViewController!)
+            self.view.addSubview(gameStatsViewController!.view)
+            gameStatsViewController?.didMove(toParent: self)
+        }
+        
+        if(self.currentResult != nil){
+            gameStatsViewController?.currentScore = self.currentResult.score
+        }
+        
+        if(self.currentQuestion != nil){
+            gameStatsViewController?.currentQuestionNum = self.currentQuestion.number
+            gameStatsViewController?.totalQuestionNum = self.currentQuestion.total
+        }
+        
+        gameStatsViewController!.refreshStats()
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {
+            self.gameStatsViewController?.view!.center = self.view.center
+            self.gameStatsViewController?.view.alpha = 1.0
+        }) { (true) in
+            
+        }
+    }
+    
+    @objc func leaderBoardGoDown(){
+        UIView.animate(withDuration: 0.5, delay: 0.0, options: UIView.AnimationOptions.curveEaseOut, animations: {
+            self.gameStatsViewController?.view.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+            self.gameStatsViewController?.view.alpha = 0.0
+        }, completion: { (true) in
+            //
+        })
     }
     
     @objc func callConnected(){
-//        self.player.playbackVolume = 0.0
+        self.player.playbackVolume = 0.0
+        self.isCallConnected = true
     }
     
     @objc func callDisconnected(){
-//        self.player.playbackVolume = 1.0
+        self.player.playbackVolume = 1.0
+        self.isCallConnected = false
     }
     
     @objc func checkIFScreenIsCapture(notification:Notification){
@@ -333,7 +496,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     func unblockScreen(){
         if(self.view.viewWithTag(888) != nil){
             self.view.viewWithTag(888)?.removeFromSuperview()
-//            self.player.playbackVolume = 1.0
+            self.player.playbackVolume = 1.0
+            self.isScreenBlocked = false
         }
     }
     
@@ -362,7 +526,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.view.addSubview(fullScreenView)
             self.view.bringSubviewToFront(fullScreenView)
             
-//            self.player.playbackVolume = 0.0
+            self.player.playbackVolume = 0.0
+            self.isScreenBlocked = true
             
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
@@ -394,6 +559,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     
     @objc func applicationDidEnterBackground(_ notification: NSNotification) {
         self.dismiss(animated: false, completion: nil)
+        if(self.navigationController != nil){
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     @objc func applicationWillEnterForeground(_ notification: NSNotification) {
@@ -401,6 +569,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         if(!self.theGame!.videoDisabled){
             spinnerView.animate()
             self.stopStreamAndReset()
+        }
+    }
+    
+    @objc func audioCheck(){
+        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
+            self.player.playbackVolume = 1.0
         }
     }
     
@@ -429,6 +603,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     @IBAction func close(_ sender: UIButton) {
         self.dismiss(animated: true) {
             self.completed!(true)
+        }
+        if(self.navigationController != nil){
+            self.navigationController?.popViewController(animated: true)
         }
     }
     
@@ -757,6 +934,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             self.dismiss(animated: true){
                 self.completed!(true)
             }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
+            }
             return
         }
         
@@ -773,12 +953,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
             print("onOpen")
         }
         
-        eSource?.onMessage({ (idString, eventString, dataString) in
-            //This is onMessage
-            print("id: %@", idString!)
-            print("event: %@", eventString!)
-            print("data: %@", dataString!)
-        })
+//        eSource?.onMessage({ (idString, eventString, dataString) in
+//            //This is onMessage
+//            print("id: %@", idString!)
+//            print("event: %@", eventString!)
+//            print("data: %@", dataString!)
+//        })
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
             let json = JSON.init(parseJSON: data!)
@@ -855,6 +1035,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
                         
+            self?.leaderBoardGoDown()
+            
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
             
             self?.start = CACurrentMediaTime()
@@ -907,6 +1089,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
+
             var json = JSON.init(parseJSON: data!)
             print(json)
             self?.currentResult = TQKResult(JSONString: data!)
@@ -914,6 +1098,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
+
             var json = JSON.init(parseJSON: data!)
             self?.eSource?.disconnect()
             self?.eSource = nil
@@ -923,6 +1109,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                 }
                 self?.completed!(true)
             })
+            if(self?.navigationController != nil){
+                self?.navigationController?.popViewController(animated: true)
+            }
         }
         
         eSource?.addEventListener("ViewCountUpdate") { [weak self] id, event, data in
@@ -934,6 +1123,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
+            self?.leaderBoardGoDown()
             //show winners screen
             let gameWinners = GameWinners(JSONString: data!)
             
@@ -966,7 +1156,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         }
         
         eSource?.addEventListener("GameWon") { [weak self] id, event, data in
-            
+            self?.leaderBoardGoDown()
             let json = JSON.init(parseJSON: data!)
             NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
             
@@ -1084,6 +1274,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
                     NotificationCenter.default.post(name: .gameEndedAndEliminated, object: nil)
                 }
                 self.completed!(true)
+            }
+            if(self.navigationController != nil){
+                self.navigationController?.popViewController(animated: true)
             }
         }))
         
@@ -1307,6 +1500,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
 //        player.play()
         shouldReconnect = true
         self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+        self.audioCheckTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(audioCheck), userInfo: nil, repeats: true)
     }
     
     func initObservers(){
@@ -1383,6 +1577,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
     func stopStreamAndReset() {
         print("stopping the stream")
         
+        if(self.audioCheckTimer != nil){
+            self.audioCheckTimer.invalidate()
+            self.audioCheckTimer = nil
+        }
         
         if(self.reconnectTimer != nil){
             self.reconnectTimer.invalidate()
@@ -1423,103 +1621,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate {
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //        eliminatedLabel.isHidden = true
-        
-        print("viewWillAppear")
-        
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        print("player is shutting down")
-        print("viewWillDisappear")
-        
-        if(self.gameWinnersViewController != nil){
-            self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
-        }
-        
-        NSObject.cancelPreviousPerformRequests(withTarget: self)
-        
-        NotificationCenter.default.removeObserver(self)
-        if(!self.theGame!.videoDisabled){
-//            NotificationCenter.default.removeObserver(player)
-        }
-        
-        if(self.eSource != nil){
-            self.eSource?.disconnect()
-            self.eSource = nil
-        }
-        if(self.reconnectTimer != nil){
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-        }
-        if(self.bufferTimer != nil){
-            self.bufferTimer?.invalidate()
-            self.bufferTimer = nil
-        }
-//        if(self.player != nil){
-//            self.player.stop()
-//            self.player.shutdown()
-//            self.player = nil
-//        }
-        if(self.avPlayer != nil){
-            self.avPlayer.pause()
-            self.avPlayer = nil
-        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        print("viewDidDisappear")
-        
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        if #available(iOS 13.0, *) {
-            self.isModalInPresentation = true
-        } else {
-            // Fallback on earlier versions
-        }
-        
-        if(!TheQKit.canRecordScreen()){
-            self.checkIfScreenIsCapturedNoNotification()
-        }
-        
-        if (myGameId != nil && !(myGameId?.isEmpty)!) {
-            print("loading event source")
-            self.setUpEventSource()
-            
-            let userDefaults = UserDefaults.standard
-            let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
-            if (!alreadyJoined){
-                userDefaults.setValue(true, forKey: self.myGameId! + "joined") // fill data
-            }
-            let i = userDefaults.integer(forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-            let joinedCount = i + 1
-            userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
-            userDefaults.synchronize()
-            
-            let object : Properties = ["gameID" : myGameId!,
-                                       "gameTitle": (theGame?.theme.displayName)!,
-                                         "scheduled": String(format:"%f", (theGame?.scheduled)!),
-                                         "count" : joinedCount]
-            
-            NotificationCenter.default.post(name: .enteredGame, object: object)
-
-        }else{
-            //Game ID is missing - exit the game before bad things happen
-            self.dismiss(animated: true){
-                self.completed!(true)
-            }
-        }
-        
-    }
     
     func submitAnswer(questionId: String, responseId: String, choiceText: String?){
         
