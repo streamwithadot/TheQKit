@@ -19,8 +19,6 @@ import ObjectMapper
 import SwiftyJSON
 import Lottie
 
-import IKEventSource
-
 import Mixpanel
 
 //test
@@ -134,12 +132,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var lastPlayerTimeStamp : TimeInterval = 0.0
     var reconnectTimer : Timer!
     var audioCheckTimer : Timer!
+    var eventRecievedTimer : Timer!
     var shouldReconnect : Bool = false
     var isScreenBlocked : Bool = false
     var isCallConnected : Bool = false
     
     var joinedLate : Bool = false
-
+    var gameEnded : Bool = false
+    var eventRecieved : TimeInterval?
     
     @IBOutlet weak var exitButton: UIButton!
 
@@ -308,6 +308,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             NotificationCenter.default.removeObserver(player)
         }
         
+        self.gameEnded = true
         if(self.eSource != nil){
             self.eSource?.disconnect()
             self.eSource = nil
@@ -323,6 +324,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(self.bufferTimer != nil){
             self.bufferTimer?.invalidate()
             self.bufferTimer = nil
+        }
+        if(self.eventRecievedTimer != nil){
+            self.eventRecievedTimer.invalidate()
+            self.eventRecievedTimer = nil
         }
         if(self.player != nil){
             self.player.stop()
@@ -562,6 +567,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @objc func audioCheck(){
         if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
             self.player.playbackVolume = 1.0
+        }
+    }
+    
+    @objc func eventRecievedCheck(){
+        
+        if let lastEventTime = self.eventRecieved {
+            let now = Date().timeIntervalSince1970
+            if ((now - lastEventTime) > 17.0){
+                //need to reconnect
+                self.eSource?.disconnect()
+            }
         }
     }
     
@@ -924,27 +940,41 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             return
         }
         
-        if(eSource != nil){
-            eSource?.disconnect()
-            eSource = nil
-        }
+//        if(self.eSource != nil){
+//            self.gameEnded = true
+//            self.eSource?.disconnect()
+//            self.eSource = nil
+//            self.gameEnded = false
+//        }
         
         let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
         let finalBearerToken:String = "Bearer " + myTokens.accessToken!
-        eSource = EventSource(url: newUrl, headers: ["Authorization": finalBearerToken])
+        self.eSource = EventSource(url: newUrl, headers: ["Authorization": finalBearerToken])
                 
         eSource?.onOpen { [weak self] in
             print("onOpen")
         }
         
-//        eSource?.onMessage({ (idString, eventString, dataString) in
-//            //This is onMessage
+        eSource?.onComplete() { [weak self] status, retry, error in
+            print("onComplete")
+            if(!self!.gameEnded){
+                self?.eSource?.disconnect()
+                self?.eSource?.connect()
+            }
+//            self!.gameEnded = false
+        }
+        
+        eSource?.onMessage() {[weak self] idString, eventString, dataString in
+            //This is onMessage
+            print("messaged recieved")
+            self!.eventRecieved = Date().timeIntervalSince1970
 //            print("id: %@", idString!)
 //            print("event: %@", eventString!)
 //            print("data: %@", dataString!)
-//        })
+        }
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             let json = JSON.init(parseJSON: data!)
             print("gamereset")
             print(json)
@@ -977,6 +1007,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionReset") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             let json = JSON.init(parseJSON: data!)
             print("questionreset")
             print(json)
@@ -1018,7 +1049,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
-                        
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
@@ -1068,11 +1099,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionEnd") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.currentEndQuestion =  TQKResult(JSONString: data!)
             self?.handleQuestionEnd()
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
 
             var json = JSON.init(parseJSON: data!)
@@ -1082,6 +1115,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
+            self?.gameEnded = true
             self?.leaderBoardGoDown()
 
             var json = JSON.init(parseJSON: data!)
@@ -1099,6 +1134,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("ViewCountUpdate") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
+            print("viewcount update")
             var json = JSON.init(parseJSON: data!)
             DispatchQueue.main.async(execute: {
                 self?.viewCount.text = json["viewCnt"].stringValue
@@ -1107,6 +1144,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             //show winners screen
             let gameWinners = GameWinners(JSONString: data!)
@@ -1140,6 +1178,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameWon") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             let json = JSON.init(parseJSON: data!)
             NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
@@ -1147,7 +1186,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameStatus") { [weak self] id, event, data in
-            
+            self!.eventRecieved = Date().timeIntervalSince1970
             let gameStatus = TQKGameStatus(JSONString: data!)
             
             //Always keep heart status up to date
@@ -1239,6 +1278,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.connect()
+        self.eventRecievedTimer = Timer.scheduledTimer(timeInterval: 20.0, target: self, selector: #selector(eventRecievedCheck), userInfo: nil, repeats: true)
 
     }
     
