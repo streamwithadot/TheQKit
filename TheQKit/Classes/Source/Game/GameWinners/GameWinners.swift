@@ -15,6 +15,7 @@ struct GameWinners : Mappable {
     var gameId : String = ""
     var winnerCount : Int = 0
     var winners : [GameWinner]?
+    var won : Bool = false
     
     init?(map: Map) {
         
@@ -29,6 +30,7 @@ struct GameWinners : Mappable {
         gameId <- map["gameId"]
         winnerCount <- map["winnerCount"]
         winners <- map["winners"]
+        won <- map["won"]
     }
 }
 

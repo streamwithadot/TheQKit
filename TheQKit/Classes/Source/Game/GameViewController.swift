@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import VideoToolbox
+import MUXSDKStats
 
 //import IJKMediaFramework
 
@@ -121,6 +122,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
    
     var selectionChoiceText: String?
     
+    var currentScore: NSNumber = 0
     var currentQuestion: TQKQuestion!
     var currentResult: TQKResult!
     var currentEndQuestion : TQKResult?
@@ -150,11 +152,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var isCallConnected : Bool = false
     
     var joinedLate : Bool = false
-
+    var gameEnded : Bool = false
     
     @IBOutlet weak var exitButton: UIButton!
 
-    
     var eSource: EventSource?
     
     var lastBufferDate : NSDate?
@@ -417,9 +418,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             gameStatsViewController?.didMove(toParent: self)
         }
         
-        if(self.currentResult != nil){
-            gameStatsViewController?.currentScore = self.currentResult.score
-        }
+        gameStatsViewController?.currentScore = self.currentScore
+        
         
         if(self.currentQuestion != nil){
             gameStatsViewController?.currentQuestionNum = self.currentQuestion.number
@@ -579,6 +579,25 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func reconnectTimerCheck() {
         
+//        print(self.avPlayerItem.currentTime().seconds, self.avPlayerItem.duration)
+        
+        if(avPlayer.rate < 1.0){
+            print("rate dropped less than 1.0")
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+            self.stopStreamAndReset()
+        }
+        
+        
+        
+        if(avPlayer.status == .failed){
+            print("failure detected")
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+            self.stopStreamAndReset()
+
+        }
+        
         //        if(player.isPlaying()){
         
         //            if(lastPlayerTimeStamp == 0.0){
@@ -670,6 +689,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         self.currentEndQuestion = nil
         self.isQuestionActive = false
+        
+        if(self.currentResult.score != nil){
+            self.currentScore = self.currentResult.score!
+        }
         
         DispatchQueue.main.async(execute: {
             // update label here
@@ -951,6 +974,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         eSource?.onOpen { [weak self] in
             print("onOpen")
         }
+                
+        
+        
+        
+        eSource?.onComplete() { [weak self] statusCode, shouldReconnect, error in
+//            print(statusCode)
+//            print(shouldReconnect)
+//            print(error?.description)
+            if(!self!.gameEnded){
+                self!.eSource?.disconnect()
+                self!.eSource?.connect()
+            }
+        }
         
 //        eSource?.onMessage({ (idString, eventString, dataString) in
 //            //This is onMessage
@@ -958,6 +994,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 //            print("event: %@", eventString!)
 //            print("data: %@", dataString!)
 //        })
+        
+        eSource?.addEventListener("heartBeat") { [weak self] id, event, data in
+            print("heartbeat")
+        }
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
             let json = JSON.init(parseJSON: data!)
@@ -1097,6 +1137,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            self?.gameEnded = true
             self?.leaderBoardGoDown()
 
             var json = JSON.init(parseJSON: data!)
@@ -1164,6 +1205,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         eSource?.addEventListener("GameStatus") { [weak self] id, event, data in
             
             let gameStatus = TQKGameStatus(JSONString: data!)
+            
+            if let score = gameStatus!.score {
+                self!.currentScore = score
+            }
             
             //Always keep heart status up to date
             self!.heartsEnabled = (gameStatus?.heartEligible)!
@@ -1348,35 +1393,61 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func itemStalled(){
         print("***   stall detected ***")
-        
+//        if(self.bufferTimer != nil){
+//            self.bufferTimer?.invalidate()
+//            self.bufferTimer = nil
+//        }
+//        self.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.timerAction), userInfo: nil, repeats: true)
+        //                self?.bufferTimer?.fire()
+        //reset after 2 seconds unless default is hit
+        //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
     }
+    
+    @objc func itemPlayedToEnd(){
+        print("itemPlayedToEnd")
+        self.stopStreamAndReset()
+//        if(self.bufferTimer != nil){
+//            self.bufferTimer?.invalidate()
+//            self.bufferTimer = nil
+//        }
+//        self.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.timerAction), userInfo: nil, repeats: true)
+    }
+    
+    
+    @objc func newErrorLogEntry(_ notification: Notification) {
+        guard let object = notification.object, let playerItem = object as? AVPlayerItem else {
+            return
+        }
+        guard let errorLog: AVPlayerItemErrorLog = playerItem.errorLog() else {
+            return
+        }
+        NSLog("Error from log: \(errorLog)")
+        self.stopStreamAndReset()
+    }
+    
     
     func initializePlayer(url: String) {
         
-        
+        if(avPlayerLayer != nil){
+            avPlayerLayer.removeFromSuperlayer()
+        }
+        avPlayerLayer = nil
+        avPlayerItem = nil
         avPlayer = nil
+
+        
         asset = AVAsset(url: URL(string: url)!)
         avPlayerItem = AVPlayerItem(asset: asset)
-//        avPlayerItem.addObserver(self,
-//                               forKeyPath: #keyPath(AVPlayerItem.status),
-//                               options: [.old, .new],
-//                               context: &playerItemContext)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
-        name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
         
         //New with low latency HLS - keep it live and other stuff
         if #available(iOS 13.0, *) {
+            
             let howFarNow = avPlayerItem.configuredTimeOffsetFromLive
             let recommended = avPlayerItem.recommendedTimeOffsetFromLive
-
-            print(howFarNow)
-            print(recommended)
-            print("check this")
+            
             if(howFarNow < recommended){
                 avPlayerItem.configuredTimeOffsetFromLive = recommended
             }
-//            avPlayerItem.configuredTimeOffsetFromLive = CMTime(seconds: 2, preferredTimescale: 0)
 
             avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
         } else {
@@ -1385,6 +1456,18 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         // Associate the player item with the player
         avPlayer = AVPlayer(playerItem: avPlayerItem)
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
+           name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
+
+       NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
+           name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+           
+        NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
+           name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: avPlayer.currentItem)
+               
+        
         
 //        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
         
@@ -1398,6 +1481,23 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         previewView.backgroundColor = .clear
         previewView.layer.insertSublayer(avPlayerLayer, at: 0)
 
+        if let playerData = MUXSDKCustomerPlayerData(environmentKey: "77qj6f9rhk0aqde9kaeu55m8a") {
+            let playName = "iOS AVPlayer"
+            let userDefaults = UserDefaults.standard
+            if userDefaults.object(forKey: "myUser") != nil {
+                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+                playerData.viewerUserId = myUser.id
+            }
+            playerData.experimentName = "hlsTest"
+            
+            // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
+            let videoData = MUXSDKCustomerVideoData()
+            videoData.videoId = self.theGame?.id
+            videoData.videoTitle = self.theGame?.id
+            videoData.videoIsLive = true
+           
+            MUXSDKStats.monitorAVPlayerLayer(avPlayerLayer, withPlayerName: playName, playerData: playerData, videoData: videoData)
+        }
         avPlayer.play()
         
         if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
@@ -1408,6 +1508,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             previewView.sendSubviewToBack(self.customBackgroundImageView!)
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
         }
+        
+        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
 
     }
     
@@ -1421,60 +1523,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     func initObservers(){
-//        NotificationCenter.default.addObserver(forName: NSNotification.Name.IJKMPMoviePlayerLoadStateDidChange, object: player, queue: OperationQueue.main, using: { [weak self] notification in
-//
-//            guard let this = self else {
-//                return
-//            }
-//
-//            //I have no idea why this case happens - TODO
-//            if(this.player == nil){
-//                return
-//            }
-//
-//            let state = this.player.loadState
-//
-//            switch state {
-//            case IJKMPMovieLoadState.playable:
-//                print("Playable")
-//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-//                self?.bufferTimer?.invalidate()
-//                self?.bufferTimer = nil
-//                self?.player.play()
-//            case IJKMPMovieLoadState.playthroughOK:
-//                self?.spinnerView.isHidden = true
-//                print( "Playing")
-//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-//                self?.bufferTimer?.invalidate()
-//                self?.bufferTimer = nil
-//                self?.player.play()
-//
-//            case IJKMPMovieLoadState.stalled:
-//                print("Buffering in load state")
-//                //                self?.playStream()
-//                self?.spinnerView.isHidden = false
-//
-//                if(self?.bufferTimer != nil){
-//                    self?.bufferTimer?.invalidate()
-//                    self?.bufferTimer = nil
-//                }
-//                self?.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self!, selector: #selector(self?.timerAction), userInfo: nil, repeats: true)
-//                //                self?.bufferTimer?.fire()
-//                //reset after 2 seconds unless default is hit
-//                //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
-//
-//
-//            default:
-//                self?.spinnerView.isHidden = true
-//                print("Playing")
-//
-//                //Kill the operation
-//                //                NSObject.cancelPreviousPerformRequests(withTarget: self)
-//                self?.bufferTimer?.invalidate()
-//                self?.bufferTimer = nil
-//                self?.player.play()
-//            }
-//        })
+        
     }
     
     @objc func timerAction(){
@@ -1504,16 +1553,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.reconnectTimer = nil
         }
         shouldReconnect = false
-        
-//        player.stop()
-        
-//        NotificationCenter.default.removeObserver(player)
-        
         print("resetting the stream")
-//        player.view.removeFromSuperview()
-        
-//        player.shutdown()
-        
         if(!self.theGame!.videoDisabled){
             if self.theGame?.hlsUrl != nil {
                 self.initializePlayer(url: (self.theGame?.hlsUrl)!)
@@ -1908,3 +1948,4 @@ extension UIImageView {
         }
     }
 }
+

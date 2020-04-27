@@ -52,7 +52,7 @@ TODO: Add long description of the pod here.
 #  s.libraries = 'z', 'bz2', 'stdc++'
   
   s.dependency 'Alamofire', '~> 4.9.1'
-  s.dependency 'lottie-ios'
+  s.dependency 'lottie-ios', '~>3.1.8'
   s.dependency 'SwiftyJSON'
   s.dependency 'ObjectMapper'
   s.dependency 'Toast-Swift'
@@ -60,7 +60,8 @@ TODO: Add long description of the pod here.
   s.dependency 'Kingfisher'
   s.dependency 'Mixpanel-swift'
 #  s.dependency 'ijkplayer', '1.1.2'
-  s.dependency 'IKEventSource'
+  s.dependency 'IKEventSource', '~>3.0.1'
+  s.dependency 'Mux-Stats-AVPlayer', '~>1.3.0'
 
   
 end
