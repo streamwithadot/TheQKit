@@ -1646,46 +1646,56 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                         if (String(describing: json["errorCode"]!) == "QUESTION_NOT_ACTIVE") {
                             errorMessage = NSLocalizedString("We did not receive your answer in time. This may be caused by a poor network connection. Please use wifi if it is avaliable!", comment: "")
                             print("An error has occured QUESTION_NOT_ACTIVE")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "USER_ALREADY_ANSWERED") {
                             errorMessage = NSLocalizedString("You have already answered this question. Only one answer per account is allowed.", comment: "")
                             print("You have already answered from this account USER_ALREADY_ANSWERED")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_CHOICE") {
                             errorMessage = NSLocalizedString("This choice was invalid.", comment: "")
                             print("This choice was invalid INVALID_CHOICE")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
                             errorMessage = NSLocalizedString("Please choose a shorter answer.", comment: "")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
-                            if(self.currentQuestion.isMultipleChoice){
-                                DispatchQueue.main.async(execute: {
-                                    
-//                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
-//                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
-//                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
-                                    self.fullScreenTriviaViewController?.fadeAllCellsIn()
-                                    
-                                })
-                            }else{
-                                DispatchQueue.main.async(execute: {
-                                    
-                                    self.ssQuestionViewController?.submitButton.alpha = 1.0
-                                    self.ssQuestionViewController?.answerTextField.alpha = 1.0
-                                    self.ssQuestionViewController?.answerTextField.isEnabled = true
-                                    self.ssQuestionViewController?.answerTextField.text = ""
-                                    self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
-                                    self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
-                                    
-                                })
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                                if(self.currentQuestion.isMultipleChoice){
+                                    DispatchQueue.main.async(execute: {
+                                        
+    //                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+    //                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+    //                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                                        self.fullScreenTriviaViewController?.fadeAllCellsIn()
+                                        
+                                    })
+                                }else{
+                                    DispatchQueue.main.async(execute: {
+                                        
+                                        self.ssQuestionViewController?.submitButton.alpha = 1.0
+                                        self.ssQuestionViewController?.answerTextField.alpha = 1.0
+                                        self.ssQuestionViewController?.answerTextField.isEnabled = true
+                                        self.ssQuestionViewController?.answerTextField.text = ""
+                                        self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
+                                        self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
+                                        
+                                    })
+                                }
                             }
                         }else{
                             errorMessage = NSLocalizedString("An error occured recording your answer.", comment: "")
                             print("An error occured recording your answer.")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                         }
                                                 
                         // Prepare the popup assets
