@@ -343,10 +343,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.eventRecievedTimer.invalidate()
             self.eventRecievedTimer = nil
         }
-        if(self.player != nil){
-            self.player.stop()
-            self.player.shutdown()
-            self.player = nil
+        if(self.avPlayer != nil){
+            self.avPlayer.pause()
+            self.avPlayer = nil
         }
     }
     
@@ -1437,7 +1436,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 //            self.bufferTimer?.invalidate()
 //            self.bufferTimer = nil
 //        }
-//        self.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.timerAction), userInfo: nil, repeats: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
+            if(self.avPlayer != nil && self.avPlayer.rate < 1.0){
+                self.stopStreamAndReset()
+            }
+        }
+//        Timer.scheduledTimer(timeInterval: 6.0, target: self, selector: #selector(self.reconnectTimerCheck), userInfo: nil, repeats: false)
         //                self?.bufferTimer?.fire()
         //reset after 2 seconds unless default is hit
         //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
