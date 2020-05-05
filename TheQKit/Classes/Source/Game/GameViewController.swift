@@ -20,8 +20,6 @@ import ObjectMapper
 import SwiftyJSON
 import Lottie
 
-import IKEventSource
-
 import Mixpanel
 
 import AVFoundation
@@ -147,12 +145,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var lastPlayerTimeStamp : TimeInterval = 0.0
     var reconnectTimer : Timer!
     var audioCheckTimer : Timer!
+    var eventRecievedTimer : Timer!
     var shouldReconnect : Bool = false
     var isScreenBlocked : Bool = false
     var isCallConnected : Bool = false
     
     var joinedLate : Bool = false
     var gameEnded : Bool = false
+    var eventRecieved : TimeInterval?
     
     @IBOutlet weak var exitButton: UIButton!
 
@@ -322,6 +322,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 //            NotificationCenter.default.removeObserver(player)
         }
         
+        self.gameEnded = true
         if(self.eSource != nil){
             self.eSource?.disconnect()
             self.eSource = nil
@@ -338,9 +339,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.bufferTimer?.invalidate()
             self.bufferTimer = nil
         }
-        if(self.avPlayer != nil){
-            self.avPlayer.pause()
-            self.avPlayer = nil
+        if(self.eventRecievedTimer != nil){
+            self.eventRecievedTimer.invalidate()
+            self.eventRecievedTimer = nil
+        }
+        if(self.player != nil){
+            self.player.stop()
+            self.player.shutdown()
+            self.player = nil
         }
     }
     
@@ -575,6 +581,17 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 //        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
 //            self.player.playbackVolume = 1.0
 //        }
+    }
+    
+    @objc func eventRecievedCheck(){
+        
+        if let lastEventTime = self.eventRecieved {
+            let now = Date().timeIntervalSince1970
+            if ((now - lastEventTime) > 17.0){
+                //need to reconnect
+                self.eSource?.disconnect()
+            }
+        }
     }
     
     @objc func reconnectTimerCheck() {
@@ -962,14 +979,16 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             return
         }
         
-        if(eSource != nil){
-            eSource?.disconnect()
-            eSource = nil
-        }
+//        if(self.eSource != nil){
+//            self.gameEnded = true
+//            self.eSource?.disconnect()
+//            self.eSource = nil
+//            self.gameEnded = false
+//        }
         
         let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
         let finalBearerToken:String = "Bearer " + myTokens.accessToken!
-        eSource = EventSource(url: newUrl, headers: ["Authorization": finalBearerToken])
+        self.eSource = EventSource(url: newUrl, headers: ["Authorization": finalBearerToken])
                 
         eSource?.onOpen { [weak self] in
             print("onOpen")
@@ -988,18 +1007,30 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             }
         }
         
-//        eSource?.onMessage({ (idString, eventString, dataString) in
-//            //This is onMessage
+        eSource?.onComplete() { [weak self] status, retry, error in
+            print("onComplete")
+            if(!self!.gameEnded){
+                self?.eSource?.disconnect()
+                self?.eSource?.connect()
+            }
+//            self!.gameEnded = false
+        }
+        
+        eSource?.onMessage() {[weak self] idString, eventString, dataString in
+            //This is onMessage
+            print("messaged recieved")
+            self!.eventRecieved = Date().timeIntervalSince1970
 //            print("id: %@", idString!)
 //            print("event: %@", eventString!)
 //            print("data: %@", dataString!)
-//        })
+        }
         
         eSource?.addEventListener("heartBeat") { [weak self] id, event, data in
             print("heartbeat")
         }
         
         eSource?.addEventListener("GameReset") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             let json = JSON.init(parseJSON: data!)
             print("gamereset")
             print(json)
@@ -1032,6 +1063,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionReset") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             let json = JSON.init(parseJSON: data!)
             print("questionreset")
             print(json)
@@ -1073,7 +1105,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionStart") { [weak self] id, event, data in
-                        
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             
             NotificationCenter.default.post(name: .removeGameSubs, object: nil)
@@ -1123,11 +1155,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("QuestionEnd") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.currentEndQuestion =  TQKResult(JSONString: data!)
             self?.handleQuestionEnd()
         }
         
         eSource?.addEventListener("QuestionResult") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
 
             var json = JSON.init(parseJSON: data!)
@@ -1137,6 +1171,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameEnded") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.gameEnded = true
             self?.leaderBoardGoDown()
 
@@ -1155,6 +1190,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("ViewCountUpdate") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
+            print("viewcount update")
             var json = JSON.init(parseJSON: data!)
             DispatchQueue.main.async(execute: {
                 self?.viewCount.text = json["viewCnt"].stringValue
@@ -1163,6 +1200,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameWinners") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             //show winners screen
             let gameWinners = GameWinners(JSONString: data!)
@@ -1196,6 +1234,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameWon") { [weak self] id, event, data in
+            self!.eventRecieved = Date().timeIntervalSince1970
             self?.leaderBoardGoDown()
             let json = JSON.init(parseJSON: data!)
             NotificationCenter.default.post(name: .gameWon, object: json.dictionaryObject)
@@ -1203,7 +1242,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.addEventListener("GameStatus") { [weak self] id, event, data in
-            
+            self!.eventRecieved = Date().timeIntervalSince1970
             let gameStatus = TQKGameStatus(JSONString: data!)
             
             if let score = gameStatus!.score {
@@ -1299,6 +1338,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.connect()
+        self.eventRecievedTimer = Timer.scheduledTimer(timeInterval: 20.0, target: self, selector: #selector(eventRecievedCheck), userInfo: nil, repeats: true)
 
     }
     
@@ -1690,46 +1730,56 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                         if (String(describing: json["errorCode"]!) == "QUESTION_NOT_ACTIVE") {
                             errorMessage = NSLocalizedString("We did not receive your answer in time. This may be caused by a poor network connection. Please use wifi if it is avaliable!", comment: "")
                             print("An error has occured QUESTION_NOT_ACTIVE")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "USER_ALREADY_ANSWERED") {
                             errorMessage = NSLocalizedString("You have already answered this question. Only one answer per account is allowed.", comment: "")
                             print("You have already answered from this account USER_ALREADY_ANSWERED")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_CHOICE") {
                             errorMessage = NSLocalizedString("This choice was invalid.", comment: "")
                             print("This choice was invalid INVALID_CHOICE")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                             
                         }else if (String(describing: json["errorCode"]!) == "INVALID_ANSWER_LENGTH") {
                             errorMessage = NSLocalizedString("Please choose a shorter answer.", comment: "")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
-                            if(self.currentQuestion.isMultipleChoice){
-                                DispatchQueue.main.async(execute: {
-                                    
-//                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
-//                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
-//                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
-                                    self.fullScreenTriviaViewController?.fadeAllCellsIn()
-                                    
-                                })
-                            }else{
-                                DispatchQueue.main.async(execute: {
-                                    
-                                    self.ssQuestionViewController?.submitButton.alpha = 1.0
-                                    self.ssQuestionViewController?.answerTextField.alpha = 1.0
-                                    self.ssQuestionViewController?.answerTextField.isEnabled = true
-                                    self.ssQuestionViewController?.answerTextField.text = ""
-                                    self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
-                                    self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
-                                    
-                                })
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                                if(self.currentQuestion.isMultipleChoice){
+                                    DispatchQueue.main.async(execute: {
+                                        
+    //                                    self.fullScreenTriviaViewController?.progressViewA.alpha = 1.0
+    //                                    self.fullScreenTriviaViewController?.progressViewB.alpha = 1.0
+    //                                    self.fullScreenTriviaViewController?.progressViewC.alpha = 1.0
+                                        self.fullScreenTriviaViewController?.fadeAllCellsIn()
+                                        
+                                    })
+                                }else{
+                                    DispatchQueue.main.async(execute: {
+                                        
+                                        self.ssQuestionViewController?.submitButton.alpha = 1.0
+                                        self.ssQuestionViewController?.answerTextField.alpha = 1.0
+                                        self.ssQuestionViewController?.answerTextField.isEnabled = true
+                                        self.ssQuestionViewController?.answerTextField.text = ""
+                                        self.ssQuestionViewController?.inputAnswerLabel.alpha = 0.0
+                                        self.ssQuestionViewController?.yourAnswerLabel.alpha = 0.0
+                                        
+                                    })
+                                }
                             }
                         }else{
                             errorMessage = NSLocalizedString("An error occured recording your answer.", comment: "")
                             print("An error occured recording your answer.")
-                            self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            if(self.currentQuestion != nil){
+                                self.currentQuestion.wasMarkedIneligibleForTracking = true
+                            }
                         }
                                                 
                         // Prepare the popup assets
