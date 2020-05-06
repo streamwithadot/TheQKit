@@ -942,12 +942,13 @@
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Question 1/10" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p8h-0O-WkX">
                                         <rect key="frame" x="0.0" y="0.0" width="1024" height="164"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="p8h-0O-WkX" secondAttribute="bottom" id="9fI-3l-jqd"/>
                                     <constraint firstAttribute="trailing" secondItem="p8h-0O-WkX" secondAttribute="trailing" id="KWJ-7m-HG2"/>
@@ -975,6 +976,7 @@
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="USB-uo-xY8">
                                                     <rect key="frame" x="53" y="41.5" width="79.5" height="21"/>
+                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                     <color key="textColor" red="0.2393787205" green="0.17020958659999999" blue="0.25883269310000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                     <nil key="highlightedColor"/>
@@ -987,6 +989,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>
                                                 <constraint firstItem="NXN-LS-N3R" firstAttribute="leading" secondItem="iOZ-h8-kHa" secondAttribute="leading" constant="15" id="1Qc-x8-f6N"/>
                                                 <constraint firstItem="KDq-Ro-j9O" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="USB-uo-xY8" secondAttribute="trailing" constant="10" id="Fir-J8-J2q"/>
@@ -997,6 +1000,7 @@
                                                 <constraint firstItem="NXN-LS-N3R" firstAttribute="centerY" secondItem="iOZ-h8-kHa" secondAttribute="centerY" id="xRC-kB-oxN"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <connections>
                                             <outlet property="rankLabel" destination="NXN-LS-N3R" id="mq7-4j-psh"/>
                                             <outlet property="scoreLabel" destination="KDq-Ro-j9O" id="CxE-ve-xIU"/>
@@ -1011,11 +1015,11 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You: 0 Points" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="zYN-Ad-oaa">
                                         <rect key="frame" x="0.0" y="-14.5" width="1024" height="164"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="zYN-Ad-oaa" secondAttribute="trailing" id="QhT-Mf-SH8"/>
                                     <constraint firstItem="zYN-Ad-oaa" firstAttribute="top" secondItem="XFT-D7-5Vm" secondAttribute="top" constant="-14.5" id="S2t-Kl-M64"/>
@@ -1025,6 +1029,7 @@
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CcC-7m-ifo">
                                 <rect key="frame" x="5" y="5" width="60" height="60"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="PZd-dJ-j6m"/>
                                     <constraint firstAttribute="height" constant="60" id="pkU-xW-Mv5"/>

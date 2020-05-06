@@ -141,7 +141,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var maxdelay = 1
     private var playbackDelay = 0
     private var lastBufferStart = 0
-    var reloadVideoTimer:Timer!
     var lastPlayerTimeStamp : TimeInterval = 0.0
     var reconnectTimer : Timer!
     var audioCheckTimer : Timer!
@@ -226,6 +225,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        self.avPlayer = AVPlayer(playerItem: nil)
         
         UIApplication.shared.isIdleTimerDisabled = true
         
@@ -575,63 +576,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.stopStreamAndReset()
         }
     }
-    
-    @objc func audioCheck(){
-//        if(self.player.playbackVolume == 0.0 && (self.isScreenBlocked == false && self.isCallConnected == false)){
-//            self.player.playbackVolume = 1.0
-//        }
-    }
-    
-    @objc func eventRecievedCheck(){
-        
-        if let lastEventTime = self.eventRecieved {
-            let now = Date().timeIntervalSince1970
-            if ((now - lastEventTime) > 17.0){
-                //need to reconnect
-                self.eSource?.disconnect()
-            }
-        }
-    }
-    
-    @objc func reconnectTimerCheck() {
-        
-//        print(self.avPlayerItem.currentTime().seconds, self.avPlayerItem.duration)
-        
-        if(avPlayer.rate < 1.0){
-            print("rate dropped less than 1.0")
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-            self.stopStreamAndReset()
-        }
-        
-        
-        
-        if(avPlayer.status == .failed){
-            print("failure detected")
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-            self.stopStreamAndReset()
 
-        }
-        
-        //        if(player.isPlaying()){
-        
-        //            if(lastPlayerTimeStamp == 0.0){
-        //                lastPlayerTimeStamp = player.currentPlaybackTime
-        //            }else{
-        //
-       
-        
-        
-//        if(lastPlayerTimeStamp == player.currentPlaybackTime && shouldReconnect){
-//            //they haven't moved - reconnect if not buffering
-//            lastPlayerTimeStamp = 0.0
-//            self.stopStreamAndReset()
-//        }else{
-//            //they have moved
-//            lastPlayerTimeStamp = player.currentPlaybackTime
-//        }
-    }
     
     
     @IBAction func close(_ sender: UIButton) {
@@ -692,14 +637,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             }
         }
     }
-    
-    func stopVideoTimer()
-    {
-        if reloadVideoTimer != nil {
-            reloadVideoTimer!.invalidate()
-            reloadVideoTimer = nil
-        }
-    }
+
 
     func handleQuestionResult() {
         
@@ -1337,8 +1275,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
         eSource?.connect()
+        
+        if(self.eventRecievedTimer != nil){
+            self.eventRecievedTimer.invalidate()
+            self.eventRecievedTimer = nil
+        }
         self.eventRecievedTimer = Timer.scheduledTimer(timeInterval: 20.0, target: self, selector: #selector(eventRecievedCheck), userInfo: nil, repeats: true)
-
     }
     
     @IBAction func showExitDialog(_ sender: Any) {
@@ -1432,31 +1374,27 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func itemStalled(){
         print("***   stall detected ***")
-//        if(self.bufferTimer != nil){
-//            self.bufferTimer?.invalidate()
-//            self.bufferTimer = nil
-//        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
-            if(self.avPlayer != nil && self.avPlayer.rate < 1.0){
-                self.stopStreamAndReset()
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+//            if(self.avPlayer != nil && self.avPlayer.rate < 1.0){
+//                print("need to reset from stall")
+//                self.stopStreamAndReset()
+//            }else{
+//                print("don't reset from stall")
+//            }
+            self.avPlayer.playImmediately(atRate: 1.0)
         }
-//        Timer.scheduledTimer(timeInterval: 6.0, target: self, selector: #selector(self.reconnectTimerCheck), userInfo: nil, repeats: false)
-        //                self?.bufferTimer?.fire()
-        //reset after 2 seconds unless default is hit
-        //self?.perform(#selector(self?.stopStreamAndReset), with: nil, afterDelay: 1.5)
     }
     
     @objc func itemPlayedToEnd(){
         print("itemPlayedToEnd")
-        self.stopStreamAndReset()
-//        if(self.bufferTimer != nil){
-//            self.bufferTimer?.invalidate()
-//            self.bufferTimer = nil
-//        }
-//        self.bufferTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(self.timerAction), userInfo: nil, repeats: true)
+        if(!self.gameEnded){
+            self.stopStreamAndReset()
+        }
     }
     
+    @objc func itemFailedToPlayToEnd(){
+        print("itemFailedToPlayToEnd")
+    }
     
     @objc func newErrorLogEntry(_ notification: Notification) {
         guard let object = notification.object, let playerItem = object as? AVPlayerItem else {
@@ -1466,22 +1404,59 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             return
         }
         NSLog("Error from log: \(errorLog)")
-        self.stopStreamAndReset()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            self.stopStreamAndReset()
+        }
     }
+    
+    @objc func newAccessLogEntry(_ notification: Notification) {
+        guard let object = notification.object, let playerItem = object as? AVPlayerItem else {
+            return
+        }
+        guard let accessLog: AVPlayerItemAccessLog = playerItem.accessLog() else {
+            return
+        }
+//        NSLog("access from log: \(accessLog)")
+//        self.stopStreamAndReset()
+    }
+    
+    @objc func eventRecievedCheck(){
+       print("checking last event time")
+       if let lastEventTime = self.eventRecieved {
+           let now = Date().timeIntervalSince1970
+           if ((now - lastEventTime) > 17.0){
+               //need to reconnect
+               self.eSource?.disconnect()
+           }
+       }
+   }
+       
+//   @objc func reconnectTimerCheck() {
+//        print("reconnect timer check")
+//        if(self.avPlayer.rate < 1.0){
+//           print("rate dropped less than 1.0")
+//           self.reconnectTimer.invalidate()
+//           self.reconnectTimer = nil
+//           self.stopStreamAndReset()
+//        }
+//   }
     
     
     func initializePlayer(url: String) {
         
-        if(avPlayerLayer != nil){
-            avPlayerLayer.removeFromSuperlayer()
+        if(self.avPlayerLayer != nil){
+            self.avPlayerLayer.removeFromSuperlayer()
         }
-        avPlayerLayer = nil
-        avPlayerItem = nil
-        avPlayer = nil
+        
+        if(self.avPlayerItem != nil){
+            self.avPlayerItem = nil
+        }
+//        self.avPlayerLayer = nil
+//        self.avPlayerItem = nil
 
         
-        asset = AVAsset(url: URL(string: url)!)
-        avPlayerItem = AVPlayerItem(asset: asset)
+        self.asset = AVAsset(url: URL(string: url)!)
+        self.avPlayerItem = AVPlayerItem(asset: asset)
         
         //New with low latency HLS - keep it live and other stuff
         if #available(iOS 13.0, *) {
@@ -1490,135 +1465,110 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             let recommended = avPlayerItem.recommendedTimeOffsetFromLive
             
             if(howFarNow < recommended){
-                avPlayerItem.configuredTimeOffsetFromLive = recommended
+                self.avPlayerItem.configuredTimeOffsetFromLive = recommended
             }
 
-            avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
+            self.avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
         } else {
             // Fallback on earlier versions
         }
         
         // Associate the player item with the player
-        avPlayer = AVPlayer(playerItem: avPlayerItem)
-        
-        
+        self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
+
         NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
            name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
 
        NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(itemFailedToPlayToEnd),
+        name: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: nil)
            
         NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
-           name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: avPlayer.currentItem)
+           name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: self.avPlayer.currentItem)
+        
+//        NotificationCenter.default.addObserver(self, selector: #selector(newAccessLogEntry(_:)),
+//        name: NSNotification.Name.AVPlayerItemNewAccessLogEntry, object: self.avPlayer.currentItem)
                
         
         
 //        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
         
         
-        avPlayerLayer = AVPlayerLayer(player: avPlayer)
-        avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        avPlayer.actionAtItemEnd = .none
+        self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
+        self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        self.avPlayer.actionAtItemEnd = .none
         
-        
-        avPlayerLayer.frame = view.layer.bounds
-        previewView.backgroundColor = .clear
-        previewView.layer.insertSublayer(avPlayerLayer, at: 0)
+        self.avPlayerLayer.frame = view.layer.bounds
+        self.previewView.backgroundColor = .clear
+        self.previewView.layer.insertSublayer(self.avPlayerLayer, at: 0)
 
-        if let playerData = MUXSDKCustomerPlayerData(environmentKey: "77qj6f9rhk0aqde9kaeu55m8a") {
-            let playName = "iOS AVPlayer"
-            let userDefaults = UserDefaults.standard
-            if userDefaults.object(forKey: "myUser") != nil {
-                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
-                playerData.viewerUserId = myUser.id
-            }
-            playerData.experimentName = "hlsTest"
-            
-            // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
-            let videoData = MUXSDKCustomerVideoData()
-            videoData.videoId = self.theGame?.id
-            videoData.videoTitle = self.theGame?.id
-            videoData.videoIsLive = true
-           
-            MUXSDKStats.monitorAVPlayerLayer(avPlayerLayer, withPlayerName: playName, playerData: playerData, videoData: videoData)
-        }
-        avPlayer.play()
+//        if let playerData = MUXSDKCustomerPlayerData(environmentKey: "77qj6f9rhk0aqde9kaeu55m8a") {
+//            let playName = "iOS AVPlayer"
+//            let userDefaults = UserDefaults.standard
+//            if userDefaults.object(forKey: "myUser") != nil {
+//                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
+//                playerData.viewerUserId = myUser.id
+//            }
+//            playerData.experimentName = "hlsTest"
+//
+//            // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
+//            let videoData = MUXSDKCustomerVideoData()
+//            videoData.videoId = self.theGame?.id
+//            videoData.videoTitle = self.theGame?.id
+//            videoData.videoIsLive = true
+//
+//            MUXSDKStats.monitorAVPlayerLayer(avPlayerLayer, withPlayerName: playName, playerData: playerData, videoData: videoData)
+//        }
+        self.avPlayer.play()
         
         if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
             self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
             self.customBackgroundImageView!.contentMode = .scaleAspectFill
             self.customBackgroundImageView!.backgroundColor = UIColor.clear
-            previewView.addSubview(self.customBackgroundImageView!)
-            previewView.sendSubviewToBack(self.customBackgroundImageView!)
+            self.previewView.addSubview(self.customBackgroundImageView!)
+            self.previewView.sendSubviewToBack(self.customBackgroundImageView!)
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
         }
         
-        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+//        if(self.reconnectTimer != nil){
+//            self.reconnectTimer.invalidate()
+//            self.reconnectTimer = nil
+//        }
+//        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
 
     }
     
-    @objc func playStream() {
-        print("reloading the video to buffering")
-        
-//        player.play()
-        shouldReconnect = true
-        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
-        self.audioCheckTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(audioCheck), userInfo: nil, repeats: true)
-    }
-    
-    func initObservers(){
-        
-    }
-    
-    @objc func timerAction(){
-        bufferTime += 0.01
-        
-        print("current buffer accumulation: " + String(bufferTime))
-        
-        if(bufferTime > 1.5){
-            bufferTimer?.invalidate()
-            bufferTimer = nil
-            bufferTime = 0
-            stopStreamAndReset()
-        }
-        
-    }
+//    @objc func timerAction(){
+//        bufferTime += 0.01
+//
+//        print("current buffer accumulation: " + String(bufferTime))
+//
+//        if(bufferTime > 1.5){
+//            bufferTimer?.invalidate()
+//            bufferTimer = nil
+//            bufferTime = 0
+//            stopStreamAndReset()
+//        }
+//
+//    }
     
     func stopStreamAndReset() {
         print("stopping the stream")
         
-        if(self.audioCheckTimer != nil){
-            self.audioCheckTimer.invalidate()
-            self.audioCheckTimer = nil
-        }
-        
-        if(self.reconnectTimer != nil){
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-        }
         shouldReconnect = false
         print("resetting the stream")
         if(!self.theGame!.videoDisabled){
             if self.theGame?.hlsUrl != nil {
+                
+                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
+                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: nil)
+                
                 self.initializePlayer(url: (self.theGame?.hlsUrl)!)
             }
         }
-        
-    }
-    
-    func reloadVideo() {
-        playbackStarted = false
-        playbackDelay = 0
-        lastBufferStart = 0
-        
-        if reloadVideoTimer == nil {
-            reloadVideoTimer = Timer.scheduledTimer(timeInterval: 2,
-                                                    target: self,
-                                                    selector: #selector(self.playStream),
-                                                    userInfo: nil,
-                                                    repeats: false)
-        }
-        
         
     }
     
