@@ -385,6 +385,7 @@ class TheQManager {
                     logoOverride: UIImage?,
                     playerBackgroundColor: UIColor? = nil,
                     useThemeAsBackground: Bool? = false,
+                    isEliminationDisabled: Bool? = false,
                     completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
@@ -440,6 +441,7 @@ class TheQManager {
         vc.completed = completed
         vc.playerBackgroundColor = playerBackgroundColor
         vc.useThemeAsBackground = useThemeAsBackground!
+        vc.isEliminationDisabled = isEliminationDisabled!
         
         if(logoOverride != nil){
             vc.logo = logoOverride
@@ -469,6 +471,7 @@ class TheQManager {
                           logoOverride: UIImage?,
                           playerBackgroundColor: UIColor? = nil,
                           useThemeAsBackground: Bool? = false,
+                          isEliminationDisabled: Bool? = false,
                           completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
@@ -516,6 +519,7 @@ class TheQManager {
                                                         logoOverride: logoOverride,
                                                         playerBackgroundColor: playerBackgroundColor,
                                                         useThemeAsBackground: useThemeAsBackground,
+                                                        isEliminationDisabled: isEliminationDisabled,
                                                         completed: completed)
                                     }
                                 }

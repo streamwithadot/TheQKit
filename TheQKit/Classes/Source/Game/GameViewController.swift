@@ -192,6 +192,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var didPurchaseSubscriptionFromApple : Bool = false
     var playerBackgroundColor : UIColor?
     var useThemeAsBackground : Bool = false
+    var isEliminationDisabled : Bool = false
     var start : CFTimeInterval?
     var version : String?
     
@@ -1237,23 +1238,26 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 if(gameStatus?.active == false){
                     DispatchQueue.main.async(execute: {
                         
-                        let userDefaults = UserDefaults.standard
-                        let answersSaved = userDefaults.object(forKey: self!.myGameId!) as? String
-                        if (answersSaved != "eliminated"){
-                            let title = NSLocalizedString("Sorry, you've joined late, or were previously eliminated",comment: "")
-                            let message = NSLocalizedString("Either you joined late or missed a question due to network issues. You are not able to win this game, but are able to continue playing",comment: "")
-                            let subtitle = NSLocalizedString("Continue Playing",comment: "")
-                            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                            alert.addAction(UIAlertAction(title: subtitle, style: .default, handler: { (alertAction) in
-                                //add an action if needed
-                            }))
-                        
-                            if let topController = UIApplication.topViewController() {
-                                topController.present(alert, animated: true) {}
+                        if(!self!.isEliminationDisabled){
+
+                            let userDefaults = UserDefaults.standard
+                            let answersSaved = userDefaults.object(forKey: self!.myGameId!) as? String
+                            if (answersSaved != "eliminated"){
+                                let title = NSLocalizedString("Sorry, you've joined late, or were previously eliminated",comment: "")
+                                let message = NSLocalizedString("Either you joined late or missed a question due to network issues. You are not able to win this game, but are able to continue playing",comment: "")
+                                let subtitle = NSLocalizedString("Continue Playing",comment: "")
+                                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: subtitle, style: .default, handler: { (alertAction) in
+                                    //add an action if needed
+                                }))
+                            
+                                if let topController = UIApplication.topViewController() {
+                                    topController.present(alert, animated: true) {}
+                                }
                             }
+                            
+                            self!.eliminateUser()
                         }
-                        
-                        self!.eliminateUser()
                         
                     })
                     
@@ -1803,19 +1807,20 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     fileprivate func eliminateAndShowHeartOption(){
-        
-        self.eliminateUser()
-        //check if already eliminated, if not then this is the first time and check to see if they can use a heart and present that dialogue
-            //show heart use dialogue
-        let useHeartViewController = UseHeartViewController(nibName: "UseHeartView", bundle: TheQKit.bundle)
-        useHeartViewController.heartDelegate = self
-        
-        self.addChild(useHeartViewController)
-        self.view.addSubview(useHeartViewController.view)
-        self.view.bringSubviewToFront(useHeartViewController.view)
-        
-        useHeartViewController.view.center = self.view.center
-        useHeartViewController.didMove(toParent: self)
+        if(!self.isEliminationDisabled){
+            self.eliminateUser()
+            //check if already eliminated, if not then this is the first time and check to see if they can use a heart and present that dialogue
+                //show heart use dialogue
+            let useHeartViewController = UseHeartViewController(nibName: "UseHeartView", bundle: TheQKit.bundle)
+            useHeartViewController.heartDelegate = self
+            
+            self.addChild(useHeartViewController)
+            self.view.addSubview(useHeartViewController.view)
+            self.view.bringSubviewToFront(useHeartViewController.view)
+            
+            useHeartViewController.view.center = self.view.center
+            useHeartViewController.didMove(toParent: self)
+        }
     }
     
     fileprivate func undoElimination(){
@@ -1828,17 +1833,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     fileprivate func eliminateUser(){
-        self.userEliminated = true
-        self.eliminatedLabel.isHidden = false
-        
-        //keep track of this incase we exist the game and rejoin
-        let userDefaults = UserDefaults.standard
-        userDefaults.setValue("eliminated", forKey: self.myGameId!) // fill data
-        userDefaults.synchronize()
-        
-        UIView.animate(withDuration: 1.0, animations: {
-            self.heartContainerView.alpha = 0
-        })
+        if(!self.isEliminationDisabled){
+            self.userEliminated = true
+            self.eliminatedLabel.isHidden = false
+            
+            //keep track of this incase we exist the game and rejoin
+            let userDefaults = UserDefaults.standard
+            userDefaults.setValue("eliminated", forKey: self.myGameId!) // fill data
+            userDefaults.synchronize()
+            
+            UIView.animate(withDuration: 1.0, animations: {
+                self.heartContainerView.alpha = 0
+            })
+        }
     }
     
     fileprivate func removeAllChildScreens(){
