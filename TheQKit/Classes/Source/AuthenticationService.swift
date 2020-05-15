@@ -157,6 +157,65 @@ class AuthenticationService {
        }
     }
     
+    func OneAccountLogin(tokenString: String, username: String? = nil, apiToken: String, completionHandler: @escaping (_ success : Bool) -> Void) {
+        let oaAuth = TQKOneAccountAuth(accessToken: tokenString)
+        let params: Parameters = oaAuth.dictionaryRepresentation
+        var finalUrl:String = TQKConstants.baseUrl + "oauth/token"
+        if(!apiToken.isEmpty){
+            finalUrl = finalUrl + "?partnerCode=\(apiToken)"
+        }
+        
+        var code:String = ""
+        Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON { response in
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+            
+            response.result.ifFailure {
+                self.showLoginError()
+                completionHandler(false)
+            }
+            
+            response.result.ifSuccess {
+                if let json = response.result.value as? [String: Any] {
+                    print("JSON: \(json)") // serialized json response
+                    
+                    do{
+                        let json1 = try JSON(data: response.data!)
+                        code = json1["errorCode"].stringValue
+                        
+                        self.loginResponse =  TQKLoginResponse(JSON: json)
+                        if (self.loginResponse.user != nil) {
+                            self.setupUserInfo()
+                            completionHandler(true)
+                        }else{
+                            print("the user login code is" + code)
+                            if (code == "CLIENT_ERROR" || code == "AUTHORIZATION_ERROR") {
+                                self.showLoginError()
+                                completionHandler(false)
+                            }else if (code == "NO_SUCH_USER"){
+                                print("This is a new user bring to username screen")
+                                if(username != nil){
+                                    self.createAccountWithUsername(accessToken: tokenString, apiToken: apiToken, provider: "firebase", username: username!, completionHandler: completionHandler)
+                                }else{
+                                    self.createAccountWithUI(accessToken: tokenString, apiToken: apiToken, provider: "firebase", completionHandler: completionHandler)
+                                }
+                            }else if( code == "USER_BANNED"){
+                                NotificationCenter.default.post(name: .userBanned, object: nil)
+                                completionHandler(false)
+                            } else {
+                                self.showLoginError()
+                                completionHandler(false)
+                            }
+                        }
+                    }catch{
+                        completionHandler(false)
+                    }
+                }
+            }
+        }
+    }
+    
     func FirebaseLogin(userID: String, tokenString: String, username: String? = nil, apiToken: String, completionHandler: @escaping (_ success : Bool) -> Void) {
         
         let akAuth = TQKFirebaseAuth(id: userID, accessToken: tokenString)
@@ -220,7 +279,7 @@ class AuthenticationService {
         
     }
     
-    func createAccountWithUsername(id:String, accessToken:String, apiToken: String, provider:String, username:String, completionHandler: @escaping (_ success : Bool) -> Void) {
+    func createAccountWithUsername(id:String? = nil, accessToken:String, apiToken: String, provider:String, username:String, completionHandler: @escaping (_ success : Bool) -> Void) {
     
         var params: Parameters
         let commonAuth = TQKCommonAuth(id: id, accessToken: accessToken, provider: provider)
@@ -296,7 +355,7 @@ class AuthenticationService {
         }
     }
     
-    func createAccountWithUI(id:String, accessToken:String, apiToken: String, provider:String, completionHandler: @escaping (_ success : Bool) -> Void) {
+    func createAccountWithUI(id:String? = nil, accessToken:String, apiToken: String, provider:String, completionHandler: @escaping (_ success : Bool) -> Void) {
         
         let alert = UIAlertController(title: "Enter Username", message: "Please choose a username", preferredStyle: .alert)
         

@@ -108,6 +108,18 @@ public class TheQKit {
     public class func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
         TheQManager.sharedInstance.LoginQUserWithApple(userID: userID, identityString: identityString, username: username, completionHandler: completionHandler)
     }
+    
+    /// Logs a user in OneAccount, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - tokenString: OneAccount provided Token String / Access Token
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
+    public class func LoginQUserWithOneAccount(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
+            TheQManager.sharedInstance.LoginQUserWithOneAccount(tokenString: tokenString, username: username, completionHandler: completionHandler)
+    }
   
     /// Logout a logged in user - clears SDK specifics in NSUserDefaults
     public class func LogoutQUser() {
@@ -259,8 +271,8 @@ public class TheQKit {
     }
     
     /// Update certain values of the user
-    public class func updateUser(email: String? = nil, phoneNumber: String? = nil){
-        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber)
+    public class func updateUser(email: String? = nil, phoneNumber: String? = nil, username: String? = nil){
+        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber, username: username)
     }
     
     class func hexStringToUIColor (hex:String) -> UIColor {

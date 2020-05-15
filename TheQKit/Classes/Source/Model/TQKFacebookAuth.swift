@@ -68,23 +68,51 @@ public struct TQKFirebaseAuth {
     
 }
 
-public struct TQKCommonAuth {
-
-    public var id: String
+public struct TQKOneAccountAuth {
     public var accessToken: String
-    public var provider: String
     
     public var dictionaryRepresentation: [String: Any] {
         return
-            [ provider: [
-                "id": id,
+            [ "oneAccount": [
                 "accessToken": accessToken
                 ]
         ]
     }
     
-    public init(id: String, accessToken: String, provider: String) {
-        self.id = id
+    public init(accessToken: String) {
+        self.accessToken = accessToken
+    }
+    
+}
+
+public struct TQKCommonAuth {
+
+    public var id: String?
+    public var accessToken: String
+    public var provider: String
+    
+    public var dictionaryRepresentation: [String: Any] {
+        
+        if(id == nil){
+            return
+                [ provider: [
+                    "accessToken": accessToken
+                    ]
+            ]
+        }else{
+            return
+                [ provider: [
+                    "id": id!,
+                    "accessToken": accessToken
+                    ]
+            ]
+        }
+    }
+    
+    public init(id: String? = nil, accessToken: String, provider: String) {
+        if(id != nil){
+            self.id = id
+        }
         self.accessToken = accessToken
         self.provider = provider
     }
