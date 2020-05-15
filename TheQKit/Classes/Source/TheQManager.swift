@@ -99,7 +99,6 @@ class TheQManager {
             return
         }
         
-        print("testing this")
         let userUrl = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
         if UserDefaults.standard.object(forKey: "myTokens") != nil{
             let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
@@ -168,10 +167,55 @@ class TheQManager {
 
     }
     
-    @discardableResult
-    func updateUser(email: String? = nil, phoneNumber: String? = nil, username: String? = nil) -> Bool{
+    func updateUsername(username:String, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
         if(TheQManager.sharedInstance.loggedInUser == nil){
-            return false
+            completionHandler(false,"user not logged in")
+            return
+        }
+        
+        let key = "token"
+        let preferences = UserDefaults.standard
+        let bearerToken = preferences.string(forKey: key)
+        let finalBearerToken:String = "Bearer " + (bearerToken as! String)
+        
+        var parameters: Parameters = [:]
+        parameters.updateValue(username , forKey: "username")
+        let headers: HTTPHeaders = [
+            "Authorization": finalBearerToken,
+            "Accept": "application/json"
+        ]
+        
+        let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)! + "/username"
+        Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+                
+            response.result.ifFailure {
+                completionHandler(false,"")
+            }
+            response.result.ifSuccess {
+                do{
+                    let json = try JSON(data: response.data!)
+                    if let errorMsg = json.dictionaryObject!["errorMessage"] {
+                        completionHandler(false,errorMsg as! String)
+                    }else{
+                        if var user = self.loggedInUser {
+                            user.username = username
+                            user.referralCode = username
+                            UserDefaults.standard.set(user.propertyListRepresentation, forKey: "myUser")
+                            UserDefaults.standard.synchronize()
+                            completionHandler(true,"")
+                        }
+                    }
+                }catch{
+                    completionHandler(false,error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
+        if(TheQManager.sharedInstance.loggedInUser == nil){
+            completionHandler(false,"User not logged in")
+            return
         }
         
         let key = "token"
@@ -182,80 +226,42 @@ class TheQManager {
         if(email != nil || phoneNumber != nil){
         
             if(email != nil && !self.isValidEmail(testStr: email!)){
-                return false
+                completionHandler(false,"invalid email address")
+                return
             }
             
             var parameters: Parameters = [:]
-            
             if(email != nil){
                 parameters.updateValue(email!, forKey: "email")
             }
             if(phoneNumber != nil){
                 parameters.updateValue(phoneNumber! , forKey: "phoneNumber")
             }
-
             let headers: HTTPHeaders = [
                 "Authorization": finalBearerToken,
                 "Accept": "application/json"
             ]
             
             let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
-            
             Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
                     
                 response.result.ifFailure {
-                    print("USER UPDATED: FAILURE")
+                    completionHandler(false,"")
                 }
                 response.result.ifSuccess {
                     do{
                         let json = try JSON(data: response.data!)
                         if let errorMsg = json.dictionaryObject!["errorMessage"] {
-                            print("USER UPDATED: FAILURE")
-                            print(errorMsg)
+                            completionHandler(false,errorMsg as! String)
                         }else{
-                            print("USER UPDATED: SUCCESS")
+                            completionHandler(true,"")
                         }
                     }catch{
-                        print(error)
+                        completionHandler(false,error.localizedDescription)
                     }
                 }
             }
         }
-            
-        if(username != nil){
-            //users/:id/username
-            var parameters: Parameters = [:]
-            parameters.updateValue(username! , forKey: "username")
-            
-            let headers: HTTPHeaders = [
-                "Authorization": finalBearerToken,
-                "Accept": "application/json"
-            ]
-            
-            let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)! + "/username"
-            
-            Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
-                    
-                response.result.ifFailure {
-                    print("USERNAME UPDATED: FAILURE")
-                }
-                response.result.ifSuccess {
-                    do{
-                        let json = try JSON(data: response.data!)
-                        if let errorMsg = json.dictionaryObject!["errorMessage"] {
-                            print("USERNAME UPDATED: FAILURE")
-                            print(errorMsg)
-                        }else{
-                            print("USERNAME UPDATED: SUCCESS")
-                        }
-                    }catch{
-                        print(error)
-                    }
-                }
-            }
-        }
-        
-        return true
     }
     
     @discardableResult

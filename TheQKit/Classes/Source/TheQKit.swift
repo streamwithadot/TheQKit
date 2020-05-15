@@ -270,9 +270,20 @@ public class TheQKit {
         TheQManager.sharedInstance.updateUserObject()
     }
     
+    /// Update username
+    /// - Parameters:
+    ///     - username: *Optional*
+    public class func updateUsername(username:String, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void){
+        TheQManager.sharedInstance.updateUsername(username: username, completionHandler: completionHandler)
+    }
+    
     /// Update certain values of the user
-    public class func updateUser(email: String? = nil, phoneNumber: String? = nil, username: String? = nil){
-        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber, username: username)
+    /// - Parameters:
+    ///     - email: *Optional*
+    ///     - phoneNumber: *Optional*
+    ///     - username: *Optional*
+    public class func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void){
+        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber, completionHandler: completionHandler)
     }
     
     class func hexStringToUIColor (hex:String) -> UIColor {

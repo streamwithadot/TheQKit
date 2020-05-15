@@ -337,6 +337,7 @@ class AuthenticationService {
                     
                     preferences.set(self.loginResponse.user?.propertyListRepresentation, forKey: "myUser")
                     preferences.set(self.loginResponse.oauth?.propertyListRepresentation, forKey: "myTokens")
+                    preferences.set(self.loginResponse.toJSON(), forKey: "TQKAuth")
                     
                     //  Save to disk
                     let didSave = preferences.synchronize()
@@ -616,7 +617,8 @@ class AuthenticationService {
         
         preferences.set(self.loginResponse.user?.propertyListRepresentation, forKey: "myUser")
         preferences.set(self.loginResponse.oauth?.propertyListRepresentation, forKey: "myTokens")
-        
+        preferences.set(self.loginResponse.toJSON(), forKey: "TQKAuth")
+
         preferences.synchronize()
     }
     
