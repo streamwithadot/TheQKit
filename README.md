@@ -157,14 +157,14 @@ TheQKit.LaunchActiveGame()            //checks for an active game and launches i
 ```
 
 ## Update Username / email / phone
-Update the user record with new values
+Update username
 ```swift
 TheQKit.updateUsername(username: " ") { (success, errorMsg) in
      //success : Bool ... if user record is updates succesfully
      //errorMsg : error msg if one
 }
 ```
-
+Update the user with either email, phone #, or both.
 ```swift
 TheQKit.updateUser(email:"<Optional Email>", phoneNumber:"<Optional Phone#>") { (success, errorMsg) in
      //success : Bool ... if user record is updates succesfully
