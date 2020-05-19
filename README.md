@@ -156,6 +156,21 @@ TheQKit.LaunchGame(theGame : TQKGame) //Checks if specified game is active and l
 TheQKit.LaunchActiveGame()            //checks for an active game and launches it if avaliable
 ```
 
+## Update Username / email / phone
+Update username
+```swift
+TheQKit.updateUsername(username: " ") { (success, errorMsg) in
+     //success : Bool ... if user record is updates succesfully
+     //errorMsg : error msg if one
+}
+```
+Update the user with either email, phone #, or both.
+```swift
+TheQKit.updateUser(email:"<Optional Email>", phoneNumber:"<Optional Phone#>") { (success, errorMsg) in
+     //success : Bool ... if user record is updates succesfully
+     //errorMsg : error msg if one
+}
+```
 
 ## Customize Color Theme
 Games have a default color theme, if you wish to over ride that, pass in the colorCode as a hex string to the launch functions

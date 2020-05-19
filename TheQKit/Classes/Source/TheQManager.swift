@@ -99,7 +99,6 @@ class TheQManager {
             return
         }
         
-        print("testing this")
         let userUrl = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
         if UserDefaults.standard.object(forKey: "myTokens") != nil{
             let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
@@ -168,16 +167,11 @@ class TheQManager {
 
     }
     
-    @discardableResult
-    func updateUser(email: String? = nil, phoneNumber: String? = nil) -> Bool{
+    func updateUsername(username:String, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
         if(TheQManager.sharedInstance.loggedInUser == nil){
-            return false
+            completionHandler(false,"user not logged in")
+            return
         }
-        
-        if(email != nil && !self.isValidEmail(testStr: email!)){
-            return false
-        }
-        
         
         let key = "token"
         let preferences = UserDefaults.standard
@@ -185,37 +179,89 @@ class TheQManager {
         let finalBearerToken:String = "Bearer " + (bearerToken as! String)
         
         var parameters: Parameters = [:]
-        
-        if(email != nil){
-            parameters.updateValue(email, forKey: "email")
-        }
-        if(phoneNumber != nil){
-            parameters.updateValue(phoneNumber , forKey: "phoneNumber")
-        }
-        
+        parameters.updateValue(username , forKey: "username")
         let headers: HTTPHeaders = [
             "Authorization": finalBearerToken,
             "Accept": "application/json"
         ]
         
-        let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
-        
-        Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON
-            { response in
-                print("Request: \(String(describing: response.request))")   // original url request
-                print("Response: \(String(describing: response.response))") // http url response
-                print("Result: \(response.result)")                         // response serialization result
+        let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)! + "/username"
+        Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
                 
-                response.result.ifFailure {
-                    print("USER UPDATED: FAILURE")
+            response.result.ifFailure {
+                completionHandler(false,"")
+            }
+            response.result.ifSuccess {
+                do{
+                    let json = try JSON(data: response.data!)
+                    if let errorMsg = json.dictionaryObject!["errorMessage"] {
+                        completionHandler(false,errorMsg as! String)
+                    }else{
+                        if var user = self.loggedInUser {
+                            user.username = username
+                            user.referralCode = username
+                            UserDefaults.standard.set(user.propertyListRepresentation, forKey: "myUser")
+                            UserDefaults.standard.synchronize()
+                            completionHandler(true,"")
+                        }
+                    }
+                }catch{
+                    completionHandler(false,error.localizedDescription)
                 }
-                
-                response.result.ifSuccess {
-                    print("USER UPDATED: SUCCESS")
-                }
+            }
+        }
+    }
+    
+    func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
+        if(TheQManager.sharedInstance.loggedInUser == nil){
+            completionHandler(false,"User not logged in")
+            return
         }
         
-        return true
+        let key = "token"
+        let preferences = UserDefaults.standard
+        let bearerToken = preferences.string(forKey: key)
+        let finalBearerToken:String = "Bearer " + (bearerToken as! String)
+        
+        if(email != nil || phoneNumber != nil){
+        
+            if(email != nil && !self.isValidEmail(testStr: email!)){
+                completionHandler(false,"invalid email address")
+                return
+            }
+            
+            var parameters: Parameters = [:]
+            if(email != nil){
+                parameters.updateValue(email!, forKey: "email")
+            }
+            if(phoneNumber != nil){
+                parameters.updateValue(phoneNumber! , forKey: "phoneNumber")
+            }
+            let headers: HTTPHeaders = [
+                "Authorization": finalBearerToken,
+                "Accept": "application/json"
+            ]
+            
+            let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
+            Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
+                    
+                response.result.ifFailure {
+                    completionHandler(false,"")
+                }
+                response.result.ifSuccess {
+                    do{
+                        let json = try JSON(data: response.data!)
+                        if let errorMsg = json.dictionaryObject!["errorMessage"] {
+                            completionHandler(false,errorMsg as! String)
+                        }else{
+                            completionHandler(true,"")
+                        }
+                    }catch{
+                        completionHandler(false,error.localizedDescription)
+                    }
+                }
+            }
+        }
     }
     
     @discardableResult
@@ -230,6 +276,10 @@ class TheQManager {
     
     func LoginQUserWithFirebase(userId: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
         AuthenticationService.sharedInstance.FirebaseLogin(userID: userId, tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
+    }
+    
+    func LoginQUserWithOneAccount(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
+        AuthenticationService.sharedInstance.OneAccountLogin(tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
     
     func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
@@ -385,6 +435,7 @@ class TheQManager {
                     logoOverride: UIImage?,
                     playerBackgroundColor: UIColor? = nil,
                     useThemeAsBackground: Bool? = false,
+                    isEliminationDisabled: Bool? = false,
                     completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
@@ -440,6 +491,7 @@ class TheQManager {
         vc.completed = completed
         vc.playerBackgroundColor = playerBackgroundColor
         vc.useThemeAsBackground = useThemeAsBackground!
+        vc.isEliminationDisabled = isEliminationDisabled!
         
         if(logoOverride != nil){
             vc.logo = logoOverride
@@ -469,6 +521,7 @@ class TheQManager {
                           logoOverride: UIImage?,
                           playerBackgroundColor: UIColor? = nil,
                           useThemeAsBackground: Bool? = false,
+                          isEliminationDisabled: Bool? = false,
                           completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
@@ -516,6 +569,7 @@ class TheQManager {
                                                         logoOverride: logoOverride,
                                                         playerBackgroundColor: playerBackgroundColor,
                                                         useThemeAsBackground: useThemeAsBackground,
+                                                        isEliminationDisabled: isEliminationDisabled,
                                                         completed: completed)
                                     }
                                 }

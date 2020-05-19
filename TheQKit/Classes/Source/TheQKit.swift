@@ -108,6 +108,18 @@ public class TheQKit {
     public class func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
         TheQManager.sharedInstance.LoginQUserWithApple(userID: userID, identityString: identityString, username: username, completionHandler: completionHandler)
     }
+    
+    /// Logs a user in OneAccount, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - tokenString: OneAccount provided Token String / Access Token
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
+    public class func LoginQUserWithOneAccount(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
+            TheQManager.sharedInstance.LoginQUserWithOneAccount(tokenString: tokenString, username: username, completionHandler: completionHandler)
+    }
   
     /// Logout a logged in user - clears SDK specifics in NSUserDefaults
     public class func LogoutQUser() {
@@ -131,12 +143,16 @@ public class TheQKit {
     ///     - colorCode: *Optional* override the color theme of the game
     ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
+    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
+    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
+    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
     public class func LaunchGame(theGame : TQKGame,
                                  colorCode : String? = nil ,
                                  useLongTimer : Bool? = false,
                                  logoOverride: UIImage? = nil,
                                  playerBackgroundColor: UIColor? = nil,
                                  useThemeAsBackground: Bool? = false,
+                                 isEliminationDisabled: Bool? = false,
                                  completed: @escaping (_ success : Bool) -> Void ){
         TheQManager.sharedInstance.LaunchGame(theGame: theGame,
                                               colorCode: colorCode,
@@ -144,6 +160,7 @@ public class TheQKit {
                                               logoOverride: logoOverride,
                                               playerBackgroundColor: playerBackgroundColor,
                                               useThemeAsBackground: useThemeAsBackground,
+                                              isEliminationDisabled: isEliminationDisabled,
                                               completed: completed)
     }
     
@@ -151,14 +168,19 @@ public class TheQKit {
     ///
     /// - Parameters:
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
+    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
+    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
+    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
     public class func LaunchActiveGame(logoOverride: UIImage? = nil,
                                        playerBackgroundColor: UIColor? = nil,
                                        useThemeAsBackground: Bool? = false,
+                                       isEliminationDisabled: Bool? = false,
                                        completed: @escaping (_ success : Bool) -> Void) {
         TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil,
                                                     logoOverride: logoOverride,
                                                     playerBackgroundColor: playerBackgroundColor,
                                                     useThemeAsBackground: useThemeAsBackground,
+                                                    isEliminationDisabled: isEliminationDisabled,
                                                     completed: completed)
     }
     
@@ -185,10 +207,14 @@ public class TheQKit {
     /// - Parameters:
     ///     - viewController: container view where the cards controller will populate
     ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
+    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
+    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
+    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
     public class func showCardsController(fromViewController viewController : UIViewController,
                                           logoOverride: UIImage? = nil,
                                           playerBackgroundColor: UIColor? = nil,
-                                          useThemeAsBackground: Bool? = false){
+                                          useThemeAsBackground: Bool? = false,
+                                          isEliminationDisabled: Bool? = false){
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
@@ -204,7 +230,7 @@ public class TheQKit {
         
         vc.playerBackgroundColor = playerBackgroundColor
         vc.useThemeAsBackground = useThemeAsBackground!
-        
+        vc.isEliminationDisabled = isEliminationDisabled!
         viewController.addChild(vc)
         viewController.view.addSubview(vc.view)
         vc.didMove(toParent: viewController)
@@ -244,9 +270,20 @@ public class TheQKit {
         TheQManager.sharedInstance.updateUserObject()
     }
     
+    /// Update username
+    /// - Parameters:
+    ///     - username: *Optional*
+    public class func updateUsername(username:String, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void){
+        TheQManager.sharedInstance.updateUsername(username: username, completionHandler: completionHandler)
+    }
+    
     /// Update certain values of the user
-    public class func updateUser(email: String? = nil, phoneNumber: String? = nil){
-        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber)
+    /// - Parameters:
+    ///     - email: *Optional*
+    ///     - phoneNumber: *Optional*
+    ///     - username: *Optional*
+    public class func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void){
+        TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber, completionHandler: completionHandler)
     }
     
     class func hexStringToUIColor (hex:String) -> UIColor {
