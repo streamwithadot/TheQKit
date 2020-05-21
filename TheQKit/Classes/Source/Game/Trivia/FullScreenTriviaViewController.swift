@@ -158,25 +158,27 @@ class FullScreenTriviaViewController: UIViewController {
                     self.timesUpLabel.font = UIFont.systemFont(ofSize: 25, weight: .medium)
                     self.questionLabel.font = UIFont.systemFont(ofSize: 32, weight: .medium)
                     
+                    let alpha = self.gameOptions!.questionBackgroundAlpha
                     if(type == .Correct){
                         lottieName = "correct_PC"
-                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor
+                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor.withAlphaComponent(alpha)
                     }else{
                         lottieName = "incorrect_PC"
-                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor
+                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor.withAlphaComponent(alpha)
                     }
                     self.perform(#selector(animateOut), with: self, afterDelay: 5.6)
                 
                 }else{
                     //Multiple choice modes
                     self.timesUpLabel.removeConstraint(self.timesUpLabelWidth)
+                    let alpha = self.gameOptions!.questionBackgroundAlpha
                     if(type == .Correct){
                         lottieName = "correct"
-                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor
+                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor.withAlphaComponent(alpha)
 
                      }else if(type == .Incorrect){
                         lottieName = "incorrect"
-                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor
+                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor.withAlphaComponent(alpha)
                      }
                     
                     self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
@@ -476,11 +478,11 @@ class FullScreenTriviaViewController: UIViewController {
             
             if let cc = self.gameOptions?.colorCode {
                 correctLabel.textColor = UIColor.white
-                correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+                correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: cc)
             }else if(self.gameOptions?.useThemeColors == true){
-                correctLabel.textColor = theGame?.theme.textColorCode
+                correctLabel.textColor = TheQKit.hexStringToUIColor(hex: (theGame?.theme.textColorCode)!)
                 if let dcc = theGame?.theme.defaultColorCode{
-                    correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+                    correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: dcc)
                 }else{
                     correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
                 }
@@ -492,9 +494,6 @@ class FullScreenTriviaViewController: UIViewController {
                     correctLabel.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.result?.categoryId)!)
                 }
             }
-            
-            
-            
             
             correctLabel.layer.cornerRadius = 15
             correctLabel.clipsToBounds = true
@@ -575,14 +574,7 @@ class FullScreenTriviaViewController: UIViewController {
             //na
             
             self.timesUpLabel.text = NSLocalizedString("  Time's up!  ", comment: "")
-
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
-            }else{
-                self.timesUpLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
-            }
-            
-            self.timesUpLabel.backgroundColor = UIColor.white
+//            self.timesUpLabel.backgroundColor = UIColor.white
             
             UIView.animate(withDuration: 0.25, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
                 
@@ -653,18 +645,18 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
             
             let alpha = self.gameOptions!.questionBackgroundAlpha
             if let cc = self.gameOptions?.colorCode {
-                cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+                cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: cc)
             }else if(self.gameOptions?.useThemeColors == true){
                 if let dcc = theGame?.theme.defaultColorCode{
-                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: dcc)
                 }else{
-                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
                 }
             }else{
                 if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
                 }else{
-                    cell.questionLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(alpha)
+                    cell.questionLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!)
                 }
             }
             

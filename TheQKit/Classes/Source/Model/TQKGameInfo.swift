@@ -81,8 +81,8 @@ public struct TQKGameOptions {
     public var playerBackgroundColor : UIColor? = UIColor.clear
     public var useThemeAsBackground : Bool = false
     public var useThemeColors : Bool = false
-    public var correctBackgroundColor : UIColor = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8)
-    public var incorrectBackgroundColor : UIColor = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8)
+    public var correctBackgroundColor : UIColor = TheQKit.hexStringToUIColor(hex: "#32c274")
+    public var incorrectBackgroundColor : UIColor = TheQKit.hexStringToUIColor(hex: "#e63462")
     public var questionBackgroundAlpha : CGFloat = 0.8
     public var isEliminationDisabled : Bool = false
     
@@ -92,8 +92,8 @@ public struct TQKGameOptions {
                 playerBackgroundColor: UIColor? = UIColor.clear,
                 useThemeAsBackground: Bool? = false,
                 useThemeColors: Bool? = false,
-                correctBackgroundColor: UIColor? = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8),
-                incorrectBackgroundColor: UIColor? = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8),
+                correctBackgroundColor: UIColor? = nil,
+                incorrectBackgroundColor: UIColor? = nil,
                 questionBackgroundAlpha: CGFloat? = 0.8,
                 isEliminationDisabled: Bool? = false) {
         
@@ -103,8 +103,12 @@ public struct TQKGameOptions {
                self.playerBackgroundColor = playerBackgroundColor!
                self.useThemeAsBackground = useThemeAsBackground!
                self.useThemeColors = useThemeColors!
-               self.correctBackgroundColor = correctBackgroundColor!
-               self.incorrectBackgroundColor = incorrectBackgroundColor!
+               if(correctBackgroundColor != nil){
+                   self.correctBackgroundColor = correctBackgroundColor!
+               }
+               if(incorrectBackgroundColor != nil){
+                   self.incorrectBackgroundColor = incorrectBackgroundColor!
+               }
                self.questionBackgroundAlpha = questionBackgroundAlpha!
                self.isEliminationDisabled = isEliminationDisabled!
            }
