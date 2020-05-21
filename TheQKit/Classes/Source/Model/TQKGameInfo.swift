@@ -63,13 +63,16 @@ public enum TQKWinCondition : String {
 /// Optional object to configure in game UI
 ///
 /// - Parameters:
-///     - logoOverride: *Optional* Image to override the default logo (found in upper right)
 ///     - colorCode: *Optional* override the color theme of the game
-///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
+///     - useLongTimer: *Optional and not Recommended without prior consultation* temporary workaround to use a 15 second countdown timer
 ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
 ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
 ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
 ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+///     - useThemeColors: *Optional* Overrides the text color and background overloay of questions and results with default color code, text color code from the theme object
+///     - correctBackgroundColor: *Optional* overrides the default color of the correct screen
+///     - incorrectBackgroundColor: *Optional* overrides the default color of the incorrect screen
+///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
 public struct TQKGameOptions {
    
     var logoOverride: UIImage? = nil

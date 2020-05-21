@@ -46,7 +46,7 @@ post_install do |installer|
 end
 ```
 
-# Usage
+# Getting Started
 
 ## Initialize
 
@@ -66,7 +66,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 ```
 
-## User Management
+## User Authentication
 
 Integration with Account Kit must be done app side, after verification with those providers, pass along the token string, and account ID to login existing user  / enter user creation flow
 
@@ -134,13 +134,38 @@ Logout and clear stored user
 TheQKit.LogoutQUser()
 ```
 
+# Launching / Playing Games
+New with Version 1.1.4, an optional gameOptions parameter when launching a game allows configuration of various UI elements 
+```swift
+///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
+///     - colorCode: *Optional* override the color theme of the game - supercedes useThemeColors
+///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
+///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
+///     - useThemeColors: *Optional* Overrides the text color and background overloay of questions / results with default color code, text color code from the theme object configured from the admin portal
+///     - correctBackgroundColor: *Optional* overrides the default color of the correct screen
+///     - incorrectBackgroundColor: *Optional* overrides the default color of the incorrect screen
+///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
+///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+
+let options = TQKGameOptions(logoOverride: <#T##UIImage?#>,
+                            colorCode: <#T##String?#>,
+                            playerBackgroundColor: <#T##UIColor?#>,
+                            useThemeAsBackground: <#T##Bool?#>,
+                            useThemeColors: <#T##Bool?#>,
+                            correctBackgroundColor: <#T##UIColor?#>,
+                            incorrectBackgroundColor: <#T##UIColor?#>,
+                            questionBackgroundAlpha: <#T##CGFloat?#>,
+                            isEliminationDisabled: <#T##Bool?#>)
+
+```
+
 ## Play Games - With UI
 A schedule controller that will display game "cards" can be populated into any container view. These cards can be clicked on when the game is active and a logged in user exist.
 ```swift
 override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     if segue.identifier == "name_of_your_seque" {
         let connectContainerViewController = segue.destination as UIViewController
-        TheQKit.showCardsController(fromViewController: connectContainerViewController)
+        TheQKit.showCardsController(fromViewController: connectContainerViewController, gameOptions: options)
     }
 }
 ```
@@ -152,8 +177,8 @@ TheQKit.CheckForGames { (isActive, gamesArray) in
     //isActive : Bool ... are any games returned currently active
     //gamesArray : [TQKGame]? ... active and non active games
 }
-TheQKit.LaunchGame(theGame : TQKGame) //Checks if specified game is active and launches it
-TheQKit.LaunchActiveGame()            //checks for an active game and launches it if avaliable
+TheQKit.LaunchGame(theGame : TQKGame, gameOptions: options) //Checks if specified game is active and launches it
+TheQKit.LaunchActiveGame(gameOptions: options)            //checks for an active game and launches it if avaliable
 ```
 
 ## Update Username / email / phone
