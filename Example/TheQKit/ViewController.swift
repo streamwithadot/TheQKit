@@ -32,10 +32,13 @@ class ViewController: UIViewController {
         if segue.identifier == "cardTest" {
             let connectContainerViewController = segue.destination as UIViewController
             //            containerViewController = connectContainerViewController
-            TheQKit.showCardsController(fromViewController: connectContainerViewController,
-                                        logoOverride: UIImage(named: "test"),
+            
+            let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
                                         playerBackgroundColor: UIColor.clear,
                                         useThemeAsBackground: false)
+            
+            TheQKit.showCardsController(fromViewController: connectContainerViewController,
+                                        gameOptions: options)
         }
     }
     
@@ -45,35 +48,26 @@ class ViewController: UIViewController {
     }
     
     @IBAction func checkForGame(_ sender: Any) {
-        
-//        TheQKit.updateUser(email: "hello@yo.com", phoneNumber: "(555)555-5555")
-        
+     
         TheQKit.CheckForGames { (isActive, gamesArray) in
             //isActive : Bool
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-//                hud.label.text = "Active Games Found"
-//                hud.hide(animated: true, afterDelay: 2.0)
-                let x = UIImage(named: "test")
-                TheQKit.LaunchGame(theGame: gamesArray!.first!, colorCode: nil, logoOverride: x) { (success) in
+                let options = TQKGameOptions(logoOverride: UIImage(named: "test"))
+                TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                     //launched
                 }
             }else{
                 print("no active games")
-//                let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-//                hud.label.text = "No Active Games"
-//                hud.hide(animated: true, afterDelay: 2.0)
             }
         }
     }
     
     @IBAction func joinGame(_ sender: Any) {
-        let x = UIImage(named: "test")
-        
-        
-        TheQKit.LaunchActiveGame(logoOverride: x) {_ in
+        let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
+                                     isEliminationDisabled: true)
+        TheQKit.LaunchActiveGame(gameOptions: options) {_ in
             
         }
     }

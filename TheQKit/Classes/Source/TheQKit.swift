@@ -14,6 +14,8 @@ import Mixpanel
 /// TheQKit public functions
 public class TheQKit {
     
+    //MARK: Initilization
+    
     init() {}
     
     /// Easy reference to the class's bundle
@@ -69,6 +71,8 @@ public class TheQKit {
     public class func canRecordScreen() -> Bool{
         return TheQManager.sharedInstance.canRecordScreen
     }
+    
+    // MARK: Authentication
     
     /// Logs a user in using AccountKit, setting a user object into NSUserDefaults
     ///
@@ -126,6 +130,10 @@ public class TheQKit {
         TheQManager.sharedInstance.LogoutQUser()
     }
     
+    //MARK: Game Functions
+    
+    
+    
     /// Checks for scheduled games, returning a flag if any of them are currently active
     ///
     /// - Parameters:
@@ -140,49 +148,36 @@ public class TheQKit {
     ///
     /// - Parameters:
     ///     - theGame: TQKGame object
-    ///     - colorCode: *Optional* override the color theme of the game
-    ///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
-    ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
-    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
-    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+    ///     - gameOptions: TQKGameOptions object for custom UI elements
     public class func LaunchGame(theGame : TQKGame,
-                                 colorCode : String? = nil ,
-                                 useLongTimer : Bool? = false,
-                                 logoOverride: UIImage? = nil,
-                                 playerBackgroundColor: UIColor? = nil,
-                                 useThemeAsBackground: Bool? = false,
-                                 isEliminationDisabled: Bool? = false,
+                                 gameOptions : TQKGameOptions? = TQKGameOptions(),
                                  completed: @escaping (_ success : Bool) -> Void ){
         TheQManager.sharedInstance.LaunchGame(theGame: theGame,
-                                              colorCode: colorCode,
-                                              useLongTimer: useLongTimer,
-                                              logoOverride: logoOverride,
-                                              playerBackgroundColor: playerBackgroundColor,
-                                              useThemeAsBackground: useThemeAsBackground,
-                                              isEliminationDisabled: isEliminationDisabled,
+                                              gameOptions : gameOptions!,
                                               completed: completed)
     }
     
     /// Launches the most recent active game
     ///
     /// - Parameters:
-    ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
-    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
-    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
-    public class func LaunchActiveGame(logoOverride: UIImage? = nil,
-                                       playerBackgroundColor: UIColor? = nil,
-                                       useThemeAsBackground: Bool? = false,
-                                       isEliminationDisabled: Bool? = false,
+    ///     - gameOptions: TQKGameOptions object for custom UI elements
+    public class func LaunchActiveGame(gameOptions : TQKGameOptions? = TQKGameOptions(),
                                        completed: @escaping (_ success : Bool) -> Void) {
-        TheQManager.sharedInstance.LaunchActiveGame(colorCode: nil,
-                                                    logoOverride: logoOverride,
-                                                    playerBackgroundColor: playerBackgroundColor,
-                                                    useThemeAsBackground: useThemeAsBackground,
-                                                    isEliminationDisabled: isEliminationDisabled,
+        TheQManager.sharedInstance.LaunchActiveGame(gameOptions : gameOptions!,
                                                     completed: completed)
     }
+    
+    /// Checks for scheduled test games, returning a flag if any of them are currently active
+    ///
+    /// - Parameters:
+    ///     - completionHandler: callback with active game flag and array of scheduled test games
+    ///
+    /// - Returns: callback with active game flag and array of scheduled test games
+    public class func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
+        return TheQManager.sharedInstance.CheckForTestGames(completionHandler: completionHandler)
+    }
+    
+    //MARK: Cashout
     
     /// Prompts the user for an email and performs a cash out request
     ///
@@ -202,18 +197,15 @@ public class TheQKit {
         return TheQManager.sharedInstance.CashOutNoUI(email: email)
     }
     
+    //MARK: Default UI
+    
     /// Populates a given container view with the cards schedule controller, allowing a UI for up to 10 scheduled games
     ///
     /// - Parameters:
     ///     - viewController: container view where the cards controller will populate
-    ///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
-    ///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
-    ///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
-    ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+    ///     - gameOptions: TQKGameOptions object for custom UI elements
     public class func showCardsController(fromViewController viewController : UIViewController,
-                                          logoOverride: UIImage? = nil,
-                                          playerBackgroundColor: UIColor? = nil,
-                                          useThemeAsBackground: Bool? = false,
+                                          gameOptions : TQKGameOptions? = TQKGameOptions(),
                                           isEliminationDisabled: Bool? = false){
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
@@ -223,28 +215,15 @@ public class TheQKit {
         let vc = storyboard.instantiateViewController(withIdentifier: "TQKCardsViewController") as! TQKCardsViewController
         
         vc.view.bounds = CGRect(x: 0, y: 0, width: viewController.view.frame.width, height: viewController.view.frame.height)
+
+        vc.gameOptions = gameOptions
         
-        if(logoOverride != nil){
-            vc.logoOverride = logoOverride
-        }
-        
-        vc.playerBackgroundColor = playerBackgroundColor
-        vc.useThemeAsBackground = useThemeAsBackground!
-        vc.isEliminationDisabled = isEliminationDisabled!
         viewController.addChild(vc)
         viewController.view.addSubview(vc.view)
         vc.didMove(toParent: viewController)
     }
     
-    /// Checks for scheduled test games, returning a flag if any of them are currently active
-    ///
-    /// - Parameters:
-    ///     - completionHandler: callback with active game flag and array of scheduled test games
-    ///
-    /// - Returns: callback with active game flag and array of scheduled test games
-    public class func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
-        return TheQManager.sharedInstance.CheckForTestGames(completionHandler: completionHandler)
-    }
+    //MARK: User Management
     
     /// Returns the current logged in user, or nil
     ///
@@ -285,6 +264,8 @@ public class TheQKit {
     public class func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void){
         TheQManager.sharedInstance.updateUser(email: email, phoneNumber: phoneNumber, completionHandler: completionHandler)
     }
+    
+    //MARK: Helper Functions
     
     class func hexStringToUIColor (hex:String) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()

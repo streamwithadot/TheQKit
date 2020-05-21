@@ -430,12 +430,7 @@ class TheQManager {
     }
     
     func LaunchGame(theGame : TQKGame,
-                    colorCode : String?,
-                    useLongTimer : Bool? = false,
-                    logoOverride: UIImage?,
-                    playerBackgroundColor: UIColor? = nil,
-                    useThemeAsBackground: Bool? = false,
-                    isEliminationDisabled: Bool? = false,
+                    gameOptions: TQKGameOptions,
                     completed: @escaping (_ success : Bool) -> Void ) {
         
         if(theGame.active == false){
@@ -454,7 +449,7 @@ class TheQManager {
                     //refresh test game
                     self.CheckForTestGames { (sucess, games) in
                         if let game = games?.first(where: {$0.id == theGame.id}) {
-                            TheQManager.sharedInstance.LaunchGame(theGame: game, colorCode: colorCode, useLongTimer: useLongTimer, logoOverride: logoOverride,completed: completed)
+                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
                         }else{
                             print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
                         }
@@ -463,7 +458,7 @@ class TheQManager {
                     //refresh normal
                     self.CheckForGames { (success, games) in
                         if let game = games?.first(where: {$0.id == theGame.id}) {
-                            TheQManager.sharedInstance.LaunchGame(theGame: game, colorCode: colorCode, useLongTimer: useLongTimer, logoOverride: logoOverride,completed: completed)
+                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
                         }else{
                             print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
                         }
@@ -486,20 +481,9 @@ class TheQManager {
         vc.reward = "\(theGame.reward)"
         vc.lastQuestionHeartEligible = theGame.lastQuestionHeartEligible!
         vc.heartsEnabled = theGame.heartsEnabled
-        vc.useLongTimer = useLongTimer!
         vc.theGame = theGame
         vc.completed = completed
-        vc.playerBackgroundColor = playerBackgroundColor
-        vc.useThemeAsBackground = useThemeAsBackground!
-        vc.isEliminationDisabled = isEliminationDisabled!
-        
-        if(logoOverride != nil){
-            vc.logo = logoOverride
-        }
-        
-        if(colorCode != nil){
-            vc.colorOverride = colorCode
-        }
+        vc.gameOptions = gameOptions
         
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
@@ -517,11 +501,7 @@ class TheQManager {
     }
     
     
-    func LaunchActiveGame(colorCode : String?,
-                          logoOverride: UIImage?,
-                          playerBackgroundColor: UIColor? = nil,
-                          useThemeAsBackground: Bool? = false,
-                          isEliminationDisabled: Bool? = false,
+    func LaunchActiveGame(gameOptions: TQKGameOptions,
                           completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
             
@@ -565,11 +545,7 @@ class TheQManager {
                                 if (json["games"][0]["active"] == true) {
                                     if let game = TQKGame(JSON: json["games"][0].dictionaryObject!) {
                                         self.LaunchGame(theGame: game,
-                                                        colorCode: colorCode,
-                                                        logoOverride: logoOverride,
-                                                        playerBackgroundColor: playerBackgroundColor,
-                                                        useThemeAsBackground: useThemeAsBackground,
-                                                        isEliminationDisabled: isEliminationDisabled,
+                                                        gameOptions: gameOptions,
                                                         completed: completed)
                                     }
                                 }

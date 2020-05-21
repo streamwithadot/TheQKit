@@ -60,6 +60,53 @@ public enum TQKWinCondition : String {
     case ELIMINATION = "ELIMINATION"
 }
 
+/// Optional object to configure in game UI
+///
+/// - Parameters:
+///     - logoOverride: *Optional* Image to override the default logo (found in upper right)
+///     - colorCode: *Optional* override the color theme of the game
+///     - useLongTimer: *Optional* temporary workaround to use a 15 second countdown timer
+///     - logoOverride: *Optional* the logo in the upper right of the game, will override the default or the network badge from a game theme if avaliable
+///     - playerBackgroundColor: *Optinal* sets the backgroundcolor of the player, default to clear
+///     - useThemeAsBackground: *Optional* tells the player to use the theme image as a background. Note: leave playerBackgroundColor as clear to see this
+///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+public struct TQKGameOptions {
+   
+    var logoOverride: UIImage? = nil
+    var colorCode : String? = nil
+    var useLongTimer : Bool = false
+    var playerBackgroundColor : UIColor? = UIColor.clear
+    var useThemeAsBackground : Bool = false
+    var useThemeColors : Bool = false
+    var correctBackgroundColor : UIColor = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8)
+    var incorrectBackgroundColor : UIColor = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8)
+    var questionBackgroundAlpha : CGFloat = 0.8
+    var isEliminationDisabled : Bool = false
+    
+    public init(logoOverride : UIImage? = nil,
+                colorCode: String? = nil,
+                useLongTimer: Bool? = false,
+                playerBackgroundColor: UIColor? = UIColor.clear,
+                useThemeAsBackground: Bool? = false,
+                useThemeColors: Bool? = false,
+                correctBackgroundColor: UIColor? = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8),
+                incorrectBackgroundColor: UIColor? = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8),
+                questionBackgroundAlpha: CGFloat? = 0.8,
+                isEliminationDisabled: Bool? = false) {
+        
+               self.logoOverride = logoOverride
+               self.colorCode = colorCode
+               self.useLongTimer = useLongTimer!
+               self.playerBackgroundColor = playerBackgroundColor!
+               self.useThemeAsBackground = useThemeAsBackground!
+               self.useThemeColors = useThemeColors!
+               self.correctBackgroundColor = correctBackgroundColor!
+               self.incorrectBackgroundColor = incorrectBackgroundColor!
+               self.questionBackgroundAlpha = questionBackgroundAlpha!
+               self.isEliminationDisabled = isEliminationDisabled!
+           }
+}
+
 public struct TQKGame : Mappable {
     
     /*

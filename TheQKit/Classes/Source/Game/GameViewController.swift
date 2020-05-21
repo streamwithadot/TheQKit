@@ -199,10 +199,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @IBOutlet weak var eliminationHeaderView: UIView!
     
     var theGame : TQKGame?
+    var gameOptions : TQKGameOptions?
     var logo : UIImage?
     var didPurchaseSubscriptionFromApple : Bool = false
     var playerBackgroundColor : UIColor?
     var useThemeAsBackground : Bool = false
+    var useThemeColors : Bool = false
+    var correctBackgroundColor : UIColor?
+    var incorrectBackgroundColor : UIColor?
+    var questionBackgroundAlpha : CGFloat = 0.8
     var isEliminationDisabled : Bool = false
     var start : CFTimeInterval?
     var version : String?
@@ -249,6 +254,18 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 }
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
+            name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
+            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+         
+         NotificationCenter.default.addObserver(self, selector: #selector(itemFailedToPlayToEnd),
+         name: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: nil)
+            
+         NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
+            name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: self.avPlayer.currentItem)
         
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
@@ -460,6 +477,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @objc func callDisconnected(){
 //        self.player.playbackVolume = 1.0
         self.isCallConnected = false
+//        self.stopStreamAndReset()
     }
     
     @objc func checkIFScreenIsCapture(notification:Notification){
@@ -864,7 +882,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         self.ssQuestionViewController?.view.alpha = 1.0
         self.ssQuestionViewController?.gameDelegate = self
         self.ssQuestionViewController?.question = self.currentQuestion
-       
+        self.ssQuestionViewController?.gameOptions = gameOptions!
+        self.ssQuestionViewController?.theGame = theGame!
+        
         self.addChild(self.ssQuestionViewController!)
         self.view.insertSubview(self.ssQuestionViewController!.view, aboveSubview: self.previewView)
         self.ssQuestionViewController?.didMove(toParent: self)
@@ -883,6 +903,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         self.fullScreenTriviaViewController?.view.alpha = 1.0
         self.fullScreenTriviaViewController?.gameDelegate = self
         self.fullScreenTriviaViewController?.type = type
+        self.fullScreenTriviaViewController?.gameOptions = gameOptions!
+        self.fullScreenTriviaViewController?.theGame = theGame!
+        
         switch type {
         case .Correct:
             self.fullScreenTriviaViewController?.result = self.currentResult
@@ -1315,8 +1338,30 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
     }
     
+    fileprivate func setupGameOptions(){
+        self.useLongTimer = self.gameOptions!.useLongTimer
+        self.playerBackgroundColor = self.gameOptions!.playerBackgroundColor
+        self.useThemeAsBackground = self.gameOptions!.useThemeAsBackground
+        self.useThemeColors = self.gameOptions!.useThemeColors
+        self.isEliminationDisabled = self.gameOptions!.isEliminationDisabled
+        
+        self.useThemeColors = self.gameOptions!.useThemeColors
+        self.correctBackgroundColor = self.gameOptions!.correctBackgroundColor
+        self.incorrectBackgroundColor = self.gameOptions!.incorrectBackgroundColor
+        self.questionBackgroundAlpha = self.gameOptions!.questionBackgroundAlpha
+        
+        if let lo = self.gameOptions!.logoOverride {
+            self.logo = lo
+        }
+        
+        if let cc = self.gameOptions!.colorCode {
+            self.colorOverride = cc
+        }
+    }
     
     fileprivate func setupUI() {
+        
+        setupGameOptions()
         
         if(self.theGame?.winCondition == TQKWinCondition.POINTS){
             //show the points header instead of old header
@@ -1354,6 +1399,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         currentQuestionNumberLabel.layer.cornerRadius = currentQuestionNumberLabel.frame.size.height / 2
         currentQuestionNumberLabel.clipsToBounds = true
         currentQuestionNumberLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        if(self.gameOptions!.useThemeColors){
+            currentQuestionNumberLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.textColorCode)
+        }
         
         eliminatedLabel.layer.cornerRadius = eliminatedLabel.frame.size.height / 2
         eliminatedLabel.clipsToBounds = true
@@ -1435,15 +1483,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
        }
    }
        
-//   @objc func reconnectTimerCheck() {
-//        print("reconnect timer check")
+   @objc func reconnectTimerCheck() {
+        print("reconnect timer check")
 //        if(self.avPlayer.rate < 1.0){
 //           print("rate dropped less than 1.0")
 //           self.reconnectTimer.invalidate()
 //           self.reconnectTimer = nil
 //           self.stopStreamAndReset()
 //        }
-//   }
+   }
     
     
     func initializePlayer(url: String) {
@@ -1479,26 +1527,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         // Associate the player item with the player
         self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
-           name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
-
-       NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
-           name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(itemFailedToPlayToEnd),
-        name: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: nil)
-           
-        NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
-           name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: self.avPlayer.currentItem)
-        
-//        NotificationCenter.default.addObserver(self, selector: #selector(newAccessLogEntry(_:)),
-//        name: NSNotification.Name.AVPlayerItemNewAccessLogEntry, object: self.avPlayer.currentItem)
-               
-        
-        
-//        avPlayer.addObserver(self, forKeyPath: #keyPath(AVPlayer.status), options: [.old, .new], context: &playerContext)
-        
         
         self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
         self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
@@ -1534,13 +1562,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.previewView.addSubview(self.customBackgroundImageView!)
             self.previewView.sendSubviewToBack(self.customBackgroundImageView!)
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
+        }else if(self.playerBackgroundColor != nil){
+            self.view.backgroundColor = self.playerBackgroundColor
         }
         
-//        if(self.reconnectTimer != nil){
-//            self.reconnectTimer.invalidate()
-//            self.reconnectTimer = nil
-//        }
-//        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+        if(self.reconnectTimer != nil){
+            self.reconnectTimer.invalidate()
+            self.reconnectTimer = nil
+        }
+        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
 
     }
     
@@ -1565,11 +1595,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         print("resetting the stream")
         if(!self.theGame!.videoDisabled){
             if self.theGame?.hlsUrl != nil {
-                
-                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
-                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: nil)
-                
                 self.initializePlayer(url: (self.theGame?.hlsUrl)!)
             }
         }

@@ -40,6 +40,8 @@ class FullScreenTriviaViewController: UIViewController {
     var question : TQKQuestion?
     var result : TQKResult?
     var type : FullScreenType?
+    var gameOptions : TQKGameOptions?
+    var theGame : TQKGame?
     
     var useLongTimer : Bool = false
     var didLayout : Bool = false
@@ -123,12 +125,22 @@ class FullScreenTriviaViewController: UIViewController {
                 }
                 
                 
-                if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                    tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+                let alpha = self.gameOptions!.questionBackgroundAlpha
+                if let cc = self.gameOptions?.colorCode {
+                    tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+                }else if(self.gameOptions?.useThemeColors == true){
+                    if let dcc = theGame?.theme.defaultColorCode{
+                        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+                    }else{
+                        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                    }
                 }else{
-                    tintedView.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+                    if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
+                        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                    }else{
+                        tintedView.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(alpha)
+                    }
                 }
-
                 
             }else{
                 
@@ -147,15 +159,12 @@ class FullScreenTriviaViewController: UIViewController {
                     self.questionLabel.font = UIFont.systemFont(ofSize: 32, weight: .medium)
                     
                     if(type == .Correct){
-                       lottieName = "correct_PC"
-                       tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#32C274").withAlphaComponent(0.8)
-
+                        lottieName = "correct_PC"
+                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor
                     }else{
-                       lottieName = "incorrect_PC"
-                       tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#E63462").withAlphaComponent(0.8)
+                        lottieName = "incorrect_PC"
+                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor
                     }
-                   
-                    
                     self.perform(#selector(animateOut), with: self, afterDelay: 5.6)
                 
                 }else{
@@ -163,15 +172,14 @@ class FullScreenTriviaViewController: UIViewController {
                     self.timesUpLabel.removeConstraint(self.timesUpLabelWidth)
                     if(type == .Correct){
                         lottieName = "correct"
-                        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#32C274").withAlphaComponent(0.8)
+                        tintedView.backgroundColor = self.gameOptions?.correctBackgroundColor
 
                      }else if(type == .Incorrect){
                         lottieName = "incorrect"
-                        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#E63462").withAlphaComponent(0.8)
+                        tintedView.backgroundColor = self.gameOptions?.incorrectBackgroundColor
                      }
                     
                     self.perform(#selector(animateOut), with: self, afterDelay: 4.6)
-
                 }
                 if(self.result?.pointValue != nil){
                     //add a points label instead of a lottie animation
@@ -228,6 +236,10 @@ class FullScreenTriviaViewController: UIViewController {
         
         questionLabelWidth.constant = 0.0
         questionLabel.text = self.question?.question!
+        
+        if(self.gameOptions!.useThemeColors){
+            questionLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.textColorCode)
+        }
         
         self.view.layoutIfNeeded()
         
@@ -615,10 +627,21 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
             self.view.makeToast(NSLocalizedString("Time has expired :(",comment: ""), duration: 2.0, position: .bottom)
         }else{
             
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+            let alpha = self.gameOptions!.questionBackgroundAlpha
+            if let cc = self.gameOptions?.colorCode {
+                cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+            }else if(self.gameOptions?.useThemeColors == true){
+                if let dcc = theGame?.theme.defaultColorCode{
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+                }else{
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                }
             }else{
-                cell.questionLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+                if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+                }else{
+                    cell.questionLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(alpha)
+                }
             }
             
             cell.progressView.progressImage = self.selectedQuestionImage
@@ -731,6 +754,9 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                 }
                     
                 cell.questionLabel.text = "\(item!.choice!)"
+                if(self.gameOptions!.useThemeColors){
+                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.textColorCode)
+                }
                 cell.progressView.progressImage = self.selectedQuestionImage
             }else if (type == .Correct && self.result?.selection != nil){
                 
@@ -744,8 +770,8 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                     cell.progressView.progressImage = self.selectedImage
                     cell.progressView.layer.borderColor = self.neutralBorderColor
                     
-                    cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: "#32C274")
-                    cell.answerCountLabel.textColor = TheQKit.hexStringToUIColor(hex: "#32C274")
+                    cell.questionLabel.textColor = self.gameOptions?.correctBackgroundColor
+                    cell.answerCountLabel.textColor = self.gameOptions?.correctBackgroundColor
                     
                     cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
                     cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
@@ -771,8 +797,8 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                             cell.progressView.progressImage = self.selectedImage
                             cell.progressView.layer.borderColor = self.neutralBorderColor
                             
-                            cell.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: "#E63462")
-                            cell.answerCountLabel.textColor = TheQKit.hexStringToUIColor(hex: "#E63462")
+                            cell.questionLabel.textColor = self.gameOptions?.incorrectBackgroundColor
+                            cell.answerCountLabel.textColor = self.gameOptions?.incorrectBackgroundColor
                             
                             cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
                             cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)

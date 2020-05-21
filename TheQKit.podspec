@@ -59,9 +59,6 @@ TODO: Add long description of the pod here.
   s.dependency 'SwiftyAttributes', '~> 5.1.1'
   s.dependency 'Kingfisher', '~> 5.13.2'
   s.dependency 'Mixpanel-swift', '~> 2.7.0'
-#  s.dependency 'ijkplayer', '1.1.2'
-#  s.dependency 'IKEventSource', '~>3.0.1'
   s.dependency 'Mux-Stats-AVPlayer', '~>1.3.6'
 
-  
 end

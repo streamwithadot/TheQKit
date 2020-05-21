@@ -29,7 +29,8 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
     
     var gameDelegate : GameDelegate?
     var question : TQKQuestion?
-    
+    var gameOptions : TQKGameOptions?
+    var theGame : TQKGame?
     
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
     
@@ -231,12 +232,24 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(SSQuestionViewController.keyboardWillHideNotification(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
 
         
-        
-        tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: popularChoiceDefaultColorString).withAlphaComponent(0.8)
+        let alpha = self.gameOptions!.questionBackgroundAlpha
+        if let cc = self.gameOptions?.colorCode {
+            tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+        }else if(self.gameOptions?.useThemeColors == true){
+            if let dcc = theGame?.theme.defaultColorCode{
+                tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+            }else{
+                tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(alpha)
+            }
+        }else{
+            tintedView.backgroundColor = TheQKit.hexStringToUIColor(hex: popularChoiceDefaultColorString).withAlphaComponent(0.8)
+        }
 
-        
-            self.questionLabel.text = self.question?.question!
-            self.view.layoutIfNeeded()
+        self.questionLabel.text = self.question?.question!
+        if(self.gameOptions!.useThemeColors){
+            self.questionLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.textColorCode)
+        }
+        self.view.layoutIfNeeded()
 
         DispatchQueue.main.async {
             self.answerTextField.becomeFirstResponder()
