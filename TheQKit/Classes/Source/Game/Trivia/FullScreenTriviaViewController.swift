@@ -268,11 +268,21 @@ class FullScreenTriviaViewController: UIViewController {
                 }
                 
             }
-
-            if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
-                self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+            
+            if let cc = self.gameOptions?.colorCode {
+                self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: cc)
+            }else if(self.gameOptions?.useThemeColors == true){
+                if let dcc = theGame?.theme.defaultColorCode{
+                    self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: dcc)
+                }else{
+                    self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
+                }
             }else{
-                self.timesUpLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!).withAlphaComponent(0.8)
+                if(self.question?.categoryId == nil || (self.question?.categoryId.isEmpty)!){
+                    self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
+                }else{
+                    self.timesUpLabel.textColor = self.gameDelegate?.getColorForID(catId: (self.question?.categoryId)!)
+                }
             }
             
             if(self.question!.isMultipleChoice){
@@ -304,7 +314,7 @@ class FullScreenTriviaViewController: UIViewController {
                     }else{
                         self.timesUpLabel.text = NSLocalizedString("  Correct!  ", comment: "")
                     }
-                    self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: "#32C274")
+                    self.timesUpLabel.textColor = self.gameOptions?.correctBackgroundColor
                     self.timesUpLabel.backgroundColor = UIColor.white
 
                 }else if(self.type == .Incorrect){
@@ -313,7 +323,7 @@ class FullScreenTriviaViewController: UIViewController {
                     }else{
                         self.timesUpLabel.text = NSLocalizedString("  Wrong Answer!  ", comment: "")
                     }
-                    self.timesUpLabel.textColor = TheQKit.hexStringToUIColor(hex: "#E63462")
+                    self.timesUpLabel.textColor = self.gameOptions?.incorrectBackgroundColor
                     self.timesUpLabel.backgroundColor = UIColor.white
                 }
                 
@@ -463,14 +473,28 @@ class FullScreenTriviaViewController: UIViewController {
             let correctLabel = UILabel(frame: CGRect(x: frame.width, y: frame.origin.y, width: 30, height: 30))
             correctLabel.text = "+1"
             correctLabel.textAlignment = .center
-            correctLabel.textColor = UIColor.white
             
-
-            if(self.result?.categoryId == nil || (self.result?.categoryId!.isEmpty)!){
-                correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE).withAlphaComponent(0.8)
+            if let cc = self.gameOptions?.colorCode {
+                correctLabel.textColor = UIColor.white
+                correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: cc).withAlphaComponent(alpha)
+            }else if(self.gameOptions?.useThemeColors == true){
+                correctLabel.textColor = theGame?.theme.textColorCode
+                if let dcc = theGame?.theme.defaultColorCode{
+                    correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: dcc).withAlphaComponent(alpha)
+                }else{
+                    correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
+                }
             }else{
-                correctLabel.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.result?.categoryId)!).withAlphaComponent(0.8)
+                correctLabel.textColor = UIColor.white
+                if(self.result?.categoryId == nil || (self.result?.categoryId!.isEmpty)!){
+                    correctLabel.backgroundColor = TheQKit.hexStringToUIColor(hex: TQKConstants.GEN_COLOR_CODE)
+                }else{
+                    correctLabel.backgroundColor = self.gameDelegate?.getColorForID(catId: (self.result?.categoryId)!)
+                }
             }
+            
+            
+            
             
             correctLabel.layer.cornerRadius = 15
             correctLabel.clipsToBounds = true

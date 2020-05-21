@@ -1401,6 +1401,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         currentQuestionNumberLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
         if(self.gameOptions!.useThemeColors){
             currentQuestionNumberLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.textColorCode)
+            eliminatedLabel.textColor = TheQKit.hexStringToUIColor(hex: self.theGame!.theme.defaultColorCode)
         }
         
         eliminatedLabel.layer.cornerRadius = eliminatedLabel.frame.size.height / 2

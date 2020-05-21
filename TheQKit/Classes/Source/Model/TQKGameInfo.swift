@@ -75,16 +75,16 @@ public enum TQKWinCondition : String {
 ///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
 public struct TQKGameOptions {
    
-    var logoOverride: UIImage? = nil
-    var colorCode : String? = nil
-    var useLongTimer : Bool = false
-    var playerBackgroundColor : UIColor? = UIColor.clear
-    var useThemeAsBackground : Bool = false
-    var useThemeColors : Bool = false
-    var correctBackgroundColor : UIColor = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8)
-    var incorrectBackgroundColor : UIColor = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8)
-    var questionBackgroundAlpha : CGFloat = 0.8
-    var isEliminationDisabled : Bool = false
+    public var logoOverride: UIImage? = nil
+    public var colorCode : String? = nil
+    public var useLongTimer : Bool = false
+    public var playerBackgroundColor : UIColor? = UIColor.clear
+    public var useThemeAsBackground : Bool = false
+    public var useThemeColors : Bool = false
+    public var correctBackgroundColor : UIColor = UIColor.init(red: 50, green: 194, blue: 116, alpha: 0.8)
+    public var incorrectBackgroundColor : UIColor = UIColor.init(red: 230, green: 52, blue: 98, alpha: 0.8)
+    public var questionBackgroundAlpha : CGFloat = 0.8
+    public var isEliminationDisabled : Bool = false
     
     public init(logoOverride : UIImage? = nil,
                 colorCode: String? = nil,
