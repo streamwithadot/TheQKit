@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '1.1.3'
+  s.version          = '1.1.4'
   s.summary          = 'TheQKit SDK allows your own app to run game from The Q Trivia Network'
   
   s.swift_version = '4.2'
@@ -59,6 +59,6 @@ TODO: Add long description of the pod here.
   s.dependency 'SwiftyAttributes', '~> 5.1.1'
   s.dependency 'Kingfisher', '~> 5.13.2'
   s.dependency 'Mixpanel-swift', '~> 2.7.0'
-  s.dependency 'Mux-Stats-AVPlayer', '~>1.3.6'
+#  s.dependency 'Mux-Stats-AVPlayer', '~>1.3.6'
 
 end

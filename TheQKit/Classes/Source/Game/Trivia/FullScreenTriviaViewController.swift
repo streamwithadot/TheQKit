@@ -30,6 +30,9 @@ class FullScreenTriviaViewController: UIViewController {
     let neutralBorderColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").cgColor
     let incorrectBorderColor = TheQKit.hexStringToUIColor(hex: "#E93060").cgColor
     
+    let qCorrectSelected = UIImageView(image: UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+    let qIncorrectSelected = UIImageView(image: UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+    
     let correctImage: UIImage = UIImage(named: "bar_correct", in: TheQKit.bundle, compatibleWith: nil)!
     let incorrectImage: UIImage = UIImage(named: "bar_eliminated", in: TheQKit.bundle, compatibleWith: nil)!
     let neutralImage: UIImage = UIImage(named: "bar_light", in: TheQKit.bundle, compatibleWith: nil)!
@@ -81,6 +84,7 @@ class FullScreenTriviaViewController: UIViewController {
         timesUpLabel.alpha = 0.0
         triviaTable.alpha = 0.0
         self.questionLabel.alpha = 0.0
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -231,6 +235,15 @@ class FullScreenTriviaViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         
         super.viewDidAppear(animated)
+        
+        if #available(iOS 13.0, *) {
+            qCorrectSelected.image = qCorrectSelected.image?.withTintColor(self.gameOptions!.correctBackgroundColor)
+            qIncorrectSelected.image = qIncorrectSelected.image?.withTintColor(self.gameOptions!.incorrectBackgroundColor)
+        } else {
+            // Fallback on earlier versions
+        }
+//        qCorrectSelected.setImageColor(color: self.gameOptions!.correctBackgroundColor)
+//        qIncorrectSelected.setImageColor(color: self.gameOptions!.incorrectBackgroundColor)
         
         if(self.type == .Question){
             NotificationCenter.default.post(name: .playQuestionAudio, object: nil)
@@ -416,9 +429,7 @@ class FullScreenTriviaViewController: UIViewController {
                             cell.progressView.layer.borderColor = self.neutralBorderColor
                             cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
                             
-                            let imageView = UIImageView(image: UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
-                            imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
-                            cell.selectedImageView.image = imageView.image
+                            cell.selectedImageView.image = qCorrectSelected.image
                         }else{
                             cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                         }
@@ -439,9 +450,7 @@ class FullScreenTriviaViewController: UIViewController {
                                     cell.progressView.layer.borderColor = self.neutralBorderColor
                                     cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
                                     
-                                    let imageView = UIImageView(image: UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
-                                    imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
-                                    cell.selectedImageView.image = imageView.image
+                                    cell.selectedImageView.image = qIncorrectSelected.image
                                 }
                             }
                         }
@@ -797,9 +806,7 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                     
                     cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
 
-                    let imageView = UIImageView(image: UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
-                    imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
-                    cell.selectedImageView.image = imageView.image
+                    cell.selectedImageView.image = qCorrectSelected.image
                 }else{
                     cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                 }
@@ -827,9 +834,7 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                             
                             cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
                             
-                            let imageView = UIImageView(image: UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
-                            imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
-                            cell.selectedImageView.image = imageView.image
+                            cell.selectedImageView.image = qIncorrectSelected.image
                         }
                     }
                 }

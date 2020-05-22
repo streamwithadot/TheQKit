@@ -211,6 +211,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var isEliminationDisabled : Bool = false
     var start : CFTimeInterval?
     var version : String?
+    var lastKnownDuration : CMTime?
     
     var customBackgroundImageView : UIImageView?
 
@@ -477,7 +478,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @objc func callDisconnected(){
 //        self.player.playbackVolume = 1.0
         self.isCallConnected = false
-//        self.stopStreamAndReset()
+        self.stopStreamAndReset()
     }
     
     @objc func checkIFScreenIsCapture(notification:Notification){
@@ -1485,13 +1486,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
    }
        
    @objc func reconnectTimerCheck() {
-        print("reconnect timer check")
-//        if(self.avPlayer.rate < 1.0){
-//           print("rate dropped less than 1.0")
-//           self.reconnectTimer.invalidate()
-//           self.reconnectTimer = nil
-//           self.stopStreamAndReset()
-//        }
+    
+        if let currentDuration = self.avPlayer.currentItem?.duration {
+            if let _ = lastKnownDuration{
+                if currentDuration == lastKnownDuration {
+                    //we aren't moving!
+                    self.reconnectTimer.invalidate()
+                    self.reconnectTimer = nil
+                    self.stopStreamAndReset()
+                }
+            }
+            lastKnownDuration = currentDuration
+        }
+    
    }
     
     
@@ -1571,7 +1578,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.reconnectTimer.invalidate()
             self.reconnectTimer = nil
         }
-        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
 
     }
     
