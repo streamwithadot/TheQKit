@@ -415,7 +415,10 @@ class FullScreenTriviaViewController: UIViewController {
                             cell.progressView.progressImage = self.selectedImage
                             cell.progressView.layer.borderColor = self.neutralBorderColor
                             cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
-                            cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                            
+                            let imageView = UIImageView(image: UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+                            imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
+                            cell.selectedImageView.image = imageView.image
                         }else{
                             cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                         }
@@ -435,7 +438,10 @@ class FullScreenTriviaViewController: UIViewController {
                                     cell.progressView.progressImage = self.selectedImage
                                     cell.progressView.layer.borderColor = self.neutralBorderColor
                                     cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
-                                    cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                                    
+                                    let imageView = UIImageView(image: UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+                                    imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
+                                    cell.selectedImageView.image = imageView.image
                                 }
                             }
                         }
@@ -790,7 +796,10 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                     cell.answerCountLabel.textColor = self.gameOptions?.correctBackgroundColor
                     
                     cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
-                    cell.selectedImageView.image = UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+
+                    let imageView = UIImageView(image: UIImage(named: "qCorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+                    imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
+                    cell.selectedImageView.image = imageView.image
                 }else{
                     cell.selectedImageView.image = UIImage(named: "qIncorrectUnselected.png", in: TheQKit.bundle, compatibleWith: nil)
                 }
@@ -817,7 +826,10 @@ extension FullScreenTriviaViewController : UITableViewDataSource {
                             cell.answerCountLabel.textColor = self.gameOptions?.incorrectBackgroundColor
                             
                             cell.progressView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#FFFFFF").withAlphaComponent(0.70)
-                            cell.selectedImageView.image = UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil)
+                            
+                            let imageView = UIImageView(image: UIImage(named: "qIncorrectSelected.png", in: TheQKit.bundle, compatibleWith: nil))
+                            imageView.setImageColor(color: self.gameOptions!.correctBackgroundColor)
+                            cell.selectedImageView.image = imageView.image
                         }
                     }
                 }
@@ -898,4 +910,12 @@ extension Double {
         formatter.maximumFractionDigits = 0 //maximum digits in Double after dot (maximum precision)
         return String(formatter.string(from: number) ?? "")
     }
+}
+
+extension UIImageView {
+  func setImageColor(color: UIColor) {
+    let templateImage = self.image?.withRenderingMode(.alwaysTemplate)
+    self.image = templateImage
+    self.tintColor = color
+  }
 }
