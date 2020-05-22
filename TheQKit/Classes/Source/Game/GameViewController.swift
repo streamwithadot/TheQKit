@@ -1487,17 +1487,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
        
    @objc func reconnectTimerCheck() {
     
-        if let currentDuration = self.avPlayer.currentItem?.duration {
-            if let _ = lastKnownDuration{
-                if currentDuration == lastKnownDuration {
-                    //we aren't moving!
-                    self.reconnectTimer.invalidate()
-                    self.reconnectTimer = nil
-                    self.stopStreamAndReset()
-                }
+        let currentDuration = self.avPlayer.currentTime()
+        if let _ = lastKnownDuration{
+            if currentDuration.seconds == lastKnownDuration?.seconds {
+                //we aren't moving!
+                lastKnownDuration = nil
+                self.reconnectTimer.invalidate()
+                self.reconnectTimer = nil
+                self.stopStreamAndReset()
+                return
             }
-            lastKnownDuration = currentDuration
         }
+        lastKnownDuration = currentDuration
+        
     
    }
     
