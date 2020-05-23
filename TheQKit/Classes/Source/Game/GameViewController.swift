@@ -1491,6 +1491,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if let _ = lastKnownDuration{
             if currentDuration.seconds == lastKnownDuration?.seconds {
                 //we aren't moving!
+                print("*** Player hasn't moved ***")
                 lastKnownDuration = nil
                 self.reconnectTimer.invalidate()
                 self.reconnectTimer = nil
@@ -1573,7 +1574,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.previewView.sendSubviewToBack(self.customBackgroundImageView!)
             self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
         }else if(self.playerBackgroundColor != nil){
-            self.view.backgroundColor = self.playerBackgroundColor
+            self.previewView.backgroundColor = self.playerBackgroundColor
         }
         
         if(self.reconnectTimer != nil){
