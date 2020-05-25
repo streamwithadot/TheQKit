@@ -29,23 +29,6 @@ or if adding from a local source
 pod 'TheQKit', :path => '<path to directory with the .podspec>'
 ```
 
-Additionally in the podfile a few additions should be added to remove bitcode and enforce the most current architecture (both of these requirments are hopefully only temporary to this early version of the SDK)
-
-```ruby
-pre_install do |installer|
-    Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
-end
-
-post_install do |installer|
-    installer.pods_project.targets.each do |target|
-        target.build_configurations.each do |config|
-            config.build_settings['ENABLE_BITCODE'] = 'NO'
-            config.build_settings['ARCHS'] = '$(ARCHS_STANDARD_64_BIT)'
-        end
-    end
-end
-```
-
 # Getting Started
 
 ## Initialize

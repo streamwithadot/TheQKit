@@ -9,7 +9,6 @@
 import UIKit
 import AVFoundation
 import VideoToolbox
-import MUXSDKStats
 
 //import IJKMediaFramework
 
