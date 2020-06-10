@@ -50,7 +50,6 @@ class GameStatsViewController: UIViewController {
         
         
         if(totalQuestionNum != 0){
-            
             self.currentQuestionLabel.text = String(format: NSLocalizedString("Question %@ / %@", comment: ""), "\(currentQuestionNum)","\(totalQuestionNum)")
         }else{
             self.currentQuestionLabel.text = String(format: NSLocalizedString("Question %@", comment: ""), "\(currentQuestionNum)")
@@ -160,15 +159,17 @@ extension GameStatsViewController : UITableViewDataSource {
         
         if let item = gameStats?.leaderBoardList![indexPath.row] {
             
-            if let item2 = gameStats?.leaderBoardList![indexPath.row - 1]{
-                if(item.score == item2.score){
-                    let cell2 = tableView.cellForRow(at: IndexPath(row: indexPath.row - 1, section: 0)) as! GameStatCell
-                    cell.rankLabel.text = cell2.rankLabel.text
+            if (indexPath.row - 1 >= 0) {
+                if let item2 = gameStats?.leaderBoardList![indexPath.row - 1]{
+                    if(item.score == item2.score){
+                        let cell2 = tableView.cellForRow(at: IndexPath(row: indexPath.row - 1, section: 0)) as! GameStatCell
+                        cell.rankLabel.text = cell2.rankLabel.text
+                    }else{
+                        cell.rankLabel.text = "  \(indexPath.row + 1)  "
+                    }
                 }else{
                     cell.rankLabel.text = "  \(indexPath.row + 1)  "
                 }
-            }else{
-                cell.rankLabel.text = "  \(indexPath.row + 1)  "
             }
             
             cell.usernameLabel.text = "\(item.username ?? "")"
