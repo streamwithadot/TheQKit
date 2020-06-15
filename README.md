@@ -201,6 +201,29 @@ Or pass an email to this method to bypass the default dialogue
 TheQKit.CashOutNoUI(email: String)
 ```
 
+## Leaderboards
+
+```swift
+//This function retrieves scores for each category for the signed in user
+TheQKit.getCurrentUserScores { (success, scores) in
+    //success
+    //scores: user scores object
+}
+
+//This function retrieves the current leaderboard, seperated into season info and category/scores
+TheQKit.getCurrentLeaderboard { (success, lb) in
+    //success
+    //lb: leaderboard object containing season and category info
+}
+
+//Combination function that will return either
+TheQKit.getCurrentLeaderboardAndUserScores { (success, lb, scores) in
+    //success
+    //lb: leaderboard object containing season and category info
+    //scores: user scores object
+}
+```
+
 ## Observable Keys 
 
 Events that happen during the game; add an observer to add custom event tracking. Add the extension in for easy use or use the string literal. Each event return a [String:Any] dictionry of metadata relevant to the event

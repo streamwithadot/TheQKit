@@ -130,10 +130,22 @@ public class TheQKit {
         TheQManager.sharedInstance.LogoutQUser()
     }
     
+    //MARK: Leaderboards
+
+    public class func getCurrentLeaderboard(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?) -> Void) {
+        return TheQManager.sharedInstance.getCurrentLeaderboard(completionHandler: completionHandler)
+    }
+    
+    public class func getCurrentUserScores(completionHandler: @escaping (_ success: Bool,_ userScores: TQKScores?) -> Void){
+        return TheQManager.sharedInstance.getCurrentUserScores(completionHandler: completionHandler)
+    }
+    
+    public class func getCurrentLeaderboardAndUserScores(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?,_ userScores: TQKScores?) -> Void){
+        return TheQManager.sharedInstance.getCurrentLeaderboardAndUserScores(completionHandler: completionHandler)
+    }
+    
     //MARK: Game Functions
-    
-    
-    
+
     /// Checks for scheduled games, returning a flag if any of them are currently active
     ///
     /// - Parameters:

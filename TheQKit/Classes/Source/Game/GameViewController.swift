@@ -1415,22 +1415,21 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.spinnerView.isHidden = true
             if self.theGame?.hlsUrl != nil {
                 initializePlayer(url: (self.theGame?.hlsUrl)!)
-                
-                if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
-                    self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
-                    self.customBackgroundImageView!.contentMode = .scaleAspectFill
-                    self.customBackgroundImageView!.backgroundColor = UIColor.clear
-                    self.view.addSubview(self.customBackgroundImageView!)
-                    self.view.sendSubviewToBack(self.customBackgroundImageView!)
-                    self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
-                }else if(self.playerBackgroundColor != nil){
-                    self.previewView.backgroundColor = self.playerBackgroundColor
-                }
             }
         }else{
             self.spinnerView.isHidden = true
         }
         
+        if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
+            self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
+            self.customBackgroundImageView!.contentMode = .scaleAspectFill
+            self.customBackgroundImageView!.backgroundColor = UIColor.clear
+            self.view.addSubview(self.customBackgroundImageView!)
+            self.view.sendSubviewToBack(self.customBackgroundImageView!)
+            self.customBackgroundImageView!.load(url: URL(string: self.theGame!.theme.backgroundImageUrl)!)
+        }else if(self.playerBackgroundColor != nil){
+            self.previewView.backgroundColor = self.playerBackgroundColor
+        }
         
         currentQuestionNumberLabel.isHidden = true
         getReadyView.isHidden = true

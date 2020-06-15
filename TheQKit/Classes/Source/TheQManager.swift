@@ -294,6 +294,112 @@ class TheQManager {
         AuthenticationService.sharedInstance.commonLogout()
     }
     
+    //MARK: Leaderboards
+    
+    func getCurrentLeaderboard(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?) -> Void) {
+        let headers : HTTPHeaders = [
+            "Accept": "application/json"
+        ]
+        
+        let params : Parameters = [
+            "includeCategories":"true",
+            "includeLeaderboards":"true"
+        ]
+        
+        let url:String = TQKConstants.baseUrl + "season"
+        Alamofire.request(url, parameters: params, headers: headers).responseJSON { response in
+            
+            response.result.ifFailure {
+                completionHandler(false,nil)
+            }
+            
+            response.result.ifSuccess {
+                if let json = response.result.value as? [String: Any] {
+                    if ( !(json["success"] as! Bool) ) {
+                        //TODO - Can check for banned here if necessary
+                        completionHandler(false,nil)
+                    }else{
+                        do{
+                            let json = try JSON(data: response.data!)
+                            let lb = TQKLeaderboard(JSON: json.dictionaryObject!)
+                            completionHandler(true,lb)
+                        }catch{
+                            print(error)
+                            completionHandler(false,nil)
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+    
+    func getCurrentUserScores(completionHandler: @escaping (_ success: Bool,_ userScores: TQKScores?) -> Void){
+        
+        if let myUser = TheQManager.sharedInstance.getUser() {
+            let key = "token"
+            let preferences = UserDefaults.standard
+            let bearerToken = preferences.string(forKey: key)
+            var finalBearerToken:String = "Bearer " + (bearerToken as! String)
+            
+            let testHeaders : HTTPHeaders = [
+                "Authorization": finalBearerToken,
+                "Accept": "application/json"
+            ]
+            
+            var url:String = TQKConstants.baseUrl + "category/scores"
+        
+            if(!apiToken!.isEmpty){
+                url = url + "?partnerCode=\(apiToken!)"
+            }
+        
+            Alamofire.request(url, parameters: nil, headers: testHeaders).responseJSON { response in
+                response.result.ifFailure {
+                    completionHandler(false,nil)
+                }
+                
+                response.result.ifSuccess {
+                    if let json = response.result.value as? [String: Any] {
+                        if ( !(json["success"] as! Bool) ) {
+                            completionHandler(false,nil)
+                        }else{
+                            do{
+                                let json = try JSON(data: response.data!)
+                                let userScores = TQKScores(JSON: json.dictionaryObject!)
+                                completionHandler(true,userScores)
+                            }catch{
+                                completionHandler(false,nil)
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }else{
+            completionHandler(false,nil)
+        }
+    }
+    
+    func getCurrentLeaderboardAndUserScores(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?,_ userScores: TQKScores?) -> Void){
+        self.getCurrentLeaderboard { (firstsuccess, lb) in
+            if(firstsuccess){
+                self.getCurrentUserScores { (success, scores) in
+                    if(success){
+                        completionHandler(success,lb,scores)
+                    }else if(firstsuccess && !success){
+                        completionHandler(true,lb,nil)
+                    }else{
+                        completionHandler(false,nil,nil)
+                    }
+                }
+            }else{
+                completionHandler(firstsuccess,nil,nil)
+            }
+        }
+    }
+    
+    //MARK: Game Functions
+    
     func CheckForGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
         
         var params : Parameters
