@@ -306,7 +306,12 @@ class TheQManager {
             "includeLeaderboards":"true"
         ]
         
-        let url:String = TQKConstants.baseUrl + "season"
+        var url:String = TQKConstants.baseUrl + "season"
+        
+        if(!apiToken!.isEmpty){
+            url = url + "?partnerCode=\(apiToken!)"
+        }
+        
         Alamofire.request(url, parameters: params, headers: headers).responseJSON { response in
             
             response.result.ifFailure {
