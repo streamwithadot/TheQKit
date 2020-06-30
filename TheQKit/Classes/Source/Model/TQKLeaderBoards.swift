@@ -12,8 +12,8 @@ import SwiftyJSON
 
 //Top level struct holding all leaderboard related data
 public struct TQKLeaderboard : Mappable {
-    var season : TQKSeason?
-    var categories : [TQKCategory]? 
+    public var season : TQKSeason?
+    public var categories : [TQKCategory]?
     
     public init?(map: Map) {
         
@@ -37,14 +37,14 @@ public struct TQKLeaderboard : Mappable {
  startDate: Long, // timestamp
  endDate: Long,   // timestamp
  active: Boolean) */
-struct TQKSeason : Mappable {
-    var id : String = ""
-    var name : String = ""
-    var startDate : Double?
-    var endDate : Double?
-    var active : Bool?
+public struct TQKSeason : Mappable {
+    public var id : String = ""
+    public var name : String = ""
+    public var startDate : Double?
+    public var endDate : Double?
+    public var active : Bool?
     
-    init?(map: Map) {
+    public init?(map: Map) {
         
     }
     
@@ -52,7 +52,7 @@ struct TQKSeason : Mappable {
         
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         id <- map["id"]
         name <- map["name"]
         startDate <- map["startDate"]
@@ -73,17 +73,17 @@ struct TQKSeason : Mappable {
  backgroundVideoUrl: String,
  colorCode: String,
  leaderboard: Option[Seq[LeaderboardEntry]]) */
-struct TQKCategory : Mappable {
-    var id : String = ""
-    var name : String = ""
-    var code : String = ""
-    var description : String = ""
-    var active : Bool = false
-    var iconImageUrl : String = ""
-    var backgroundImageUrl : String = ""
-    var backgroundVideoUrl : String = ""
-    var colorCode : String = TQKConstants.GEN_COLOR_CODE
-    var leaderboard : [TQKLeaderboardEntry]? {
+public struct TQKCategory : Mappable {
+    public var id : String = ""
+    public var name : String = ""
+    public var code : String = ""
+    public var description : String = ""
+    public var active : Bool = false
+    public var iconImageUrl : String = ""
+    public var backgroundImageUrl : String = ""
+    public var backgroundVideoUrl : String = ""
+    public var colorCode : String = TQKConstants.GEN_COLOR_CODE
+    public var leaderboard : [TQKLeaderboardEntry]? {
         didSet{
             if(!(leaderboard?.isEmpty)!){
                 highest = leaderboard![0].score
@@ -97,11 +97,11 @@ struct TQKCategory : Mappable {
             }
         }
     }
-    var reward : Int = 0
-    var split : Double = 0
-    var highest : Int = 0
+    public var reward : Int = 0
+    public var split : Double = 0
+    public var highest : Int = 0
     
-    init?(map: Map) {
+    public init?(map: Map) {
         
     }
     
@@ -109,7 +109,7 @@ struct TQKCategory : Mappable {
         
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         id <- map["id"]
         name <- map["name"]
         code <- map["code"]
@@ -131,13 +131,13 @@ struct TQKCategory : Mappable {
  profilePicUrl: Option[String],
  score: Int)
  */
-struct TQKLeaderboardEntry : Mappable {
-    var userId : String = ""
-    var username : String = ""
-    var profilePicUrl : String = ""
-    var score : Int = 0
+public struct TQKLeaderboardEntry : Mappable {
+    public var userId : String = ""
+    public var username : String = ""
+    public var profilePicUrl : String = ""
+    public var score : Int = 0
     
-    init?(map: Map) {
+    public init?(map: Map) {
         
     }
     
@@ -145,7 +145,7 @@ struct TQKLeaderboardEntry : Mappable {
         
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         userId <- map["userId"]
         username <- map["username"]
         profilePicUrl <- map["profilePicUrl"]
@@ -167,7 +167,7 @@ Response:
     }
 } */
 public struct TQKScores : Mappable {
-    var scores : [TQKScore]?
+    public var scores : [TQKScore]?
     
     public init?(map: Map) {
         
@@ -198,11 +198,11 @@ Response:
 {
     score: Int
 } */
-struct TQKScore : Mappable {
-    var score : Int = 0
-    var categoryId : String = ""
+public struct TQKScore : Mappable {
+    public var score : Int = 0
+    public var categoryId : String = ""
     
-    init?(map: Map) {
+    public init?(map: Map) {
         
     }
     
@@ -215,7 +215,7 @@ struct TQKScore : Mappable {
         self.categoryId = categoryId
     }
     
-    mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         score <- map["score"]
         categoryId <- map["categoryId"]
     }
