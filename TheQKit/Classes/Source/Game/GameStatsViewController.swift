@@ -43,9 +43,9 @@ class GameStatsViewController: UIViewController {
         let username = TheQKit.getUser()!.username!
        //Update userscore first
         if(currentScore != nil){
-            self.scoreLabel.text = "Your Score: \(currentScore!) Points"
+            self.scoreLabel.text = String(format: NSLocalizedString("Your Score: %@ Points", comment: ""), "\(currentScore!)")
         }else{
-            self.scoreLabel.text = "Your Score: 0 Points"
+            self.scoreLabel.text = String(format: NSLocalizedString("Your Score: 0 Points", comment: ""))
         }
         
         
@@ -97,9 +97,27 @@ class GameStatsViewController: UIViewController {
                         
                         do{
                             let json = try JSON(data: response.data!)
-                            print(json)
                             self.gameStats = TQKGameStats(JSON: json.dictionaryObject!)
+                            if (self.gameStats != nil && self.gameStats!.leaderBoardList != nil){
+                                for i in 0 ..< self.gameStats!.leaderBoardList!.count {
+                                    if (i - 1 >= 0) {
+                                        if let item = self.gameStats?.leaderBoardList![i], let item2 = self.gameStats?.leaderBoardList![i - 1]{
+                                            if(item.score == item2.score){
+                                                self.gameStats!.leaderBoardList![i].rank = item2.rank
+                                            }else{
+                                                self.gameStats!.leaderBoardList![i].rank = item2.rank + 1
+                                            }
+                                        }else{
+                                            self.gameStats!.leaderBoardList![i].rank = i
+                                        }
+                                    }else{
+                                        self.gameStats!.leaderBoardList![i].rank = i
+                                    }
+                                }
+                            }
+                            
                             self.statsTableView.reloadData()
+
                         }catch{
                             print(error)
                         }
@@ -159,19 +177,7 @@ extension GameStatsViewController : UITableViewDataSource {
         
         if let item = gameStats?.leaderBoardList![indexPath.row] {
             
-            if (indexPath.row - 1 >= 0) {
-                if let item2 = gameStats?.leaderBoardList![indexPath.row - 1]{
-                    if(item.score == item2.score){
-                        let cell2 = tableView.cellForRow(at: IndexPath(row: indexPath.row - 1, section: 0)) as! GameStatCell
-                        cell.rankLabel.text = cell2.rankLabel.text
-                    }else{
-                        cell.rankLabel.text = "  \(indexPath.row + 1)  "
-                    }
-                }else{
-                    cell.rankLabel.text = "  \(indexPath.row + 1)  "
-                }
-            }
-            
+            cell.rankLabel.text = "  \(item.rank + 1)  "
             cell.usernameLabel.text = "\(item.username ?? "")"
             cell.scoreLabel.text = "  \(item.score ?? 0)  "
         }

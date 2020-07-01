@@ -246,6 +246,7 @@ struct TQKGameStatItem : Mappable {
     var username : String?
     var profilePicUrl : String?
     var id : String?
+    var rank : Int = 0
     
     init?(map: Map) {
         
