@@ -277,7 +277,11 @@ class FullScreenTriviaViewController: UIViewController {
             }else{
                 if(self.question?.pointValue != nil &&  !self.question!.pointOverride){
                     //Show pointvalue here instead
-                    self.timesUpLabel.text = String(format: NSLocalizedString("  %@ Points  ", comment: ""), "\(self.question!.pointValue!)")
+                    if(self.question!.pointValue! == 1){
+                        self.timesUpLabel.text = String(format: NSLocalizedString("  %@ Point  ", comment: ""), "\(self.question!.pointValue!)")
+                    }else{
+                        self.timesUpLabel.text = String(format: NSLocalizedString("  %@ Points  ", comment: ""), "\(self.question!.pointValue!)")
+                    }
                 }else{
                     self.timesUpLabel.text = String(format: NSLocalizedString("  Question %@  ", comment: ""), "\(String(qNum))")
                 }

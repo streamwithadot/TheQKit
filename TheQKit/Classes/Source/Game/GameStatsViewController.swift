@@ -43,7 +43,11 @@ class GameStatsViewController: UIViewController {
         let username = TheQKit.getUser()!.username!
        //Update userscore first
         if(currentScore != nil){
-            self.scoreLabel.text = String(format: NSLocalizedString("Your Score: %@ Points", comment: ""), "\(currentScore!)")
+            if(currentScore == 1){
+                self.scoreLabel.text = String(format: NSLocalizedString("Your Score: %@ Point", comment: ""), "\(currentScore!)")
+            }else{
+                self.scoreLabel.text = String(format: NSLocalizedString("Your Score: %@ Points", comment: ""), "\(currentScore!)")
+            }
         }else{
             self.scoreLabel.text = String(format: NSLocalizedString("Your Score: 0 Points", comment: ""))
         }
