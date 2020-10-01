@@ -101,7 +101,7 @@ TheQKit.LoginQUserWithApple(userID: userIdentifier, identityString: token, usern
      //success : Bool ... if user successfully is logged in, no account creation flow
 }
 
-*DEPRACTED*
+*DEPRECATED*
 TheQKit.LoginQUserWithAK(accountID: "accountID", tokenString: "tokenString", username : "username") { (success) in
     //success : Bool ... if user successfully is logged in, no account creation flow
 }

@@ -190,12 +190,12 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @IBOutlet weak var heartContainerView: UIView!
     var gameStatusReceivedCount : Int = 0
     
-    @IBOutlet weak var gameHeaderView: UIView!
-    @IBOutlet weak var leftHeaderView: UIView!
     @IBOutlet weak var centerHeaderView: UIView!
     @IBOutlet weak var rightHeaderView: UIView!
     
     @IBOutlet weak var eliminationHeaderView: UIView!
+    @IBOutlet weak var currentPointsLabel: UILabel!
+    
     
     var theGame : TQKGame?
     var gameOptions : TQKGameOptions?
@@ -307,9 +307,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             name: UIApplication.didBecomeActiveNotification,
             object: nil)
         
-        let tapGesuter = UITapGestureRecognizer(target: self, action: #selector(self.showExitDialog(_:)))
-        self.leftHeaderView.addGestureRecognizer(tapGesuter)
-        self.leftHeaderView.isUserInteractionEnabled = true
         
         let tapForLB : UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(leaderBoardGoUp))
         tapForLB.numberOfTapsRequired = 1
@@ -664,11 +661,18 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         self.currentEndQuestion = nil
         self.isQuestionActive = false
         
-        if(self.currentResult.score != nil){
-            self.currentScore = self.currentResult.score!
-        }
+       
         
         DispatchQueue.main.async(execute: {
+            if(self.currentResult.score != nil){
+               self.currentPointsLabel.isHidden = false
+               self.currentScore = self.currentResult.score!
+               if(self.currentScore.intValue > 0){
+                   self.currentPointsLabel.text = "+\(self.currentScore)"
+               }else{
+                   self.currentPointsLabel.text = "+0"
+               }
+           }
             // update label here
             var totalResponse = 0
             if(self.currentResult.choices != nil){
@@ -1008,6 +1012,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self?.currentQuestionNumberLabel.isHidden = true
             self?.undoElimination()
             self?.heartsEnabled = resetData!.heartEligible
+            self?.currentPointsLabel.text = ""
             if(self!.heartsEnabled){
                            
                DispatchQueue.main.async(execute: {
@@ -1366,12 +1371,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         if(self.theGame?.winCondition == TQKWinCondition.POINTS){
             //show the points header instead of old header
-            self.gameHeaderView.isHidden = false
-            self.eliminationHeaderView.isHidden = true
-
+            self.centerHeaderView.isHidden = false
+            self.rightHeaderView.isHidden = false
         }else{
-            self.eliminationHeaderView.isHidden = false
-            self.gameHeaderView.isHidden = true
+            self.centerHeaderView.isHidden = true
+            self.rightHeaderView.isHidden = true
         }
         
         //If game object has a background, use it
@@ -1396,6 +1400,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
             exitButton.imageView?.contentMode = .scaleAspectFit
         }
+        
+        self.currentPointsLabel.isHidden = true
+        currentPointsLabel.layer.cornerRadius = currentPointsLabel.frame.size.height / 2
+        currentPointsLabel.clipsToBounds = true
+        currentPointsLabel.backgroundColor = UIColor.white.withAlphaComponent(0.2)
         
         currentQuestionNumberLabel.layer.cornerRadius = currentQuestionNumberLabel.frame.size.height / 2
         currentQuestionNumberLabel.clipsToBounds = true
