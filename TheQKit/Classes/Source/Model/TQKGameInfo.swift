@@ -150,6 +150,7 @@ public struct TQKGame : Mappable {
     public var backgroundImageUrl : String?
     public var winCondition : TQKWinCondition = .ELIMINATION
     public var hlsUrl : String?
+    public var llhlsUrl : String?
     
     public init?(map: Map) {
         
@@ -181,6 +182,7 @@ public struct TQKGame : Mappable {
         backgroundImageUrl <- map["backgroundImageUrl"]
         winCondition <- map["winCondition"]
         hlsUrl <- map["hlsUrl"]
+        llhlsUrl <- map["llhlsUrl"]
         
         //TEST CODE
 //        adCode = Constants.AD_SECOND_CODE

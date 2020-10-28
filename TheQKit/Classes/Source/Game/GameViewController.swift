@@ -1422,7 +1422,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(!self.theGame!.videoDisabled){
 //            spinnerView.animate()
             self.spinnerView.isHidden = true
-            if self.theGame?.hlsUrl != nil {
+            if self.theGame?.llhlsUrl != nil {
+                initializePlayer(url: (self.theGame?.llhlsUrl)!)
+            }else{
                 initializePlayer(url: (self.theGame?.hlsUrl)!)
             }
         }else{
@@ -1447,15 +1449,15 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     @objc func itemStalled(){
         print("***   stall detected ***")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
 //            if(self.avPlayer != nil && self.avPlayer.rate < 1.0){
 //                print("need to reset from stall")
 //                self.stopStreamAndReset()
 //            }else{
 //                print("don't reset from stall")
 //            }
-            self.avPlayer.playImmediately(atRate: 1.0)
-        }
+//            self.avPlayer.playImmediately(atRate: 1.0)
+//        }
     }
     
     @objc func itemPlayedToEnd(){
@@ -1476,10 +1478,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         guard let errorLog: AVPlayerItemErrorLog = playerItem.errorLog() else {
             return
         }
-        NSLog("Error from log: \(errorLog)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            self.stopStreamAndReset()
-        }
+//        NSLog("Error from log: \(errorLog)")
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+//            self.stopStreamAndReset()
+//        }
     }
     
     @objc func newAccessLogEntry(_ notification: Notification) {
@@ -1613,8 +1615,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         shouldReconnect = false
         print("resetting the stream")
         if(!self.theGame!.videoDisabled){
-            if self.theGame?.hlsUrl != nil {
-                self.initializePlayer(url: (self.theGame?.hlsUrl)!)
+            if self.theGame?.llhlsUrl != nil {
+                self.initializePlayer(url: (self.theGame?.llhlsUrl)!)
+            }else{
+                initializePlayer(url: (self.theGame?.hlsUrl)!)
             }
         }
         
