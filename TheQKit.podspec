@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TheQKit'
-  s.version          = '1.1.14'
+  s.version          = '1.2.0'
   s.summary          = 'TheQKit SDK allows your own app to run game from The Q Trivia Network'
   
   s.swift_version = '4.2'
@@ -31,7 +31,7 @@ TODO: Add long description of the pod here.
   s.source           = { :git => 'https://github.com/streamwithadot/TheQKit.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '12.0'
 
   s.source_files = 'TheQKit/Classes/**/*'
   
@@ -46,7 +46,7 @@ TODO: Add long description of the pod here.
   #s.resources = 'TheQKit/Assets/Images.xcassets/*.imageset/*.png'
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
-  s.frameworks = 'UIKit', 'VideoToolbox', 'QuartzCore', 'OpenGLES', 'MobileCoreServices', 'MediaPlayer', 'CoreVideo', 'CoreMedia', 'CoreGraphics', 'AVFoundation', 'AudioToolbox'
+  s.frameworks = 'UIKit', 'VideoToolbox', 'QuartzCore', 'OpenGLES', 'CoreServices', 'MediaPlayer', 'CoreVideo', 'CoreMedia', 'CoreGraphics', 'AVFoundation', 'AudioToolbox'
     
   s.dependency 'Alamofire', '~> 4.9.1'
   s.dependency 'lottie-ios', '~> 3.1.6'
