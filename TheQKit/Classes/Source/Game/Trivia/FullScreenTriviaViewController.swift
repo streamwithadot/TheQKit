@@ -682,7 +682,7 @@ extension FullScreenTriviaViewController : UITableViewDelegate {
             cell.progressView.progressImage = self.selectedQuestionImage
 
             cell.progressView.setProgress(1.0, animated: false)
-            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[indexPath.row].id)!, choiceText: (self.question?.choices?[indexPath.row].choice)!)
+            self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: (self.question?.choices?[indexPath.row].id)!, choiceText: (self.question?.choices?[indexPath.row].choice)!, wager: 0)
             
             cell.progressView.alpha = 0.3
                                     

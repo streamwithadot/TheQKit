@@ -32,7 +32,7 @@ protocol HeartDelegate {
 }
 
 protocol GameDelegate {
-    func submitAnswer(questionId: String, responseId: String, choiceText: String?)
+    func submitAnswer(questionId: String, responseId: String, choiceText: String?, wager: Int?)
     func getColorForID(catId: String) -> UIColor
     
     var userSubmittedAnswer : Bool { get }
@@ -97,10 +97,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Setup
     
-//    var player: IJKFFMoviePlayerController!
-    
-    
-    var asset: AVAsset!
+    //Video Player
     var avPlayer: AVPlayer!
     var avPlayerLayer: AVPlayerLayer!
     var avPlayerItem: AVPlayerItem!
@@ -141,7 +138,9 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     private var playbackDelay = 0
     private var lastBufferStart = 0
     var lastPlayerTimeStamp : TimeInterval = 0.0
+    private var reconnectCount = 0.0
     var reconnectTimer : Timer!
+    var offsetCheckTimer : Timer!
     var audioCheckTimer : Timer!
     var eventRecievedTimer : Timer!
     var shouldReconnect : Bool = false
@@ -234,6 +233,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         
         self.avPlayer = AVPlayer(playerItem: nil)
+        avPlayer.addObserver(self, forKeyPath: "status", options: [.old, .new], context: nil)
+        avPlayer.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
         
         UIApplication.shared.isIdleTimerDisabled = true
         
@@ -347,6 +348,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(self.reconnectTimer != nil){
             self.reconnectTimer.invalidate()
             self.reconnectTimer = nil
+        }
+        if(self.offsetCheckTimer != nil){
+            self.offsetCheckTimer.invalidate()
+            self.offsetCheckTimer = nil
         }
         if(self.audioCheckTimer != nil){
             self.audioCheckTimer.invalidate()
@@ -841,7 +846,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             }
         }else{ // we are a result
             
-            if(self.theGame?.winCondition == TQKWinCondition.POINTS){
+            if(self.theGame?.winCondition == TQKWinCondition.POINTS || self.theGame?.winCondition == TQKWinCondition.WAGER){
                                 
                 var lottieName = ""
                 if(self.currentResult.isFreeformText){
@@ -1369,7 +1374,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         setupGameOptions()
         
-        if(self.theGame?.winCondition == TQKWinCondition.POINTS){
+        if(self.theGame?.winCondition == TQKWinCondition.POINTS || self.theGame?.winCondition == TQKWinCondition.WAGER){
             //show the points header instead of old header
             self.centerHeaderView.isHidden = false
             self.rightHeaderView.isHidden = false
@@ -1505,94 +1510,106 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
            }
        }
    }
-       
-   @objc func reconnectTimerCheck() {
     
-        let currentDuration = self.avPlayer.currentTime()
-        if let _ = lastKnownDuration{
-            if currentDuration.seconds == lastKnownDuration?.seconds {
-                //we aren't moving!
-                print("*** Player hasn't moved ***")
-                lastKnownDuration = nil
-                self.reconnectTimer.invalidate()
-                self.reconnectTimer = nil
+    @objc func offsetCheck() {
+        if #available(iOS 13.0, *) {
+            
+            let howFarNow = self.avPlayer.currentItem?.configuredTimeOffsetFromLive
+            let recommended = self.avPlayer.currentItem?.recommendedTimeOffsetFromLive
+            if(howFarNow!.seconds > 5.0){
+//                self.avPlayerItem.configuredTimeOffsetFromLive = recommended!
+//                print("how far now higher than preferred")
+            }
+//            print("how far: \(howFarNow?.seconds)")
+//            print("recommended: \(recommended?.seconds)")
+
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+
+   @objc func reconnectTimerCheck() {
+    reconnectCount = reconnectCount + 1.0
+//    print("our timer: \(reconnectCount)")
+    // Access current item
+        if let currentItem = avPlayer.currentItem {
+            // Get the current time in seconds
+            let playhead = currentItem.currentTime().seconds
+//            print("Playhead: \(playhead)")
+            let delta = reconnectCount - playhead
+//            print("difference between timer and playhead: \(delta)")
+            if( delta > 10 ){
+                //we've fallen behind greater than 10 seconds, lets reset and skip the rest
+//                print("*** Player fell behind greater than 10 seconds ***")
                 self.stopStreamAndReset()
                 return
             }
         }
-        lastKnownDuration = currentDuration
-        
-    
    }
     
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if object as AnyObject? === avPlayer {
+            if keyPath == "status" {
+                if avPlayer.status == .readyToPlay {
+                    avPlayer.play()
+                }
+            } else if keyPath == "timeControlStatus" {
+                if #available(iOS 10.0, *) {
+                    if avPlayer.timeControlStatus == .playing {
+                        
+                        if let currentItem = avPlayer.currentItem {
+                            // Get the current time in seconds
+                            let playhead = currentItem.currentTime().seconds
+                            reconnectCount = playhead
+                        }
+                        
+                        print("player is playing")
+                        if(self.reconnectTimer != nil){
+                            self.reconnectTimer.invalidate()
+                            self.reconnectTimer = nil
+                        }
+                        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
+                    }
+                }
+            } else if keyPath == "rate" {
+                if avPlayer.rate > 0 {
+                } else {
+                }
+            }
+        }
+    }
     
     func initializePlayer(url: String) {
         
         if(self.avPlayerLayer != nil){
             self.avPlayerLayer.removeFromSuperlayer()
+            self.avPlayerLayer = nil
         }
-        
+
         if(self.avPlayerItem != nil){
             self.avPlayerItem = nil
         }
-//        self.avPlayerLayer = nil
-//        self.avPlayerItem = nil
 
-        
-        self.asset = AVAsset(url: URL(string: url)!)
-        self.avPlayerItem = AVPlayerItem(asset: asset)
-        
+        self.avPlayerItem = AVPlayerItem(asset: AVAsset(url: URL(string: url)!))
+
         //New with low latency HLS - keep it live and other stuff
         if #available(iOS 13.0, *) {
-            
-            let howFarNow = avPlayerItem.configuredTimeOffsetFromLive
-            let recommended = avPlayerItem.recommendedTimeOffsetFromLive
-            
-            if(howFarNow < recommended){
-                self.avPlayerItem.configuredTimeOffsetFromLive = recommended
-            }
-
+//            self.avPlayerItem.configuredTimeOffsetFromLive = CMTime(seconds: 10.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
             self.avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
-        } else {
-            // Fallback on earlier versions
         }
-        
+
         // Associate the player item with the player
         self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
-        
+
         self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
         self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         self.avPlayer.actionAtItemEnd = .none
-        
+
         self.avPlayerLayer.frame = view.layer.bounds
         self.previewView.backgroundColor = .clear
         self.previewView.layer.insertSublayer(self.avPlayerLayer, at: 0)
 
-//        if let playerData = MUXSDKCustomerPlayerData(environmentKey: "77qj6f9rhk0aqde9kaeu55m8a") {
-//            let playName = "iOS AVPlayer"
-//            let userDefaults = UserDefaults.standard
-//            if userDefaults.object(forKey: "myUser") != nil {
-//                let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String : Any])!
-//                playerData.viewerUserId = myUser.id
-//            }
-//            playerData.experimentName = "hlsTest"
-//
-//            // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
-//            let videoData = MUXSDKCustomerVideoData()
-//            videoData.videoId = self.theGame?.id
-//            videoData.videoTitle = self.theGame?.id
-//            videoData.videoIsLive = true
-//
-//            MUXSDKStats.monitorAVPlayerLayer(avPlayerLayer, withPlayerName: playName, playerData: playerData, videoData: videoData)
-//        }
-        self.avPlayer.play()
-        
-        if(self.reconnectTimer != nil){
-            self.reconnectTimer.invalidate()
-            self.reconnectTimer = nil
-        }
-        self.reconnectTimer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(reconnectTimerCheck), userInfo: nil, repeats: true)
-
+       
     }
     
 //    @objc func timerAction(){
@@ -1610,10 +1627,11 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 //    }
     
     func stopStreamAndReset() {
-        print("stopping the stream")
-        
+        lastKnownDuration = nil
+        self.reconnectTimer.invalidate()
+        self.reconnectTimer = nil
+        reconnectCount = 0
         shouldReconnect = false
-        print("resetting the stream")
         if(!self.theGame!.videoDisabled){
             if self.theGame?.llhlsUrl != nil {
                 self.initializePlayer(url: (self.theGame?.llhlsUrl)!)
@@ -1621,17 +1639,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 initializePlayer(url: (self.theGame?.hlsUrl)!)
             }
         }
-        
     }
     
     
-    func submitAnswer(questionId: String, responseId: String, choiceText: String?){
+    func submitAnswer(questionId: String, responseId: String, choiceText: String?, wager: Int? = 0){
         
-        print("submitted answer")
-        print(questionId)
-        print(responseId)
+    
         self.userSubmittedAnswer = true
-        
         if(self.currentQuestion.isFreeformText){
             self.selectionChoiceText = responseId
         }else{
@@ -1642,7 +1656,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         let baseURL: String = "https://\(self.host!)/v2/games/\(self.myGameId!)"
         submitUrl = baseURL + "/questions/" + questionId + "/responses"
         
-        //print(submitUrl)
         
         let preferences = UserDefaults.standard
         let key = "token"
@@ -1654,13 +1667,22 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             "Accept": "application/json"
         ]
         
-        let params : Parameters = [
+        var params : Parameters = [
             "userId":(userId)!,
             "uid":(userId)!
         ]
         
+//        if(theGame?.winCondition == TQKWinCondition.WAGER){
+//            params.updateValue(wager!, forKey: "wager")
+//        }
+        
+//        if(self.shouldUseHeart){
+//            params.updateValue(self.shouldUseHeart, forKey: "useHeart")
+//        }
+        
         let allowedCharacterSet = (CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted)
         let escapedString = responseId.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+//        params.updateValue(escapedString!, forKey: "response")
         
         if(self.shouldUseHeart){
             submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)&useHeart=\(self.shouldUseHeart)"
@@ -1668,6 +1690,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             submitUrl = baseURL + "/questions/" + questionId + "/responses?response=\(escapedString!)"
         }
         
+
         let object : Properties = ["gameID" : self.myGameId!,
                                      "questionID" : questionId,
                                      "choiceID" : responseId,

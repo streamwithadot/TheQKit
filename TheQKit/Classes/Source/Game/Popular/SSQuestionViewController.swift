@@ -380,7 +380,7 @@ class SSQuestionViewController: UIViewController, UITextFieldDelegate {
                     self.answerTextField.resignFirstResponder()
                 }
                 
-                self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: self.answerTextField.text!, choiceText: self.answerTextField.text!)
+                self.gameDelegate?.submitAnswer(questionId: (self.question?.questionId!)!, responseId: self.answerTextField.text!, choiceText: self.answerTextField.text!, wager: 0)
                 
                 self.inputAnswerLabel.text = self.answerTextField.text!
                 UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveLinear, animations: {

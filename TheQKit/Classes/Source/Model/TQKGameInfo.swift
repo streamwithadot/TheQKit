@@ -58,6 +58,7 @@ public enum TQKGameType : String {
 public enum TQKWinCondition : String {
     case POINTS = "POINTS"
     case ELIMINATION = "ELIMINATION"
+    case WAGER = "WAGER"
 }
 
 /// Optional object to configure in game UI

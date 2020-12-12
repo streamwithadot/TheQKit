@@ -21,6 +21,7 @@ struct TQKResetMsg: Mappable{
     var heartEligible : Bool = false
     var active : Bool = false
     var canRedeemHeart : Bool = false
+    var wallet : Int = 0
 
     init?(map: Map) {
         
@@ -30,6 +31,7 @@ struct TQKResetMsg: Mappable{
         heartEligible <- map["heartEligible"]
         active <- map["id"]
         canRedeemHeart <- map["canRedeemHeart"]
+        wallet <- map["wallet"]
     }
     
 }
@@ -54,7 +56,7 @@ struct TQKQuestion: Mappable{
     var isFreeformText : Bool = false
     
     var pointOverride : Bool = false
-    
+        
     init?(map: Map) {
         
     }
@@ -72,7 +74,7 @@ struct TQKQuestion: Mappable{
         questionType <- map["questionType"]
         canRedeemHeart <- map["canRedeemHeart"]
         pointValue <- map["pointValue"]
-        
+
         isMultipleChoice = (questionType == TQKQuestionType.TRIVIA || questionType == TQKQuestionType.CHOICE_SURVEY)
         isFreeformText = (questionType == TQKQuestionType.POPULAR || questionType == TQKQuestionType.TEXT_SURVEY)
         

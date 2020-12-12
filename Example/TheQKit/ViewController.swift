@@ -35,7 +35,7 @@ class ViewController: UIViewController {
             
             let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
                                         playerBackgroundColor: UIColor.clear,
-                                        useThemeAsBackground: false)
+                                        useThemeAsBackground: true)
             
             TheQKit.showCardsController(fromViewController: connectContainerViewController,
                                         gameOptions: options)
@@ -49,12 +49,29 @@ class ViewController: UIViewController {
     
     @IBAction func checkForGame(_ sender: Any) {
      
+        //Swap to CheckForTestGames for games tagged as test only
         TheQKit.CheckForGames { (isActive, gamesArray) in
             //isActive : Bool
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-                let options = TQKGameOptions(logoOverride: UIImage(named: "test"))
+                let options = TQKGameOptions()
+                TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
+                    //launched
+                }
+            }else{
+                print("no active games")
+            }
+        }
+    }
+    @IBAction func TestGamesPressed(_ sender: Any) {
+        //Swap to CheckForTestGames for games tagged as test only
+        TheQKit.CheckForTestGames { (isActive, gamesArray) in
+            //isActive : Bool
+            //gamesArray : [TQKGame] ... active and non active games
+            if(isActive){
+                print("active game exist")
+                let options = TQKGameOptions()
                 TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                     //launched
                 }
@@ -65,8 +82,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func joinGame(_ sender: Any) {
-        let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
-                                     isEliminationDisabled: true)
+        let options = TQKGameOptions(isEliminationDisabled: true)
         TheQKit.LaunchActiveGame(gameOptions: options) {_ in
             
         }
