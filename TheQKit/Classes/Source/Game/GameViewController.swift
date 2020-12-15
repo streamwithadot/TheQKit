@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 import VideoToolbox
-
+import WebKit
 //import IJKMediaFramework
 
 import Toast_Swift
@@ -45,7 +45,7 @@ protocol StatsDelegate {
     func leaderBoardGoDown()
 }
 
-class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate {
+class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate, WKNavigationDelegate, WKUIDelegate {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
@@ -231,10 +231,24 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         super.viewDidLoad()
         
-        
-        self.avPlayer = AVPlayer(playerItem: nil)
-        avPlayer.addObserver(self, forKeyPath: "status", options: [.old, .new], context: nil)
-        avPlayer.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+        if(!(gameOptions!.useWebPlayer)){
+            self.avPlayer = AVPlayer(playerItem: nil)
+            avPlayer.addObserver(self, forKeyPath: "status", options: [.old, .new], context: nil)
+            avPlayer.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+            
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
+                name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
+
+            NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
+                name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+             
+             NotificationCenter.default.addObserver(self, selector: #selector(itemFailedToPlayToEnd),
+             name: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: nil)
+                
+             NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
+                name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: self.avPlayer.currentItem)
+        }
         
         UIApplication.shared.isIdleTimerDisabled = true
         
@@ -257,17 +271,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             }
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(itemStalled),
-            name: NSNotification.Name.AVPlayerItemPlaybackStalled, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(itemPlayedToEnd),
-            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-         
-         NotificationCenter.default.addObserver(self, selector: #selector(itemFailedToPlayToEnd),
-         name: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: nil)
-            
-         NotificationCenter.default.addObserver(self, selector: #selector(newErrorLogEntry(_:)),
-            name: NSNotification.Name.AVPlayerItemNewErrorLogEntry, object: self.avPlayer.currentItem)
         
         NotificationCenter.default.addObserver(self, selector: #selector(subscriptionSuccess), name: Notification.Name("currentSubSetNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appleSubscriptionSuccess), name: Notification.Name("SubscriptionServiceRestoreSuccessfulNotification"), object: nil)
@@ -1581,33 +1584,49 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     func initializePlayer(url: String) {
         
-        if(self.avPlayerLayer != nil){
-            self.avPlayerLayer.removeFromSuperlayer()
-            self.avPlayerLayer = nil
+        if(gameOptions!.useWebPlayer){
+            let webConfiguration = WKWebViewConfiguration()
+            webConfiguration.allowsInlineMediaPlayback = true
+            let webView = WKWebView(frame: self.view.bounds, configuration: webConfiguration)
+
+            webView.navigationDelegate = self
+            webView.uiDelegate = self
+            let webPlayerUrl = "https://play-dev.us.theq.live/player?url=\(url)"
+            let link = URL(string:webPlayerUrl)!
+            let request = URLRequest(url: link)
+            self.previewView.addSubview(webView)
+            self.previewView.sendSubviewToBack(webView)
+            webView.load(request)
+        }else{
+        
+            if(self.avPlayerLayer != nil){
+                self.avPlayerLayer.removeFromSuperlayer()
+                self.avPlayerLayer = nil
+            }
+
+            if(self.avPlayerItem != nil){
+                self.avPlayerItem = nil
+            }
+
+            self.avPlayerItem = AVPlayerItem(asset: AVAsset(url: URL(string: url)!))
+
+            //New with low latency HLS - keep it live and other stuff
+            if #available(iOS 13.0, *) {
+    //            self.avPlayerItem.configuredTimeOffsetFromLive = CMTime(seconds: 10.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+                self.avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
+            }
+
+            // Associate the player item with the player
+            self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
+
+            self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
+            self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            self.avPlayer.actionAtItemEnd = .none
+
+            self.avPlayerLayer.frame = view.layer.bounds
+            self.previewView.backgroundColor = .clear
+            self.previewView.layer.insertSublayer(self.avPlayerLayer, at: 0)
         }
-
-        if(self.avPlayerItem != nil){
-            self.avPlayerItem = nil
-        }
-
-        self.avPlayerItem = AVPlayerItem(asset: AVAsset(url: URL(string: url)!))
-
-        //New with low latency HLS - keep it live and other stuff
-        if #available(iOS 13.0, *) {
-//            self.avPlayerItem.configuredTimeOffsetFromLive = CMTime(seconds: 10.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-            self.avPlayerItem.automaticallyPreservesTimeOffsetFromLive = true
-        }
-
-        // Associate the player item with the player
-        self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
-
-        self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
-        self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        self.avPlayer.actionAtItemEnd = .none
-
-        self.avPlayerLayer.frame = view.layer.bounds
-        self.previewView.backgroundColor = .clear
-        self.previewView.layer.insertSublayer(self.avPlayerLayer, at: 0)
 
        
     }

@@ -35,7 +35,8 @@ class ViewController: UIViewController {
             
             let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
                                         playerBackgroundColor: UIColor.clear,
-                                        useThemeAsBackground: true)
+                                        useThemeAsBackground: true,
+                                        useWebPlayer: true)
             
             TheQKit.showCardsController(fromViewController: connectContainerViewController,
                                         gameOptions: options)
@@ -55,7 +56,7 @@ class ViewController: UIViewController {
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-                let options = TQKGameOptions()
+                let options = TQKGameOptions(useWebPlayer: true)
                 TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                     //launched
                 }
@@ -71,7 +72,7 @@ class ViewController: UIViewController {
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-                let options = TQKGameOptions()
+                let options = TQKGameOptions(useWebPlayer: true)
                 TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                     //launched
                 }

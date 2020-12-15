@@ -86,6 +86,7 @@ public struct TQKGameOptions {
     public var incorrectBackgroundColor : UIColor = TheQKit.hexStringToUIColor(hex: "#e63462")
     public var questionBackgroundAlpha : CGFloat = 0.8
     public var isEliminationDisabled : Bool = false
+    public var useWebPlayer : Bool = false
     
     public init(logoOverride : UIImage? = nil,
                 colorCode: String? = nil,
@@ -96,7 +97,8 @@ public struct TQKGameOptions {
                 correctBackgroundColor: UIColor? = nil,
                 incorrectBackgroundColor: UIColor? = nil,
                 questionBackgroundAlpha: CGFloat? = 0.8,
-                isEliminationDisabled: Bool? = false) {
+                isEliminationDisabled: Bool? = false,
+                useWebPlayer: Bool? = false) {
         
                self.logoOverride = logoOverride
                self.colorCode = colorCode
@@ -112,6 +114,7 @@ public struct TQKGameOptions {
                }
                self.questionBackgroundAlpha = questionBackgroundAlpha!
                self.isEliminationDisabled = isEliminationDisabled!
+               self.useWebPlayer = useWebPlayer!
            }
 }
 
