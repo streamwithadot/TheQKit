@@ -56,7 +56,7 @@ class ViewController: UIViewController {
             //gamesArray : [TQKGame] ... active and non active games
             if(isActive){
                 print("active game exist")
-                let options = TQKGameOptions(useWebPlayer: true)
+                let options = TQKGameOptions()
                 TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                     //launched
                 }

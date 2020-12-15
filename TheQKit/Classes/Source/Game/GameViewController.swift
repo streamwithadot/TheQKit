@@ -1587,6 +1587,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(gameOptions!.useWebPlayer){
             let webConfiguration = WKWebViewConfiguration()
             webConfiguration.allowsInlineMediaPlayback = true
+            webConfiguration.mediaTypesRequiringUserActionForPlayback = []
             let webView = WKWebView(frame: self.view.bounds, configuration: webConfiguration)
 
             webView.navigationDelegate = self
