@@ -55,6 +55,12 @@ struct TQKConstants {
         }
     }
     
+    static var webPlayerUrl:String {
+        get {
+            let userDefaults = UserDefaults.standard
+            return userDefaults.string(forKey: "TQK_WEBPLAYER_URL") ?? ""
+        }
+    }
     
     static var appName : String {
         get {

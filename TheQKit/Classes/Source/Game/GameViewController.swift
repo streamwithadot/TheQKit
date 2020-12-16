@@ -1584,7 +1584,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     
     func initializePlayer(url: String) {
         
-        if(gameOptions!.useWebPlayer){
+        if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
             let webConfiguration = WKWebViewConfiguration()
             webConfiguration.allowsInlineMediaPlayback = true
             webConfiguration.mediaTypesRequiringUserActionForPlayback = []
@@ -1592,7 +1592,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
-            let webPlayerUrl = "https://play-dev.us.theq.live/player?url=\(url)"
+            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)player?url=\(url)"
             let link = URL(string:webPlayerUrl)!
             let request = URLRequest(url: link)
             self.previewView.addSubview(webView)

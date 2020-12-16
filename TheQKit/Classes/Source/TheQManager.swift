@@ -63,9 +63,10 @@ class TheQManager {
 //        mixpanelInstance =  Mixpanel.initialize(token: TQKConstants.MIXPANEL_TOKEN)
 //    }
     
-    func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, mixpanelToken : String? = nil) {
+    func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, mixpanelToken : String? = nil, webPlayerURL:String? = nil) {
         TheQManager.sharedInstance.apiToken = apiToken ?? ""
         UserDefaults.standard.set(baseURL, forKey: "TQK_BASE_URL")
+        UserDefaults.standard.set(webPlayerURL, forKey: "TQK_WEBPLAYER_URL")
         UserDefaults.standard.set(locale, forKey: "TQK_LOCALE")
         UserDefaults.standard.set(moneySymbol, forKey: "TQK_MONEY_SYMBOL")
         UserDefaults.standard.set(appName, forKey: "TQK_APP_NAME")

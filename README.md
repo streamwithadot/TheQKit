@@ -39,7 +39,8 @@ The `THEQKIT_TOKEN` allows for only this tenants games to be visable by TheQKit 
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    TheQKit.initialize(token: "<Provided Account Token>", baseUrl: "<Provided Base Url>")
+
+    TheQKit.initialize(baseUrl: "<Provided Base Url>", webPlayerUrl: "<Provided Web Player Url>",token: "<Provided Account Token>")
     
     //Optional - Disable the built in profanity filter on freeform user answers
     //TheQKit.disableProfanityFilter()
@@ -47,6 +48,17 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     //Optional - Allow users to screen record during games
     //TheQKit.enableScreenRecording()
 }
+```
+Full list of paramters when initilizing, and defaults provided
+```swift
+/// - Parameters:
+///     - baseURL: *Required* base URL to partners domain 
+///     - locale: *Optional* language / region 
+///     - moneySymbol: *Optional* meant to always match the one the locale would use
+///     - appName: *Optional* name of the app to be shown to users 
+///     - webPlayerURL: *Optional* url for alternative / optional webplayer (provided by Stream Live, Inc.) 
+///     - token: *Required* partner key (provided by Stream Live, Inc.) 
+public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, token : String){..}
 ```
 
 ## User Authentication
@@ -129,6 +141,7 @@ New with Version 1.1.4, an optional gameOptions parameter when launching a game 
 ///     - incorrectBackgroundColor: *Optional* overrides the default color of the incorrect screen
 ///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
 ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
+///     - useWebPlayer: *Optional* toggles from using the native AVPlayer to using an embedded webplayer via WebKit. MUST HAVE "webPlayerURL" DEFINED IN TheQKit.initialize(...) IN THE APP DELEGATE TO WORK
 
 let options = TQKGameOptions(logoOverride: <#T##UIImage?#>,
                             colorCode: <#T##String?#>,
@@ -138,7 +151,8 @@ let options = TQKGameOptions(logoOverride: <#T##UIImage?#>,
                             correctBackgroundColor: <#T##UIColor?#>,
                             incorrectBackgroundColor: <#T##UIColor?#>,
                             questionBackgroundAlpha: <#T##CGFloat?#>,
-                            isEliminationDisabled: <#T##Bool?#>)
+                            isEliminationDisabled: <#T##Bool?#>,
+                            useWebPlayer: Bool?)
 
 ```
 

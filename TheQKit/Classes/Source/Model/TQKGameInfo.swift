@@ -74,6 +74,7 @@ public enum TQKWinCondition : String {
 ///     - correctBackgroundColor: *Optional* overrides the default color of the correct screen
 ///     - incorrectBackgroundColor: *Optional* overrides the default color of the incorrect screen
 ///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
+///     - useWebPlayer: *Optional* toggles from using the native AVPlayer to using an embedded webplayer via WebKit. MUST HAVE "webPlayerURL" DEFINED IN TheQKit.initialize(...) IN THE APP DELEGATE TO WORK
 public struct TQKGameOptions {
    
     public var logoOverride: UIImage? = nil

@@ -32,19 +32,21 @@ public class TheQKit {
     ///     - locale: language / region
     ///     - moneySymbol: meant to always match the one the locale would use
     ///     - appName: name of the app to be shown to users
-    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q"){
+    ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.)
+    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil){
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!)
     }
     
     /// Overriden initializer with token
     ///
     /// - Parameters:
-    ///     - baseURL: base URL to partners domain
-    ///     - locale: language / region
-    ///     - moneySymbol: meant to always match the one the locale would use
-    ///     - appName: name of the app to be shown to users
-    ///     - token: partner key (provided by Stream Live, Inc.)
-    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", token : String){
+    ///     - baseURL: base URL to partners domain *Required*
+    ///     - locale: language / region *Optional*
+    ///     - moneySymbol: meant to always match the one the locale would use *Optional*
+    ///     - appName: name of the app to be shown to users *Optional*
+    ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.) *Optional*
+    ///     - token: partner key (provided by Stream Live, Inc.) *Required*
+    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, token : String){
         TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token)
     }
     
