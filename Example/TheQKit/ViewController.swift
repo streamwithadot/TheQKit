@@ -36,7 +36,7 @@ class ViewController: UIViewController {
             let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
                                         playerBackgroundColor: UIColor.clear,
                                         useThemeAsBackground: true,
-                                        useWebPlayer: true)
+                                        useWebPlayer: false)
             
             TheQKit.showCardsController(fromViewController: connectContainerViewController,
                                         gameOptions: options)
