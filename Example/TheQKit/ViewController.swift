@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     
     
     @IBOutlet weak var containerView: UIView!
+    @IBOutlet weak var tableView: UITableView!
     
     
     override func viewDidLoad() {
@@ -43,44 +44,43 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func logout(_ sender: Any) {
+    func logout() {
         TheQKit.LogoutQUser()
         self.navigationController?.popViewController(animated: true)
     }
     
-    @IBAction func checkForGame(_ sender: Any) {
-     
-        //Swap to CheckForTestGames for games tagged as test only
-        TheQKit.CheckForGames { (isActive, gamesArray) in
-            //isActive : Bool
-            //gamesArray : [TQKGame] ... active and non active games
-            if(isActive){
-                print("active game exist")
-                let options = TQKGameOptions()
-                TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
-                    //launched
+    func searchAndLaunchGame(test:Bool,useWebPlayer:Bool,alwaysUseHLS:Bool){
+        if(test){
+            TheQKit.CheckForTestGames { (isActive, gamesArray) in
+                //isActive : Bool
+                //gamesArray : [TQKGame] ... active and non active games
+                if(isActive){
+                    print("active game exist")
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+                    TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
+                        //launched
+                    }
+                }else{
+                    print("no active games")
                 }
-            }else{
-                print("no active games")
+            }
+        }else{
+            TheQKit.CheckForGames { (isActive, gamesArray) in
+                //isActive : Bool
+                //gamesArray : [TQKGame] ... active and non active games
+                if(isActive){
+                    print("active game exist")
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+                    TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
+                        //launched
+                    }
+                }else{
+                    print("no active games")
+                }
             }
         }
     }
-    @IBAction func TestGamesPressed(_ sender: Any) {
-        //Swap to CheckForTestGames for games tagged as test only
-        TheQKit.CheckForTestGames { (isActive, gamesArray) in
-            //isActive : Bool
-            //gamesArray : [TQKGame] ... active and non active games
-            if(isActive){
-                print("active game exist")
-                let options = TQKGameOptions(useWebPlayer: true)
-                TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
-                    //launched
-                }
-            }else{
-                print("no active games")
-            }
-        }
-    }
+
     
     @IBAction func joinGame(_ sender: Any) {
         let options = TQKGameOptions(isEliminationDisabled: true)
@@ -89,9 +89,84 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func cashOut(_ sender: Any) {
+    func cashOut() {
         TheQKit.CashOut()
     }
     
 }
 
+extension ViewController : UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if(indexPath.section == 0){
+            if(indexPath.row == 0){
+                self.logout()
+            }else{
+                self.cashOut()
+            }
+        }else if(indexPath.section == 1) {
+            if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: false)
+            }else{
+                self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: true)
+            }
+        }else {
+            if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: false)
+            }else{
+                self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: true)
+            }
+        }
+    }
+}
+
+extension ViewController : UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(section == 0){
+            return 2
+        }else{
+            return 2
+        }
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 3
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell.init(style: .default, reuseIdentifier: "defaultCell")
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "loginCell", for: indexPath) as! LoginCell
+        
+        if(indexPath.section == 0){
+            if(indexPath.row == 0){
+                cell.textLabel?.text = "Logout"
+            }else{
+                cell.textLabel?.text = "Cashout"
+            }
+        }else if(indexPath.section == 1) {
+            if(indexPath.row == 0){
+                cell.textLabel?.text = "Native / LLHLS"
+            }else{
+                cell.textLabel?.text = "Web / HLS"
+            }
+        }else {
+            if(indexPath.row == 0){
+                cell.textLabel?.text = "Native / LLHLS"
+            }else{
+                cell.textLabel?.text = "Web / HLS"
+            }
+        }
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if(section == 0){
+            return "TheQKit"
+        }else if(section == 1){
+            return "Normal Games"
+        }else{
+            return "Test Games"
+        }
+    }
+}

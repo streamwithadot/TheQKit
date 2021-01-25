@@ -1430,7 +1430,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(!self.theGame!.videoDisabled){
 //            spinnerView.animate()
             self.spinnerView.isHidden = true
-            if self.theGame?.llhlsUrl != nil {
+            if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
                 initializePlayer(url: (self.theGame?.llhlsUrl)!)
             }else{
                 initializePlayer(url: (self.theGame?.hlsUrl)!)
@@ -1653,7 +1653,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         reconnectCount = 0
         shouldReconnect = false
         if(!self.theGame!.videoDisabled){
-            if self.theGame?.llhlsUrl != nil {
+            if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
                 self.initializePlayer(url: (self.theGame?.llhlsUrl)!)
             }else{
                 initializePlayer(url: (self.theGame?.hlsUrl)!)

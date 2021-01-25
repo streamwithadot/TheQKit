@@ -88,6 +88,7 @@ public struct TQKGameOptions {
     public var questionBackgroundAlpha : CGFloat = 0.8
     public var isEliminationDisabled : Bool = false
     public var useWebPlayer : Bool = false
+    public var alwaysUseHLS : Bool = false
     
     public init(logoOverride : UIImage? = nil,
                 colorCode: String? = nil,
@@ -99,23 +100,26 @@ public struct TQKGameOptions {
                 incorrectBackgroundColor: UIColor? = nil,
                 questionBackgroundAlpha: CGFloat? = 0.8,
                 isEliminationDisabled: Bool? = false,
-                useWebPlayer: Bool? = false) {
+                useWebPlayer: Bool? = false,
+                alwaysUseHLS: Bool? = false) {
         
-               self.logoOverride = logoOverride
-               self.colorCode = colorCode
-               self.useLongTimer = useLongTimer!
-               self.playerBackgroundColor = playerBackgroundColor!
-               self.useThemeAsBackground = useThemeAsBackground!
-               self.useThemeColors = useThemeColors!
-               if(correctBackgroundColor != nil){
-                   self.correctBackgroundColor = correctBackgroundColor!
-               }
-               if(incorrectBackgroundColor != nil){
-                   self.incorrectBackgroundColor = incorrectBackgroundColor!
-               }
-               self.questionBackgroundAlpha = questionBackgroundAlpha!
-               self.isEliminationDisabled = isEliminationDisabled!
-               self.useWebPlayer = useWebPlayer!
+                    self.logoOverride = logoOverride
+                    self.colorCode = colorCode
+                    self.useLongTimer = useLongTimer!
+                    self.playerBackgroundColor = playerBackgroundColor!
+                    self.useThemeAsBackground = useThemeAsBackground!
+                    self.useThemeColors = useThemeColors!
+                    if(correctBackgroundColor != nil){
+                        self.correctBackgroundColor = correctBackgroundColor!
+                    }
+                    if(incorrectBackgroundColor != nil){
+                        self.incorrectBackgroundColor = incorrectBackgroundColor!
+                    }
+                    self.questionBackgroundAlpha = questionBackgroundAlpha!
+                    self.isEliminationDisabled = isEliminationDisabled!
+                    self.useWebPlayer = useWebPlayer!
+                    self.alwaysUseHLS = alwaysUseHLS!
+        
            }
 }
 

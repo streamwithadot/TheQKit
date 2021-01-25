@@ -34,7 +34,7 @@ public class TheQKit {
     ///     - appName: name of the app to be shown to users
     ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.)
     public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil){
-        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!)
+        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, webPlayerURL: webPlayerURL)
     }
     
     /// Overriden initializer with token
@@ -47,7 +47,7 @@ public class TheQKit {
     ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.) *Optional*
     ///     - token: partner key (provided by Stream Live, Inc.) *Required*
     public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, token : String){
-        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token)
+        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token, webPlayerURL: webPlayerURL)
     }
     
     /// Disable the built in profanity filter on user submissions
