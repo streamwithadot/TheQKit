@@ -49,6 +49,46 @@ class ViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
+    func menuItemsForSelection(test:Bool, completionHandler: @escaping (_ menuItems: [TQKGame]?) -> Void) {
+        
+        if(test){
+            TheQKit.CheckForTestGames { (isActive, gamesArray) in
+                //isActive : Bool
+                //gamesArray : [TQKGame] ... active and non active games
+                if(isActive){
+                    print("active game exist")
+                    completionHandler(gamesArray)
+                }else{
+                    print("no active games")
+                    completionHandler(nil)
+                }
+            }
+        }else{
+            TheQKit.CheckForGames { (isActive, gamesArray) in
+                //isActive : Bool
+                //gamesArray : [TQKGame] ... active and non active games
+                if(isActive){
+                    print("active game exist")
+                    completionHandler(gamesArray)
+                }else{
+                    print("no active games")
+                    completionHandler(nil)
+                }
+            }
+        }
+       
+    }
+    
+    func launchGame(useWebPlayer:Bool,alwaysUseHLS:Bool, theGame: TQKGame){
+            
+        print("active game exist")
+        let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+        TheQKit.LaunchGame(theGame: theGame, gameOptions: options) { (success) in
+            //launched
+        }
+        
+    }
+    
     func searchAndLaunchGame(test:Bool,useWebPlayer:Bool,alwaysUseHLS:Bool){
         if(test){
             TheQKit.CheckForTestGames { (isActive, gamesArray) in
@@ -96,6 +136,76 @@ class ViewController: UIViewController {
 }
 
 extension ViewController : UITableViewDelegate {
+    
+    func tableView(
+      _ tableView: UITableView,
+      contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint)
+        -> UIContextMenuConfiguration? {
+        
+      // 1
+      let index = indexPath.row
+      
+      // 2
+      let identifier = "\(index)" as NSString
+      
+      return UIContextMenuConfiguration(
+        identifier: identifier,
+        previewProvider: nil) { _ in
+        
+        var test = false
+        if(indexPath.section == 2){
+            test = true
+        }
+          
+        let dynamicElements = UIDeferredMenuElement { completion in // 1
+            self.menuItemsForSelection(test: test) { (items) in
+                if let items = items { // 2
+                    
+                    let actions = items.map { item in // 3
+                        UIAction(title: item.id!, image: nil) { _ in
+                            print("\(item.title) tapped")
+                            if(indexPath.section == 1) {
+                                if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
+                                }else if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
+                                }else if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
+                                }else{
+                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                }
+                            }else {
+                                if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
+                                }else if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
+                                }else if(indexPath.row == 0){
+                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
+                                }else{
+                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                }
+                            }
+                        }
+                    }
+                    
+                    completion(actions) // 4
+                    
+                } else {
+                    let action = UIAction(
+                        title: "Error fetching menu",
+                        image: UIImage(systemName: "xmark.octagon"),
+                        attributes: [.disabled]) { _ in }
+                    
+                    completion([action]) // 5
+                }
+            }
+        }
+          
+          // 5
+          return UIMenu(title: "", image: nil, children: [dynamicElements])
+      }
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if(indexPath.section == 0){
             if(indexPath.row == 0){
@@ -106,12 +216,20 @@ extension ViewController : UITableViewDelegate {
         }else if(indexPath.section == 1) {
             if(indexPath.row == 0){
                 self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: false)
+            }else if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: true)
+            }else if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: false)
             }else{
                 self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: true)
             }
         }else {
             if(indexPath.row == 0){
                 self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: false)
+            }else if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: true)
+            }else if(indexPath.row == 0){
+                self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: false)
             }else{
                 self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: true)
             }
@@ -124,7 +242,7 @@ extension ViewController : UITableViewDataSource {
         if(section == 0){
             return 2
         }else{
-            return 2
+            return 4
         }
     }
     
@@ -146,12 +264,20 @@ extension ViewController : UITableViewDataSource {
         }else if(indexPath.section == 1) {
             if(indexPath.row == 0){
                 cell.textLabel?.text = "Native / LLHLS"
+            }else if(indexPath.row == 1){
+                cell.textLabel?.text = "Native / HLS"
+            }else if(indexPath.row == 2){
+                cell.textLabel?.text = "Web / LLHLS"
             }else{
                 cell.textLabel?.text = "Web / HLS"
             }
         }else {
             if(indexPath.row == 0){
                 cell.textLabel?.text = "Native / LLHLS"
+            }else if(indexPath.row == 1){
+                cell.textLabel?.text = "Native / HLS"
+            }else if(indexPath.row == 2){
+                cell.textLabel?.text = "Web / LLHLS"
             }else{
                 cell.textLabel?.text = "Web / HLS"
             }
@@ -164,9 +290,9 @@ extension ViewController : UITableViewDataSource {
         if(section == 0){
             return "TheQKit"
         }else if(section == 1){
-            return "Normal Games"
+            return "Normal (uses first game returned)"
         }else{
-            return "Test Games"
+            return "Test (uses first test game returned)"
         }
     }
 }
