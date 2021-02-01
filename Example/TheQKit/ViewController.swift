@@ -142,71 +142,67 @@ extension ViewController : UITableViewDelegate {
       contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint)
         -> UIContextMenuConfiguration? {
         
-      // 1
       let index = indexPath.row
-      
-      // 2
       let identifier = "\(index)" as NSString
       
       return UIContextMenuConfiguration(
         identifier: identifier,
         previewProvider: nil) { _ in
         
-        var test = false
-        if(indexPath.section == 2){
-            test = true
-        }
+            var test = false
+            if(indexPath.section == 2){
+                test = true
+            }
           
-        let dynamicElements = UIDeferredMenuElement { completion in // 1
-            self.menuItemsForSelection(test: test) { (items) in
-                if let items = items { // 2
-                    
-                    let actions = items.map { item in // 3
-                        UIAction(title: item.id!, image: nil) { _ in
-                            print("\(item.title) tapped")
-                            if(indexPath.section == 1) {
-                                if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
-                                }else if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
-                                }else if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
-                                }else{
-                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
-                                }
-                            }else {
-                                if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
-                                }else if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
-                                }else if(indexPath.row == 0){
-                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
-                                }else{
-                                    self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+            let dynamicElements = UIDeferredMenuElement { completion in
+                self.menuItemsForSelection(test: test) { (items) in
+                    if let items = items {
+                        
+                        let actions = items.map { item in
+                            UIAction(title: item.id!, image: nil) { _ in
+                                print("\(item.title) tapped")
+                                if(indexPath.section == 1) {
+                                    if(indexPath.row == 0){
+                                        self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
+                                    }else if(indexPath.row == 1){
+                                        self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
+                                    }else if(indexPath.row == 2){
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
+                                    }else{
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                    }
+                                }else {
+                                    if(indexPath.row == 0){
+                                        self.launchGame(useWebPlayer: false, alwaysUseHLS: false, theGame: item)
+                                    }else if(indexPath.row == 1){
+                                        self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
+                                    }else if(indexPath.row == 2){
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
+                                    }else{
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                    }
                                 }
                             }
                         }
+                        
+                        completion(actions)
+                        
+                    } else {
+                        let action = UIAction(
+                            title: "No Live Games Found",
+                            image: UIImage(systemName: "xmark.octagon"),
+                            attributes: [.disabled]) { _ in }
+                        
+                        completion([action])
                     }
-                    
-                    completion(actions) // 4
-                    
-                } else {
-                    let action = UIAction(
-                        title: "Error fetching menu",
-                        image: UIImage(systemName: "xmark.octagon"),
-                        attributes: [.disabled]) { _ in }
-                    
-                    completion([action]) // 5
                 }
             }
-        }
-          
-          // 5
           return UIMenu(title: "", image: nil, children: [dynamicElements])
-      }
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+                
         if(indexPath.section == 0){
             if(indexPath.row == 0){
                 self.logout()
@@ -216,9 +212,9 @@ extension ViewController : UITableViewDelegate {
         }else if(indexPath.section == 1) {
             if(indexPath.row == 0){
                 self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: false)
-            }else if(indexPath.row == 0){
+            }else if(indexPath.row == 1){
                 self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: true)
-            }else if(indexPath.row == 0){
+            }else if(indexPath.row == 2){
                 self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: false)
             }else{
                 self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: true)
@@ -226,9 +222,9 @@ extension ViewController : UITableViewDelegate {
         }else {
             if(indexPath.row == 0){
                 self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: false)
-            }else if(indexPath.row == 0){
+            }else if(indexPath.row == 1){
                 self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: true)
-            }else if(indexPath.row == 0){
+            }else if(indexPath.row == 2){
                 self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: false)
             }else{
                 self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: true)
