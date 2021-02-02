@@ -3,6 +3,10 @@
 [![Version](https://img.shields.io/cocoapods/v/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 [![Platform](https://img.shields.io/cocoapods/p/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 
+# What's New? 1.2.4
+
+1.2.4 adds an optional param to the TQKGameOptions, alwaysUseHLS, when set to true will override the default behavior of using the LLHS whenever possible.
+
 # Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
@@ -142,6 +146,7 @@ New with Version 1.1.4, an optional gameOptions parameter when launching a game 
 ///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
 ///     - isEliminationDisabled: *Optional* Users will never know if they are eliminated or not, simulates a non-elimination game mode
 ///     - useWebPlayer: *Optional* toggles from using the native AVPlayer to using an embedded webplayer via WebKit. MUST HAVE "webPlayerURL" DEFINED IN TheQKit.initialize(...) IN THE APP DELEGATE TO WORK
+///     - alwaysUseHLS: *Optional* forces the player to use the HLS url even if the LLHLS url is present - default behavior uses LLHLS if present.
 
 let options = TQKGameOptions(logoOverride: <#T##UIImage?#>,
                             colorCode: <#T##String?#>,
@@ -152,7 +157,8 @@ let options = TQKGameOptions(logoOverride: <#T##UIImage?#>,
                             incorrectBackgroundColor: <#T##UIColor?#>,
                             questionBackgroundAlpha: <#T##CGFloat?#>,
                             isEliminationDisabled: <#T##Bool?#>,
-                            useWebPlayer: Bool?)
+                            useWebPlayer: <#T##Bool?#>,
+                            alwaysUseHLS: <#T##Bool?#>)
 
 ```
 

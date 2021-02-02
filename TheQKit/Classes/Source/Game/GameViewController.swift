@@ -1592,7 +1592,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
-            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)player?url=\(url)"
+            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)player?url=\(url)&hideUI=true"
             let link = URL(string:webPlayerUrl)!
             let request = URLRequest(url: link)
             self.previewView.addSubview(webView)
