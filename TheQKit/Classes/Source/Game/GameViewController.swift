@@ -1587,6 +1587,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
             let webConfiguration = WKWebViewConfiguration()
             webConfiguration.allowsInlineMediaPlayback = true
+            webConfiguration.ignoresViewportScaleLimits = true
             webConfiguration.mediaTypesRequiringUserActionForPlayback = []
             let webView = WKWebView(frame: self.view.bounds, configuration: webConfiguration)
 
@@ -1595,6 +1596,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             let webPlayerUrl = "\(TQKConstants.webPlayerUrl)player?url=\(url)&hideUI=true"
             let link = URL(string:webPlayerUrl)!
             let request = URLRequest(url: link)
+            self.previewView.isUserInteractionEnabled = false
             self.previewView.addSubview(webView)
             self.previewView.sendSubviewToBack(webView)
             webView.load(request)

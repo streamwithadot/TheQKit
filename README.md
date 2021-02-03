@@ -3,9 +3,9 @@
 [![Version](https://img.shields.io/cocoapods/v/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 [![Platform](https://img.shields.io/cocoapods/p/TheQKit.svg?style=flat)](https://cocoapods.org/pods/TheQKit)
 
-# What's New? 1.2.4
+# What's New? 1.2.5
 
-1.2.4 adds an optional param to the TQKGameOptions, alwaysUseHLS, when set to true will override the default behavior of using the LLHS whenever possible.
+1.2.5 adds an optional param to the TQKGameOptions, alwaysUseHLS, when set to true will override the default behavior of using the LLHS whenever possible.
 
 # Example
 
