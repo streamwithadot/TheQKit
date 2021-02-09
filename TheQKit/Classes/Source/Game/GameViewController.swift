@@ -120,7 +120,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     var currentQuestion: TQKQuestion!
     var currentResult: TQKResult!
     var currentEndQuestion : TQKResult?
-    var videoView: UIView!
     var gameLocked: Bool!
     var userEliminated: Bool = false
     var myAnswerId: String!
@@ -1582,6 +1581,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+       super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { (context) in
+        }) { (context) in
+            self.previewView.frame.size = size
+            if(self.gameOptions?.useWebPlayer == false){
+                self.avPlayerLayer.frame.size = size
+            }else{
+                self.previewView.viewWithTag(1)?.frame.size = size
+            }
+        }
+    }
+    
     func initializePlayer(url: String) {
         
         if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
@@ -1593,12 +1605,14 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
+            webView.tag = 1
             let webPlayerUrl = "\(TQKConstants.webPlayerUrl)player?url=\(url)&hideUI=true"
             let link = URL(string:webPlayerUrl)!
             let request = URLRequest(url: link)
             self.previewView.isUserInteractionEnabled = false
             self.previewView.addSubview(webView)
             self.previewView.sendSubviewToBack(webView)
+            
             webView.load(request)
         }else{
         
@@ -1623,12 +1637,13 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.avPlayer.replaceCurrentItem(with: self.avPlayerItem)
 
             self.avPlayerLayer = AVPlayerLayer(player: avPlayer)
-            self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            self.avPlayerLayer.videoGravity = AVLayerVideoGravity.resizeAspect
             self.avPlayer.actionAtItemEnd = .none
 
             self.avPlayerLayer.frame = view.layer.bounds
             self.previewView.backgroundColor = .clear
             self.previewView.layer.insertSublayer(self.avPlayerLayer, at: 0)
+            
         }
 
        
