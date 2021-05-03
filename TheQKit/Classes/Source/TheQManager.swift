@@ -8,13 +8,11 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import Mixpanel
 
 class TheQManager {
     
     var profanityFlag : Bool = true
     var canRecordScreen : Bool = false
-    var mixpanelInstance : MixpanelInstance?
     static let sharedInstance = TheQManager()
     private var apiToken : String?
     private var loggedInUser : TQKUser? {
@@ -63,18 +61,17 @@ class TheQManager {
 //        mixpanelInstance =  Mixpanel.initialize(token: TQKConstants.MIXPANEL_TOKEN)
 //    }
     
-    func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, mixpanelToken : String? = nil, webPlayerURL:String? = nil) {
+    func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, webPlayerURL:String? = nil, partnerName:String? = nil) {
         TheQManager.sharedInstance.apiToken = apiToken ?? ""
         UserDefaults.standard.set(baseURL, forKey: "TQK_BASE_URL")
         UserDefaults.standard.set(webPlayerURL, forKey: "TQK_WEBPLAYER_URL")
         UserDefaults.standard.set(locale, forKey: "TQK_LOCALE")
         UserDefaults.standard.set(moneySymbol, forKey: "TQK_MONEY_SYMBOL")
         UserDefaults.standard.set(appName, forKey: "TQK_APP_NAME")
+        UserDefaults.standard.set(apiToken, forKey: "TQK_API_TOKEN")
+        UserDefaults.standard.set(partnerName, forKey: "TQK_PARTNER_NAME")
         UserDefaults.standard.synchronize()
         
-        if(mixpanelToken != nil){
-            mixpanelInstance =  Mixpanel.initialize(token: mixpanelToken!)
-        }
         
         if(TheQManager.sharedInstance.loggedInUser != nil){
             //Refresh user object if needed
@@ -550,7 +547,7 @@ class TheQManager {
             return
         }
         
-        if(TheQManager.sharedInstance.getUser() == nil){
+        if(TheQManager.sharedInstance.getUser() == nil && gameOptions.fullWebExperience == false){
             print("TheQKit ERROR: NO USER LOGGED IN - CAN NOT LAUNCH GAME")
             return
         }else{
@@ -599,13 +596,15 @@ class TheQManager {
         
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
-                if(topController.navigationController != nil){
-                    topController.navigationController?.pushViewController(vc, animated: true)
-                    topController.navigationController?.navigationBar.isHidden = true
+                if(gameOptions.fullWebExperience){
+                    topController.present(vc, animated: true) { }
                 }else{
-                    vc.modalPresentationStyle = .fullScreen
-                    topController.present(vc, animated: true) {
-
+                    if(topController.navigationController != nil){
+                        topController.navigationController?.pushViewController(vc, animated: true)
+                        topController.navigationController?.navigationBar.isHidden = true
+                    }else{
+                        vc.modalPresentationStyle = .fullScreen
+                        topController.present(vc, animated: true) { }
                     }
                 }
             })
@@ -762,8 +761,8 @@ class TheQManager {
                                         //TODO: maybe a good spot to make sure the user can get notifications
                                         self.showPopUp()
                                         
-                                        let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
-                                        TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
+//                                        let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
+//                                        TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
                                         
                                     }
                                 }
@@ -885,8 +884,8 @@ class TheQManager {
                                             //TODO: maybe a good spot to make sure the user can get notifications
                                             self.showPopUp()
                                             
-                                            let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
-                                            TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
+//                                            let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
+//                                            TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
                                             
                                         }
                                     }

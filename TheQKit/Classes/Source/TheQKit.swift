@@ -9,7 +9,6 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import Mixpanel
 
 /// TheQKit public functions
 public class TheQKit {
@@ -33,8 +32,9 @@ public class TheQKit {
     ///     - moneySymbol: meant to always match the one the locale would use
     ///     - appName: name of the app to be shown to users
     ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.)
-    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil){
-        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, webPlayerURL: webPlayerURL)
+    ///     - partnerName: name of your partner (found and set in the partner admin console).
+    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, partnerName:String? = nil){
+        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, webPlayerURL: webPlayerURL, partnerName: partnerName)
     }
     
     /// Overriden initializer with token
@@ -45,9 +45,10 @@ public class TheQKit {
     ///     - moneySymbol: meant to always match the one the locale would use *Optional*
     ///     - appName: name of the app to be shown to users *Optional*
     ///     - webPlayerURL: url for alternative / optional webplayer (provided by Stream Live, Inc.) *Optional*
+    ///     - partnerName: name of your partner (found and set in the partner admin console).
     ///     - token: partner key (provided by Stream Live, Inc.) *Required*
-    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, token : String){
-        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token, webPlayerURL: webPlayerURL)
+    public class func initialize(baseURL:String, locale:String? = "en_US", moneySymbol:String? = "$", appName:String? = "The Q", webPlayerURL:String? = nil, partnerName:String? = nil ,token : String){
+        TheQManager.sharedInstance.initialize(baseURL:baseURL, locale: locale!, moneySymbol: moneySymbol!, appName: appName!, token: token, webPlayerURL: webPlayerURL, partnerName: partnerName)
     }
     
     /// Disable the built in profanity filter on user submissions

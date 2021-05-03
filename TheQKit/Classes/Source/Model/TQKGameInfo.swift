@@ -75,6 +75,7 @@ public enum TQKWinCondition : String {
 ///     - incorrectBackgroundColor: *Optional* overrides the default color of the incorrect screen
 ///     - questionBackgroundAlpha: *Optional* allows the opacity of the question/incorrect/correct screens to be changes. (0.0 .. 1.0)
 ///     - useWebPlayer: *Optional* toggles from using the native AVPlayer to using an embedded webplayer via WebKit. MUST HAVE "webPlayerURL" DEFINED IN TheQKit.initialize(...) IN THE APP DELEGATE TO WORK
+///     - fullWebExperience: *Optional* Allows the game UI to be driven by the webview instead of natively. Also needs webPlayerUrl defined in the app delegate init method
 public struct TQKGameOptions {
    
     public var logoOverride: UIImage? = nil
@@ -89,6 +90,8 @@ public struct TQKGameOptions {
     public var isEliminationDisabled : Bool = false
     public var useWebPlayer : Bool = false
     public var alwaysUseHLS : Bool = false
+    public var fullWebExperience : Bool = true
+    public var firebaseToken : String? = nil
     
     public init(logoOverride : UIImage? = nil,
                 colorCode: String? = nil,
@@ -101,7 +104,9 @@ public struct TQKGameOptions {
                 questionBackgroundAlpha: CGFloat? = 0.8,
                 isEliminationDisabled: Bool? = false,
                 useWebPlayer: Bool? = false,
-                alwaysUseHLS: Bool? = false) {
+                alwaysUseHLS: Bool? = false,
+                fullWebExperience : Bool? = true,
+                firebaseToken : String? = nil) {
         
                     self.logoOverride = logoOverride
                     self.colorCode = colorCode
@@ -119,7 +124,8 @@ public struct TQKGameOptions {
                     self.isEliminationDisabled = isEliminationDisabled!
                     self.useWebPlayer = useWebPlayer!
                     self.alwaysUseHLS = alwaysUseHLS!
-        
+                    self.fullWebExperience = fullWebExperience!
+                    self.firebaseToken = firebaseToken
            }
 }
 

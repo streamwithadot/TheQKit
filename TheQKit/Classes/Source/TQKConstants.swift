@@ -69,4 +69,18 @@ struct TQKConstants {
         }
     }
     
+    static var partnerName : String {
+        get {
+            let userDefaults = UserDefaults.standard
+            return userDefaults.string(forKey: "TQK_PARTNER_NAME") ?? ""
+        }
+    }
+    
+    static var apiToken : String {
+        get {
+            let userDefaults = UserDefaults.standard
+            return userDefaults.string(forKey: "TQK_API_TOKEN") ?? ""
+        }
+    }
+    
 }

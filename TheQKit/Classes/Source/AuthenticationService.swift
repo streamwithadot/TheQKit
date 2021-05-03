@@ -42,10 +42,7 @@ class AuthenticationService {
         
         var code:String = ""
         Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON { response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
-            
+           
             response.result.ifFailure {
                 self.showLoginError()
                 completionHandler(false)
@@ -107,10 +104,7 @@ class AuthenticationService {
        
        Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON
        { response in
-           print("Request: \(String(describing: response.request))")   // original url request
-           print("Response: \(String(describing: response.response))") // http url response
-           print("Result: \(response.result)")                         // response serialization result
-
+          
            response.result.ifFailure {
                self.showLoginError()
                completionHandler(false)
@@ -167,10 +161,7 @@ class AuthenticationService {
         
         var code:String = ""
         Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON { response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
-            
+           
             response.result.ifFailure {
                 self.showLoginError()
                 completionHandler(false)
@@ -218,6 +209,10 @@ class AuthenticationService {
     
     func FirebaseLogin(userID: String, tokenString: String, username: String? = nil, apiToken: String, completionHandler: @escaping (_ success : Bool) -> Void) {
         
+        let key = "firebaseToken"
+        let preferences = UserDefaults.standard
+        preferences.setValue(tokenString, forKey: key)
+        
         let akAuth = TQKFirebaseAuth(id: userID, accessToken: tokenString)
         let params: Parameters = akAuth.dictionaryRepresentation
         var finalUrl:String = TQKConstants.baseUrl + "oauth/token"
@@ -227,9 +222,6 @@ class AuthenticationService {
         
         var code:String = ""
         Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON { response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
             
             response.result.ifFailure {
                 self.showLoginError()
@@ -292,17 +284,10 @@ class AuthenticationService {
                                         deviceId: UIDevice.current.identifierForVendor!.uuidString,
                                         type: "IOS", autoHandleUsernameCollision: true)
         params = newUser.dictionaryRepresentation
-        
-        print(params)
-        
+                
         let finalUrl:String = TQKConstants.baseUrl + "users?partnerCode=\(apiToken)"
-        print("the url to create user " + finalUrl)
-        
         
         Alamofire.request(finalUrl, method: .post, parameters: params, encoding: JSONEncoding.default).responseJSON { response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
             
             response.result.ifFailure {
                 completionHandler(false)
@@ -314,10 +299,7 @@ class AuthenticationService {
                     completionHandler(false)
                 }else{
                     
-                    print("JSON: \(json)") // serialized json response
-                    
-                    //                    var requesRes: String = String(describing: response.response)
-                    
+                                        
                     self.loginResponse =  TQKLoginResponse(JSON: json)
                     
                     

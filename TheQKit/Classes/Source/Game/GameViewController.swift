@@ -19,7 +19,6 @@ import ObjectMapper
 import SwiftyJSON
 import Lottie
 
-import Mixpanel
 
 import AVFoundation
 
@@ -45,7 +44,7 @@ protocol StatsDelegate {
     func leaderBoardGoDown()
 }
 
-class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate, WKNavigationDelegate, WKUIDelegate {
+class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
@@ -90,9 +89,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     var completed : ((Bool) -> Void)?
-    
-    @IBOutlet weak var spinnerView: SpinnerView!
-    
+        
     @IBOutlet weak var previewView: UIView!
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Setup
@@ -331,6 +328,18 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         print("player is shutting down")
         print("viewWillDisappear")
         
+        
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        print("viewDidDisappear")
+        
+        if let x = self.previewView.viewWithTag(1) {
+            x.removeFromSuperview()
+        }
+        
         if(self.gameWinnersViewController != nil){
             self.gameWinnersViewController?.dismiss(animated: false, completion: nil)
         }
@@ -341,6 +350,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         if(!self.theGame!.videoDisabled){
 //            NotificationCenter.default.removeObserver(player)
         }
+        
         
         self.gameEnded = true
         if(self.eSource != nil){
@@ -371,12 +381,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             self.avPlayer.pause()
             self.avPlayer = nil
         }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        print("viewDidDisappear")
         
     }
     
@@ -384,7 +388,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         super.viewDidAppear(animated)
         
         if #available(iOS 13.0, *) {
-            self.isModalInPresentation = true
+//            self.isModalInPresentation = true
         } else {
             // Fallback on earlier versions
         }
@@ -395,7 +399,21 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         if (myGameId != nil && !(myGameId?.isEmpty)!) {
             print("loading event source")
-            self.setUpEventSource()
+            if(self.gameOptions?.fullWebExperience == false){
+                self.setUpEventSource()
+            }
+            
+            if(!self.theGame!.videoDisabled){
+    //            spinnerView.animate()
+    //            self.spinnerView.isHidden = true
+                if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
+                    initializePlayer(url: (self.theGame?.llhlsUrl)!)
+                }else{
+                    initializePlayer(url: (self.theGame?.hlsUrl)!)
+                }
+            }else{
+    //            self.spinnerView.isHidden = true
+            }
             
             let userDefaults = UserDefaults.standard
             let alreadyJoined = userDefaults.bool(forKey: self.myGameId! + "joined")
@@ -407,7 +425,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             userDefaults.set(joinedCount, forKey: TQKConstants.RUNNING_JOIN_GAME_COUNT)
             userDefaults.synchronize()
             
-            let object : Properties = ["gameID" : myGameId!,
+            let object : [String:Any] = ["gameID" : myGameId!,
                                        "gameTitle": (theGame?.theme.displayName)!,
                                          "scheduled": String(format:"%f", (theGame?.scheduled)!),
                                          "count" : joinedCount]
@@ -561,7 +579,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
                 let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String:Any])!
-                let object : Properties = ["gameID" : self.theGame!.id!,
+                let object : [String:Any] = ["gameID" : self.theGame!.id!,
                                              "userID" : myUser.id!,
                                              "username" : myUser.username!,
                                              "numberOfScreens" : "\(UIScreen.screens.count)" ]
@@ -571,7 +589,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             let userDefaults = UserDefaults.standard
             if userDefaults.object(forKey: "myUser") != nil {
                 let myUser = TQKUser(dictionary: userDefaults.object(forKey: "myUser") as! [String:Any])!
-                let object : Properties = ["gameID" : self.theGame!.id!,
+                let object : [String:Any] = ["gameID" : self.theGame!.id!,
                                              "userID" : myUser.id!,
                                              "username" : myUser.username!]
                 NotificationCenter.default.post(name: .airplayDetected, object: object)
@@ -596,7 +614,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     @objc func applicationWillEnterForeground(_ notification: NSNotification) {
         // Reconnect
         if(!self.theGame!.videoDisabled){
-            spinnerView.animate()
+//            spinnerView.animate()
             self.stopStreamAndReset()
         }
     }
@@ -711,7 +729,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 
                 if(self.currentQuestion != nil && !self.currentQuestion.wasMarkedIneligibleForTracking){
                     
-                    let object : Properties = ["gameID" : self.myGameId!,
+                    let object : [String:Any] = ["gameID" : self.myGameId!,
                                                  "questionID" : self.currentResult.questionId!,
                                                  "choiceID" : self.currentResult.selection!,
                                                  "eliminatedFlag": self.userEliminated,
@@ -722,7 +740,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                     NotificationCenter.default.post(name: .correctAnswerSubmitted, object: object)
 
                 }else{
-                    let object : Properties = ["gameID" : self.myGameId!,
+                    let object : [String:Any] = ["gameID" : self.myGameId!,
                                                  "questionID" : self.currentResult.questionId!,
                                                  "choiceID" : self.currentResult.selection!,
                                                  "eliminatedFlag": self.userEliminated]
@@ -755,7 +773,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                     }
                     
                     //TODO: notify the notification center that the app should present the subscriptions dialogue
-                    let object: Properties = ["gameID": self.theGame!.id!,
+                    let object: [String:Any] = ["gameID": self.theGame!.id!,
                                               "hostUrl": self.theGame!.host!,
                                                  "currentQuestionNumber":currentQuestionNum,
                                                  "currentQuestionTotal":currentQuestionTotal]
@@ -770,7 +788,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                 if(self.currentResult.selection != nil){
                     if(self.currentQuestion != nil){
                         
-                        let object : Properties = ["gameID" : self.myGameId!,
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
                                                      "questionID" : self.currentResult.questionId!,
                                                      "choiceID" : self.currentResult.selection!,
                                                      "eliminatedFlag": self.userEliminated,
@@ -782,7 +800,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
 
                     }else{
                         
-                        let object : Properties = ["gameID" : self.myGameId!,
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
                                                      "questionID" : self.currentResult.questionId!,
                                                      "choiceID" : self.currentResult.selection!,
                                                      "eliminatedFlag": self.userEliminated]
@@ -1426,17 +1444,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         eliminatedLabel.text = NSLocalizedString("Eliminated", comment: "")
         
-        if(!self.theGame!.videoDisabled){
-//            spinnerView.animate()
-            self.spinnerView.isHidden = true
-            if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
-                initializePlayer(url: (self.theGame?.llhlsUrl)!)
-            }else{
-                initializePlayer(url: (self.theGame?.hlsUrl)!)
-            }
-        }else{
-            self.spinnerView.isHidden = true
-        }
         
         if(self.useThemeAsBackground == true && !self.theGame!.theme.backgroundImageUrl.isEmpty){
             self.customBackgroundImageView = UIImageView(frame: self.view.bounds)
@@ -1594,14 +1601,59 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
     }
     
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "logHandler" {
+//            print("LOG: \(message.body)")
+        }
+    }
+    
     func initializePlayer(url: String) {
         
-        if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
+        if(gameOptions!.fullWebExperience == true){
             let webConfiguration = WKWebViewConfiguration()
             webConfiguration.allowsInlineMediaPlayback = true
             webConfiguration.ignoresViewportScaleLimits = true
             webConfiguration.mediaTypesRequiringUserActionForPlayback = []
-            let webView = WKWebView(frame: self.view.bounds, configuration: webConfiguration)
+            
+            let webView = WKWebView(frame: self.previewView.bounds, configuration: webConfiguration)
+            
+            // inject JS to capture console.log output and send to iOS
+            let source = "function captureLog(msg) { window.webkit.messageHandlers.logHandler.postMessage(msg); } window.console.log = captureLog; window.console.warn = captureLog; window.console.error = captureLog;"
+            let script = WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+            webView.configuration.userContentController.addUserScript(script)
+            // register the bridge script that listens for the output
+            webView.configuration.userContentController.add(self, name: "logHandler")
+
+            let bearerToken = gameOptions?.firebaseToken!
+
+            webView.navigationDelegate = self
+            webView.uiDelegate = self
+            webView.tag = 1
+            self.eliminationHeaderView.isHidden = true
+            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&authToken=\(bearerToken!)"
+//            print(webPlayerUrl)
+            let link = URL(string:webPlayerUrl)!
+            let request = URLRequest(url: link)
+            self.previewView.isUserInteractionEnabled = true
+            self.previewView.addSubview(webView)
+            self.previewView.sendSubviewToBack(webView)
+            
+            NSLayoutConstraint.activate([
+                webView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
+                webView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
+                webView.topAnchor.constraint(equalTo: previewView.topAnchor),
+                webView.bottomAnchor.constraint(equalTo: previewView.bottomAnchor)
+            ])
+            self.previewView.autoresizesSubviews = true
+            
+            webView.load(request)
+        }
+        else if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
+            let webConfiguration = WKWebViewConfiguration()
+            webConfiguration.allowsInlineMediaPlayback = true
+            webConfiguration.ignoresViewportScaleLimits = true
+            webConfiguration.mediaTypesRequiringUserActionForPlayback = []
+            let webView = WKWebView(frame: self.previewView.bounds, configuration: webConfiguration)
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
@@ -1728,7 +1780,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
         
 
-        let object : Properties = ["gameID" : self.myGameId!,
+        let object : [String:Any] = ["gameID" : self.myGameId!,
                                      "questionID" : questionId,
                                      "choiceID" : responseId,
                                      "questionNumber" : self.currentQuestion.number,
@@ -1863,7 +1915,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
                         }
                         
                         
-                        let object : Properties = ["gameID" : self.myGameId!,
+                        let object : [String:Any] = ["gameID" : self.myGameId!,
                                                      "questionID" : questionId,
                                                      "choiceID" : responseId,
                                                      "errorCode" : String(describing: json["errorCode"]!),

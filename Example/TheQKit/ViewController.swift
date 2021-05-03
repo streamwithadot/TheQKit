@@ -17,31 +17,20 @@ class ViewController: UIViewController {
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var tableView: UITableView!
     
+    var fbToken : String? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let key = "firebaseToken"
+        let preferences = UserDefaults.standard
+        fbToken = preferences.string(forKey: key)
 
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // you can set this name in 'segue.embed' in storyboard
-        if segue.identifier == "cardTest" {
-            let connectContainerViewController = segue.destination as UIViewController
-            //            containerViewController = connectContainerViewController
-            
-            let options = TQKGameOptions(logoOverride: UIImage(named: "test"),
-                                        playerBackgroundColor: UIColor.clear,
-                                        useThemeAsBackground: true,
-                                        useWebPlayer: false)
-            
-            TheQKit.showCardsController(fromViewController: connectContainerViewController,
-                                        gameOptions: options)
-        }
     }
     
     func logout() {
@@ -79,24 +68,25 @@ class ViewController: UIViewController {
        
     }
     
-    func launchGame(useWebPlayer:Bool,alwaysUseHLS:Bool, theGame: TQKGame){
+    func launchGame(useWebPlayer:Bool,alwaysUseHLS:Bool, theGame: TQKGame, fullWebExp:Bool? = false){
             
         print("active game exist")
-        let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+        let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: fbToken)
+        
         TheQKit.LaunchGame(theGame: theGame, gameOptions: options) { (success) in
             //launched
         }
         
     }
     
-    func searchAndLaunchGame(test:Bool,useWebPlayer:Bool,alwaysUseHLS:Bool){
+    func searchAndLaunchGame(test:Bool,useWebPlayer:Bool,alwaysUseHLS:Bool, fullWebExp:Bool? = false){
         if(test){
             TheQKit.CheckForTestGames { (isActive, gamesArray) in
                 //isActive : Bool
                 //gamesArray : [TQKGame] ... active and non active games
                 if(isActive){
                     print("active game exist")
-                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: self.fbToken)
                     TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                         //launched
                     }
@@ -110,7 +100,7 @@ class ViewController: UIViewController {
                 //gamesArray : [TQKGame] ... active and non active games
                 if(isActive){
                     print("active game exist")
-                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS)
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: self.fbToken)
                     TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                         //launched
                     }
@@ -168,8 +158,10 @@ extension ViewController : UITableViewDelegate {
                                         self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
                                     }else if(indexPath.row == 2){
                                         self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
-                                    }else{
+                                    }else if(indexPath.row == 3){
                                         self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                    }else if(indexPath.row == 4){
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item, fullWebExp: true)
                                     }
                                 }else {
                                     if(indexPath.row == 0){
@@ -178,8 +170,10 @@ extension ViewController : UITableViewDelegate {
                                         self.launchGame(useWebPlayer: false, alwaysUseHLS: true, theGame: item)
                                     }else if(indexPath.row == 2){
                                         self.launchGame(useWebPlayer: true, alwaysUseHLS: false, theGame: item)
-                                    }else{
+                                    }else if(indexPath.row == 3){
                                         self.launchGame(useWebPlayer: true, alwaysUseHLS: true, theGame: item)
+                                    }else if(indexPath.row == 4){
+                                        self.launchGame(useWebPlayer: true, alwaysUseHLS: true,theGame: item, fullWebExp: true)
                                     }
                                 }
                             }
@@ -206,8 +200,10 @@ extension ViewController : UITableViewDelegate {
         if(indexPath.section == 0){
             if(indexPath.row == 0){
                 self.logout()
-            }else{
+            }else if(indexPath.row == 1) {
                 self.cashOut()
+            }else{
+                self.performSegue(withIdentifier: "showCards", sender: self)
             }
         }else if(indexPath.section == 1) {
             if(indexPath.row == 0){
@@ -216,8 +212,10 @@ extension ViewController : UITableViewDelegate {
                 self.searchAndLaunchGame(test: false, useWebPlayer: false, alwaysUseHLS: true)
             }else if(indexPath.row == 2){
                 self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: false)
-            }else{
+            }else if(indexPath.row == 3){
                 self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: true)
+            }else if(indexPath.row == 4){
+                self.searchAndLaunchGame(test: false, useWebPlayer: true, alwaysUseHLS: true, fullWebExp: true)
             }
         }else {
             if(indexPath.row == 0){
@@ -226,9 +224,12 @@ extension ViewController : UITableViewDelegate {
                 self.searchAndLaunchGame(test: true, useWebPlayer: false, alwaysUseHLS: true)
             }else if(indexPath.row == 2){
                 self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: false)
-            }else{
+            }else if(indexPath.row == 3){
                 self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: true)
+            }else if(indexPath.row == 4){
+                self.searchAndLaunchGame(test: true, useWebPlayer: true, alwaysUseHLS: true, fullWebExp: true)
             }
+            
         }
     }
 }
@@ -236,9 +237,9 @@ extension ViewController : UITableViewDelegate {
 extension ViewController : UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(section == 0){
-            return 2
+            return 3
         }else{
-            return 4
+            return 5
         }
     }
     
@@ -254,8 +255,10 @@ extension ViewController : UITableViewDataSource {
         if(indexPath.section == 0){
             if(indexPath.row == 0){
                 cell.textLabel?.text = "Logout"
-            }else{
+            }else if(indexPath.row == 1){
                 cell.textLabel?.text = "Cashout"
+            }else{
+                cell.textLabel?.text = "View Cards UI"
             }
         }else if(indexPath.section == 1) {
             if(indexPath.row == 0){
@@ -264,8 +267,10 @@ extension ViewController : UITableViewDataSource {
                 cell.textLabel?.text = "Native / HLS"
             }else if(indexPath.row == 2){
                 cell.textLabel?.text = "Web / LLHLS"
-            }else{
+            }else if(indexPath.row == 3){
                 cell.textLabel?.text = "Web / HLS"
+            }else{
+                cell.textLabel?.text = "Full Web Experience"
             }
         }else {
             if(indexPath.row == 0){
@@ -274,8 +279,10 @@ extension ViewController : UITableViewDataSource {
                 cell.textLabel?.text = "Native / HLS"
             }else if(indexPath.row == 2){
                 cell.textLabel?.text = "Web / LLHLS"
-            }else{
+            }else if(indexPath.row == 3){
                 cell.textLabel?.text = "Web / HLS"
+            }else{
+                cell.textLabel?.text = "Full Web Experience"
             }
         }
         
