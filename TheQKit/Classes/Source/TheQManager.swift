@@ -551,30 +551,30 @@ class TheQManager {
             print("TheQKit ERROR: NO USER LOGGED IN - CAN NOT LAUNCH GAME")
             return
         }else{
-            //check to make sure the host/sseHost exist
-            if(theGame.host == nil || theGame.sseHost == nil){
-                //Do not launch, though logged in when trying to join the game, they were not logged in when getting a list of games and do not have the required parameters
-                if(theGame.testMode){
-                    //refresh test game
-                    self.CheckForTestGames { (sucess, games) in
-                        if let game = games?.first(where: {$0.id == theGame.id}) {
-                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
-                        }else{
-                            print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
-                        }
-                    }
-                }else{
-                    //refresh normal
-                    self.CheckForGames { (success, games) in
-                        if let game = games?.first(where: {$0.id == theGame.id}) {
-                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
-                        }else{
-                            print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
-                        }
-                    }
-                }
-                return
-            }
+//            check to make sure the host/sseHost exist
+//            if(theGame.host == nil || theGame.sseHost == nil){
+//                //Do not launch, though logged in when trying to join the game, they were not logged in when getting a list of games and do not have the required parameters
+//                if(theGame.testMode){
+//                    //refresh test game
+//                    self.CheckForTestGames { (sucess, games) in
+//                        if let game = games?.first(where: {$0.id == theGame.id}) {
+//                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
+//                        }else{
+//                            print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
+//                        }
+//                    }
+//                }else{
+//                    //refresh normal
+//                    self.CheckForGames { (success, games) in
+//                        if let game = games?.first(where: {$0.id == theGame.id}) {
+//                            TheQManager.sharedInstance.LaunchGame(theGame: game, gameOptions: gameOptions, completed: completed)
+//                        }else{
+//                            print("TheQKit ERROR: GAME DOES NOT CONTAIN HOST URL")
+//                        }
+//                    }
+//                }
+//                return
+//            }
         }
         
         let podBundle = Bundle(for: TheQKit.self)

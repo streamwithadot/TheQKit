@@ -37,6 +37,7 @@ public struct TQKLoginResponse: Mappable{
     public var user: TQKUser?
     public var oauth: TQKOAuth?
     public var tester: Bool = false
+    public var success : Bool = true
     
     public init?(map: Map) {
         
@@ -46,7 +47,41 @@ public struct TQKLoginResponse: Mappable{
         user 	<- map["user"]
         oauth <- map["oauth"]
         tester <- map["tester"]
+        success <- map["success"]
         
         user?.tester = tester
+    }
+}
+
+public struct TQKLoginData: Mappable {
+    public var user: TQKUser?
+    public var oauth: TQKOAuth?
+    
+    public init?(map: Map) {
+        
+    }
+    
+    mutating public func mapping(map: Map) {
+        user     <- map["user"]
+        oauth <- map["oauth"]
+    }
+}
+
+public struct TQKWebLoginResponse: Mappable{
+    
+    public var data: TQKLoginData?
+    public var tester: Bool = false
+    public var success : Bool = true
+    
+    public init?(map: Map) {
+        
+    }
+    
+    mutating public func mapping(map: Map) {
+        data     <- map["data"]
+        tester <- map["tester"]
+        success <- map["success"]
+        
+        data?.user?.tester = tester
     }
 }

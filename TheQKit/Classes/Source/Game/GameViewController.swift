@@ -1624,14 +1624,19 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             // register the bridge script that listens for the output
             webView.configuration.userContentController.add(self, name: "logHandler")
 
-            let bearerToken = gameOptions?.firebaseToken!
+            var bearerToken = gameOptions?.firebaseToken!
+            var webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&authToken=\(bearerToken!)"
+            if bearerToken == nil {
+                let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
+                bearerToken = myTokens.accessToken!
+                webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&qToken=\(bearerToken!)"
+            }
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
             webView.tag = 1
             self.eliminationHeaderView.isHidden = true
-            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&authToken=\(bearerToken!)"
-//            print(webPlayerUrl)
+            
             let link = URL(string:webPlayerUrl)!
             let request = URLRequest(url: link)
             self.previewView.isUserInteractionEnabled = true
