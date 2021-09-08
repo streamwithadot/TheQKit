@@ -44,7 +44,7 @@ protocol StatsDelegate {
     func leaderBoardGoDown()
 }
 
-class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDelegate, WKNavigationDelegate, WKUIDelegate {
     
     func getColorForID(catId: String) -> UIColor {
         if(colorOverride != nil){
@@ -1601,12 +1601,6 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         }
     }
     
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "logHandler" {
-//            print("LOG: \(message.body)")
-        }
-    }
-    
     func initializePlayer(url: String) {
         
         if(gameOptions!.fullWebExperience == true){
@@ -1614,23 +1608,22 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             webConfiguration.allowsInlineMediaPlayback = true
             webConfiguration.ignoresViewportScaleLimits = true
             webConfiguration.mediaTypesRequiringUserActionForPlayback = []
-            
+                        
             let webView = WKWebView(frame: self.previewView.bounds, configuration: webConfiguration)
+            webView.configuration.userContentController.add(self, name: "appInterface")
             
             // inject JS to capture console.log output and send to iOS
-            let source = "function captureLog(msg) { window.webkit.messageHandlers.logHandler.postMessage(msg); } window.console.log = captureLog; window.console.warn = captureLog; window.console.error = captureLog;"
-            let script = WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
-            webView.configuration.userContentController.addUserScript(script)
-            // register the bridge script that listens for the output
-            webView.configuration.userContentController.add(self, name: "logHandler")
-
-            var bearerToken = gameOptions?.firebaseToken!
-            var webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&authToken=\(bearerToken!)"
-            if bearerToken == nil {
-                let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
-                bearerToken = myTokens.accessToken!
-                webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&qToken=\(bearerToken!)"
-            }
+//            let source = """
+//    function captureLog(msg) { window.webkit.messageHandlers.appInterface.postMessage(msg); }  window.console.info = captureLog; window.console.error = captureLog; window.console.log = captureLog;
+//    """
+//
+//            let script = WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
+//            webView.configuration.userContentController.addUserScript(script)
+            
+            let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
+            let bearerToken = myTokens.accessToken!
+            let encodedToken = bearerToken.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&qToken=\(encodedToken!)&useMobile=1"
 
             webView.navigationDelegate = self
             webView.uiDelegate = self
@@ -2123,5 +2116,28 @@ extension UIImageView {
             }
         }
     }
+}
+
+
+extension GameViewController : WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "appInterface" {
+            let str = message.body as! String
+            print(str)
+            if let endGameMsg = TQKWebEndGame(JSONString: str) {
+                if(endGameMsg.success){
+                    let won = endGameMsg.data?.won
+                    if(won!){
+                        NotificationCenter.default.post(name: .gameWon, object: nil)
+                    }
+                    self.dismiss(animated: true){
+                        self.completed!(true)
+                    }
+                }
+                
+            }
+        }
+    }
+    
 }
 

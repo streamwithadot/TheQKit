@@ -91,7 +91,7 @@ public struct TQKGameOptions {
     public var useWebPlayer : Bool = false
     public var alwaysUseHLS : Bool = false
     public var fullWebExperience : Bool = true
-    public var firebaseToken : String? = nil
+//    public var firebaseToken : String? = nil
     
     public init(logoOverride : UIImage? = nil,
                 colorCode: String? = nil,
@@ -105,8 +105,7 @@ public struct TQKGameOptions {
                 isEliminationDisabled: Bool? = false,
                 useWebPlayer: Bool? = false,
                 alwaysUseHLS: Bool? = false,
-                fullWebExperience : Bool? = true,
-                firebaseToken : String? = nil) {
+                fullWebExperience : Bool? = true) {
         
                     self.logoOverride = logoOverride
                     self.colorCode = colorCode
@@ -125,7 +124,7 @@ public struct TQKGameOptions {
                     self.useWebPlayer = useWebPlayer!
                     self.alwaysUseHLS = alwaysUseHLS!
                     self.fullWebExperience = fullWebExperience!
-                    self.firebaseToken = firebaseToken
+//                    self.firebaseToken = firebaseToken
            }
 }
 

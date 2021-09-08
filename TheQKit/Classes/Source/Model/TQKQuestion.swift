@@ -9,6 +9,49 @@
 import Foundation
 import ObjectMapper
 
+/*
+ {
+   "type": "GAME_ENDED",
+   "success": true,
+   "data": {
+     "won": true
+   }
+ }
+ */
+
+struct TQKWebEndGameData: Mappable{
+    
+    var won : Bool = false
+
+    init?(map: Map) {
+        
+    }
+        
+    mutating func mapping(map: Map) {
+        
+        won <- map["won"]
+    }
+    
+}
+
+struct TQKWebEndGame: Mappable{
+    
+    var type : String = ""
+    var success : Bool = false
+    var data : TQKWebEndGameData?
+
+    init?(map: Map) {
+        
+    }
+        
+    mutating func mapping(map: Map) {
+        type <- map["type"]
+        success <- map["success"]
+        data <- map["data"]
+    }
+    
+}
+
 public enum TQKQuestionType : String {
     case TRIVIA = "TRIVIA"
     case POPULAR = "POPULAR"

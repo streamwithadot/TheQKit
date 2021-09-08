@@ -547,7 +547,7 @@ class TheQManager {
             return
         }
         
-        if(TheQManager.sharedInstance.getUser() == nil && gameOptions.fullWebExperience == false){
+        if(TheQManager.sharedInstance.getUser() == nil){
             print("TheQKit ERROR: NO USER LOGGED IN - CAN NOT LAUNCH GAME")
             return
         }else{
