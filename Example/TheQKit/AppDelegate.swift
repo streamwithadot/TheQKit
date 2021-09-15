@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        TheQKit.initialize(baseURL:"", token: "")
+        TheQKit.initialize(baseURL:"",webPlayerURL: "",partnerName:"", token: "")
         TheQKit.enableScreenRecording()
         FirebaseApp.configure()
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID

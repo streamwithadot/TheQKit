@@ -17,14 +17,14 @@ class ViewController: UIViewController {
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var tableView: UITableView!
     
-    var fbToken : String? = nil
+//    var fbToken : String? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let key = "firebaseToken"
-        let preferences = UserDefaults.standard
-        fbToken = preferences.string(forKey: key)
+//        let key = "firebaseToken"
+//        let preferences = UserDefaults.standard
+//        fbToken = preferences.string(forKey: key)
 
     }
 
@@ -71,7 +71,7 @@ class ViewController: UIViewController {
     func launchGame(useWebPlayer:Bool,alwaysUseHLS:Bool, theGame: TQKGame, fullWebExp:Bool? = false){
             
         print("active game exist")
-        let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: fbToken)
+        let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp)
         
         TheQKit.LaunchGame(theGame: theGame, gameOptions: options) { (success) in
             //launched
@@ -86,7 +86,7 @@ class ViewController: UIViewController {
                 //gamesArray : [TQKGame] ... active and non active games
                 if(isActive){
                     print("active game exist")
-                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: self.fbToken)
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp)
                     TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                         //launched
                     }
@@ -100,7 +100,7 @@ class ViewController: UIViewController {
                 //gamesArray : [TQKGame] ... active and non active games
                 if(isActive){
                     print("active game exist")
-                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp, firebaseToken: self.fbToken)
+                    let options = TQKGameOptions(useWebPlayer: useWebPlayer, alwaysUseHLS: alwaysUseHLS, fullWebExperience: fullWebExp)
                     TheQKit.LaunchGame(theGame: gamesArray!.first!, gameOptions: options) { (success) in
                         //launched
                     }

@@ -1394,6 +1394,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         
         setupGameOptions()
         
+        if(self.gameOptions!.fullWebExperience){
+            self.eliminationHeaderView.isHidden = true
+        }
+        
         if(self.theGame?.winCondition == TQKWinCondition.POINTS || self.theGame?.winCondition == TQKWinCondition.WAGER){
             //show the points header instead of old header
             self.centerHeaderView.isHidden = false
@@ -1628,6 +1632,8 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             webView.navigationDelegate = self
             webView.uiDelegate = self
             webView.tag = 1
+            webView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#222222")
+            webView.isOpaque = false
             self.eliminationHeaderView.isHidden = true
             
             let link = URL(string:webPlayerUrl)!
