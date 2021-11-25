@@ -12,7 +12,7 @@ import Foundation
 public struct TQKFacebookAuth {
     public var id: String
     public var accessToken: String
-    
+
     public var dictionaryRepresentation: [String: Any] {
         return
              [ "facebook": [
@@ -31,7 +31,7 @@ public struct TQKFacebookAuth {
 public struct TQKAccountKitAuth {
     public var id: String
     public var accessToken: String
-    
+
     public var dictionaryRepresentation: [String: Any] {
         return
             [ "accountKit": [
@@ -40,18 +40,18 @@ public struct TQKAccountKitAuth {
                 ]
         ]
     }
-    
+
     public init(id: String, accessToken: String) {
         self.id = id
         self.accessToken = accessToken
     }
-    
+
 }
 
 public struct TQKFirebaseAuth {
     public var id: String
     public var accessToken: String
-    
+
     public var dictionaryRepresentation: [String: Any] {
         return
             [ "firebase": [
@@ -60,17 +60,17 @@ public struct TQKFirebaseAuth {
                 ]
         ]
     }
-    
+
     public init(id: String, accessToken: String) {
         self.id = id
         self.accessToken = accessToken
     }
-    
+
 }
 
 public struct TQKOneAccountAuth {
     public var accessToken: String
-    
+
     public var dictionaryRepresentation: [String: Any] {
         return
             [ "oneAccount": [
@@ -78,11 +78,28 @@ public struct TQKOneAccountAuth {
                 ]
         ]
     }
-    
+
     public init(accessToken: String) {
         self.accessToken = accessToken
     }
-    
+
+}
+
+public struct TQKMimirAuth {
+    public var accessToken: String
+
+    public var dictionaryRepresentation: [String: Any] {
+        return
+            [ "mimir": [
+                "accessToken": accessToken
+                ]
+        ]
+    }
+
+    public init(accessToken: String) {
+        self.accessToken = accessToken
+    }
+
 }
 
 public struct TQKCommonAuth {
@@ -90,9 +107,9 @@ public struct TQKCommonAuth {
     public var id: String?
     public var accessToken: String
     public var provider: String
-    
+
     public var dictionaryRepresentation: [String: Any] {
-        
+
         if(id == nil){
             return
                 [ provider: [
@@ -108,7 +125,7 @@ public struct TQKCommonAuth {
             ]
         }
     }
-    
+
     public init(id: String? = nil, accessToken: String, provider: String) {
         if(id != nil){
             self.id = id
@@ -116,5 +133,5 @@ public struct TQKCommonAuth {
         self.accessToken = accessToken
         self.provider = provider
     }
-    
+
 }

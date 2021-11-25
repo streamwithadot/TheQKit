@@ -49,7 +49,7 @@ TODO: Add long description of the pod here.
   s.frameworks = 'UIKit', 'VideoToolbox', 'QuartzCore', 'OpenGLES', 'CoreServices', 'MediaPlayer', 'CoreVideo', 'CoreMedia', 'CoreGraphics', 'AVFoundation', 'AudioToolbox'
     
   s.dependency 'Alamofire', '~> 4.9.1'
-  s.dependency 'lottie-ios', '~> 3.1.6'
+  s.dependency 'lottie-ios'
   s.dependency 'SwiftyJSON', '~> 5.0.0'
   s.dependency 'ObjectMapper', '~> 3.5.2'
   s.dependency 'Toast-Swift', '~> 5.0.1'

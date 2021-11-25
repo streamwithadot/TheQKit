@@ -115,6 +115,18 @@ public class TheQKit {
     public class func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
         TheQManager.sharedInstance.LoginQUserWithApple(userID: userID, identityString: identityString, username: username, completionHandler: completionHandler)
     }
+
+    /// Logs a user in using Sign in with Mimir, setting a user object into NSUserDefaults
+    ///
+    /// - Parameters:
+    ///     - identityString: base64EncodedString  of identityToken
+    ///     - username: *Optional* provide the username to be used
+    ///     - completionHandler: callback with success/failure bool
+    ///
+    /// - Returns: A bool representing success / failure inside the completion handler
+    public class func LoginQUserWithMimir(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void ) {
+        TheQManager.sharedInstance.LoginQUserWithMimir(tokenString: tokenString, username: username, completionHandler: completionHandler)
+    }
     
     /// Logs a user in OneAccount, setting a user object into NSUserDefaults
     ///
@@ -156,7 +168,17 @@ public class TheQKit {
     ///
     /// - Returns: callback with active game flag and array of scheduled games
     public class func CheckForGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
-        return TheQManager.sharedInstance.CheckForGames(completionHandler: completionHandler)
+        return TheQManager.sharedInstance.CheckForGames(anonymous: false, completionHandler: completionHandler)
+    }
+
+    /// Checks for scheduled games, returning a flag if any of them are currently active
+    ///
+    /// - Parameters:
+    ///     - completionHandler: callback with active game flag and array of scheduled games
+    ///
+    /// - Returns: callback with active game flag and array of scheduled games
+    public class func CheckForGames(anonymous: Bool, completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) {
+        return TheQManager.sharedInstance.CheckForGames(anonymous: anonymous, completionHandler: completionHandler)
     }
     
     /// Launches a specified game
@@ -170,6 +192,19 @@ public class TheQKit {
         TheQManager.sharedInstance.LaunchGame(theGame: theGame,
                                               gameOptions : gameOptions!,
                                               completed: completed)
+    }
+
+    /// Launches a specified game
+    ///
+    /// - Parameters:
+    ///     - gameId: Game Id
+    ///     - gameOptions: TQKGameOptions object for custom UI elements
+    public class func LaunchGameById(gameId : String,
+                                     gameOptions : TQKGameOptions? = TQKGameOptions(),
+                                     completed: @escaping (_ success : Bool) -> Void ){
+        TheQManager.sharedInstance.LaunchGameById(gameId: gameId,
+                                                  gameOptions : gameOptions!,
+                                                  completed: completed)
     }
     
     /// Launches the most recent active game
