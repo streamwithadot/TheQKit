@@ -402,8 +402,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             if(self.gameOptions?.fullWebExperience == false){
                 self.setUpEventSource()
             }
-            
-            if(!self.theGame!.videoDisabled){
+
+            if (self.gameOptions?.fullWebExperience == true) {
+                initializeFullWebPlayer()
+            } else if(!self.theGame!.videoDisabled){
     //            spinnerView.animate()
     //            self.spinnerView.isHidden = true
                 if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
@@ -1604,53 +1606,57 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
             }
         }
     }
+
+    func initializeFullWebPlayer() {
+        let webConfiguration = WKWebViewConfiguration()
+        webConfiguration.allowsInlineMediaPlayback = true
+        webConfiguration.ignoresViewportScaleLimits = true
+        webConfiguration.mediaTypesRequiringUserActionForPlayback = []
+
+        let webView = WKWebView(frame: self.previewView.bounds, configuration: webConfiguration)
+        webView.configuration.userContentController.add(self, name: "appInterface")
+
+        // inject JS to capture console.log output and send to iOS
+        //            let source = """
+        //    function captureLog(msg) { window.webkit.messageHandlers.appInterface.postMessage(msg); }  window.console.info = captureLog; window.console.error = captureLog; window.console.log = captureLog;
+        //    """
+        //
+        //            let script = WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
+        //            webView.configuration.userContentController.addUserScript(script)
+
+        let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
+        let bearerToken = myTokens.accessToken!
+        let encodedToken = bearerToken.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+        let webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&qToken=\(encodedToken!)&useMobile=1"
+
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        webView.tag = 1
+        webView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#222222")
+        webView.isOpaque = false
+        self.eliminationHeaderView.isHidden = true
+
+        let link = URL(string:webPlayerUrl)!
+        let request = URLRequest(url: link)
+        self.previewView.isUserInteractionEnabled = true
+        self.previewView.addSubview(webView)
+        self.previewView.sendSubviewToBack(webView)
+
+        NSLayoutConstraint.activate([
+                                      webView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
+                                      webView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
+                                      webView.topAnchor.constraint(equalTo: previewView.topAnchor),
+                                      webView.bottomAnchor.constraint(equalTo: previewView.bottomAnchor)
+                                    ])
+        self.previewView.autoresizesSubviews = true
+
+        webView.load(request)
+    }
     
     func initializePlayer(url: String) {
         
         if(gameOptions!.fullWebExperience == true){
-            let webConfiguration = WKWebViewConfiguration()
-            webConfiguration.allowsInlineMediaPlayback = true
-            webConfiguration.ignoresViewportScaleLimits = true
-            webConfiguration.mediaTypesRequiringUserActionForPlayback = []
-                        
-            let webView = WKWebView(frame: self.previewView.bounds, configuration: webConfiguration)
-            webView.configuration.userContentController.add(self, name: "appInterface")
-            
-            // inject JS to capture console.log output and send to iOS
-//            let source = """
-//    function captureLog(msg) { window.webkit.messageHandlers.appInterface.postMessage(msg); }  window.console.info = captureLog; window.console.error = captureLog; window.console.log = captureLog;
-//    """
-//
-//            let script = WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
-//            webView.configuration.userContentController.addUserScript(script)
-            
-            let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
-            let bearerToken = myTokens.accessToken!
-            let encodedToken = bearerToken.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
-            let webPlayerUrl = "\(TQKConstants.webPlayerUrl)partner/\(TQKConstants.partnerName)/games/\(self.theGame!.id!)&qToken=\(encodedToken!)&useMobile=1"
-
-            webView.navigationDelegate = self
-            webView.uiDelegate = self
-            webView.tag = 1
-            webView.backgroundColor = TheQKit.hexStringToUIColor(hex: "#222222")
-            webView.isOpaque = false
-            self.eliminationHeaderView.isHidden = true
-            
-            let link = URL(string:webPlayerUrl)!
-            let request = URLRequest(url: link)
-            self.previewView.isUserInteractionEnabled = true
-            self.previewView.addSubview(webView)
-            self.previewView.sendSubviewToBack(webView)
-            
-            NSLayoutConstraint.activate([
-                webView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
-                webView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
-                webView.topAnchor.constraint(equalTo: previewView.topAnchor),
-                webView.bottomAnchor.constraint(equalTo: previewView.bottomAnchor)
-            ])
-            self.previewView.autoresizesSubviews = true
-            
-            webView.load(request)
+            initializeFullWebPlayer()
         }
         else if(gameOptions!.useWebPlayer && !(TQKConstants.webPlayerUrl.isEmpty)){
             let webConfiguration = WKWebViewConfiguration()
@@ -1725,7 +1731,10 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
         self.reconnectTimer = nil
         reconnectCount = 0
         shouldReconnect = false
-        if(!self.theGame!.videoDisabled){
+
+        if (self.gameOptions!.fullWebExperience) {
+            self.initializeFullWebPlayer()
+        } else if (!self.theGame!.videoDisabled){
             if self.theGame?.llhlsUrl != nil && !self.gameOptions!.alwaysUseHLS {
                 self.initializePlayer(url: (self.theGame?.llhlsUrl)!)
             }else{

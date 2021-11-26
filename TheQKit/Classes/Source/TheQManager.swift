@@ -10,7 +10,7 @@ import Alamofire
 import SwiftyJSON
 
 class TheQManager {
-    
+
     var profanityFlag : Bool = true
     var canRecordScreen : Bool = false
     static let sharedInstance = TheQManager()
@@ -25,32 +25,32 @@ class TheQManager {
             }
         }
     }
-    
+
     init() {
         apiToken = ""
     }
-    
+
     func disableProfanityFilter(){
         self.profanityFlag = false
     }
-    
+
     func enableScreenRecording(){
         self.canRecordScreen = true
     }
-    
+
     func getUser() -> TQKUser? {
         return TheQManager.sharedInstance.loggedInUser
     }
-    
+
     func getPartnerCode() -> String? {
-        
+
         if TheQManager.sharedInstance.apiToken != nil && !(TheQManager.sharedInstance.apiToken!.isEmpty){
             return TheQManager.sharedInstance.apiToken
         }else{
             return nil
         }
     }
-    
+
 //    func initialize() {
 //        TheQManager.sharedInstance.apiToken = ""
 //        mixpanelInstance =  Mixpanel.initialize(token: TQKConstants.MIXPANEL_TOKEN)
@@ -60,7 +60,7 @@ class TheQManager {
 //        TheQManager.sharedInstance.apiToken = apiToken
 //        mixpanelInstance =  Mixpanel.initialize(token: TQKConstants.MIXPANEL_TOKEN)
 //    }
-    
+
     func initialize(baseURL:String, locale:String, moneySymbol:String, appName:String,token apiToken: String? = nil, webPlayerURL:String? = nil, partnerName:String? = nil) {
         TheQManager.sharedInstance.apiToken = apiToken ?? ""
         UserDefaults.standard.set(baseURL, forKey: "TQK_BASE_URL")
@@ -71,8 +71,8 @@ class TheQManager {
         UserDefaults.standard.set(apiToken, forKey: "TQK_API_TOKEN")
         UserDefaults.standard.set(partnerName, forKey: "TQK_PARTNER_NAME")
         UserDefaults.standard.synchronize()
-        
-        
+
+
         if(TheQManager.sharedInstance.loggedInUser != nil){
             //Refresh user object if needed
             let lastUserUpdate = UserDefaults.standard.object(forKey: "lastUserUpdate")
@@ -87,26 +87,26 @@ class TheQManager {
             }
         }
     }
-    
-    
+
+
     // MARK: functions
-    
+
     func updateUserObject(){
-        
+
         if(TheQManager.sharedInstance.getUser() == nil){
             return
         }
-        
+
         let userUrl = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
         if UserDefaults.standard.object(forKey: "myTokens") != nil{
             let myTokens =  TQKOAuth(dictionary: UserDefaults.standard.object(forKey: "myTokens") as! [String : Any])!
             let finalBearerToken:String = "Bearer " + (myTokens.accessToken)!
-            
+
             let headers = [
                 "Authorization": finalBearerToken,
                 "Accept": "application/json",
             ]
-            
+
             Alamofire.request(userUrl, parameters: nil, headers: headers).responseJSON { response in
                 response.result.ifFailure {
                     //check for 401
@@ -118,11 +118,11 @@ class TheQManager {
                         })
                     }
                 }
-                
-                
+
+
                 response.result.ifSuccess {
                     if let json = response.result.value as? [String: Any] {
-                        
+
                         if ( !(json["success"] as! Bool) ) {
                             if ( json["errorCode"] != nil ){
                                 let errorCode = json["errorCode"] as! String
@@ -131,7 +131,7 @@ class TheQManager {
                                     NotificationCenter.default.post(name: .userBanned, object: nil)
                                 }
                             }
-                            
+
                             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                                 if(utf8Text == "Token validation error."){
                                     TheQManager.sharedInstance.refreshToken(completionHandler: { (success) in
@@ -141,7 +141,7 @@ class TheQManager {
                                     })
                                 }
                             }
-                            
+
                         }else{
                             do{
                                 let json = try JSON(data: response.data!)
@@ -158,34 +158,34 @@ class TheQManager {
                         }
                     }
                 }
-                
+
             }
         }
-        
+
 
     }
-    
+
     func updateUsername(username:String, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
         if(TheQManager.sharedInstance.loggedInUser == nil){
             completionHandler(false,"user not logged in")
             return
         }
-        
+
         let key = "token"
         let preferences = UserDefaults.standard
         let bearerToken = preferences.string(forKey: key)
         let finalBearerToken:String = "Bearer " + (bearerToken as! String)
-        
+
         var parameters: Parameters = [:]
         parameters.updateValue(username , forKey: "username")
         let headers: HTTPHeaders = [
             "Authorization": finalBearerToken,
             "Accept": "application/json"
         ]
-        
+
         let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)! + "/username"
         Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
-                
+
             response.result.ifFailure {
                 completionHandler(false,"")
             }
@@ -209,25 +209,25 @@ class TheQManager {
             }
         }
     }
-    
+
     func updateUser(email: String? = nil, phoneNumber: String? = nil, completionHandler: @escaping (_ success: Bool, _ errorrMsg: String) -> Void) {
         if(TheQManager.sharedInstance.loggedInUser == nil){
             completionHandler(false,"User not logged in")
             return
         }
-        
+
         let key = "token"
         let preferences = UserDefaults.standard
         let bearerToken = preferences.string(forKey: key)
         let finalBearerToken:String = "Bearer " + (bearerToken as! String)
-        
+
         if(email != nil || phoneNumber != nil){
-        
+
             if(email != nil && !self.isValidEmail(testStr: email!)){
                 completionHandler(false,"invalid email address")
                 return
             }
-            
+
             var parameters: Parameters = [:]
             if(email != nil){
                 parameters.updateValue(email!, forKey: "email")
@@ -239,10 +239,10 @@ class TheQManager {
                 "Authorization": finalBearerToken,
                 "Accept": "application/json"
             ]
-            
+
             let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
             Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON { response in
-                    
+
                 response.result.ifFailure {
                     completionHandler(false,"")
                 }
@@ -261,61 +261,65 @@ class TheQManager {
             }
         }
     }
-    
+
     @discardableResult
     func LoginQUserWithFB(UserID: String, TokenString: String) -> Bool {
         AuthenticationService.sharedInstance.FacebookLogin(UserID: UserID, TokenString: TokenString, apiToken: TheQManager.sharedInstance.apiToken!)
         return true
     }
-    
+
     func LoginQUserWithAK(accountID: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
         AuthenticationService.sharedInstance.AccountKitLogin(userID: accountID, tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
-    
+
     func LoginQUserWithFirebase(userId: String, tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
         AuthenticationService.sharedInstance.FirebaseLogin(userID: userId, tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
-    
+
     func LoginQUserWithOneAccount(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
         AuthenticationService.sharedInstance.OneAccountLogin(tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
-    
+
     func LoginQUserWithApple(userID: String, identityString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
         AuthenticationService.sharedInstance.AppleLogin(userID: userID, identityString: identityString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
     }
-    
+
+    func LoginQUserWithMimir(tokenString: String, username: String? = nil, completionHandler: @escaping (_ success : Bool) -> Void) {
+        AuthenticationService.sharedInstance.MimirLogin(tokenString: tokenString, username: username, apiToken: TheQManager.sharedInstance.apiToken!, completionHandler: completionHandler)
+    }
+
     func refreshToken(completionHandler: @escaping (_ success : Bool) -> Void){
         AuthenticationService.sharedInstance.refreshTokens(apiToken: TheQManager.sharedInstance.apiToken, completionHandler: completionHandler)
     }
-    
+
     func LogoutQUser() {
         AuthenticationService.sharedInstance.commonLogout()
     }
-    
+
     //MARK: Leaderboards
-    
+
     func getCurrentLeaderboard(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?) -> Void) {
         let headers : HTTPHeaders = [
             "Accept": "application/json"
         ]
-        
+
         let params : Parameters = [
             "includeCategories":"true",
             "includeLeaderboards":"true"
         ]
-        
+
         var url:String = TQKConstants.baseUrl + "season"
-        
+
         if(!apiToken!.isEmpty){
             url = url + "?partnerCode=\(apiToken!)"
         }
-        
+
         Alamofire.request(url, parameters: params, headers: headers).responseJSON { response in
-            
+
             response.result.ifFailure {
                 completionHandler(false,nil)
             }
-            
+
             response.result.ifSuccess {
                 if let json = response.result.value as? [String: Any] {
                     if ( !(json["success"] as! Bool) ) {
@@ -336,31 +340,31 @@ class TheQManager {
             }
         }
     }
-    
+
     func getCurrentUserScores(completionHandler: @escaping (_ success: Bool,_ userScores: TQKScores?) -> Void){
-        
+
         if let myUser = TheQManager.sharedInstance.getUser() {
             let key = "token"
             let preferences = UserDefaults.standard
             let bearerToken = preferences.string(forKey: key)
             var finalBearerToken:String = "Bearer " + (bearerToken as! String)
-            
+
             let testHeaders : HTTPHeaders = [
                 "Authorization": finalBearerToken,
                 "Accept": "application/json"
             ]
-            
+
             var url:String = TQKConstants.baseUrl + "category/scores"
-        
+
             if(!apiToken!.isEmpty){
                 url = url + "?partnerCode=\(apiToken!)"
             }
-        
+
             Alamofire.request(url, parameters: nil, headers: testHeaders).responseJSON { response in
                 response.result.ifFailure {
                     completionHandler(false,nil)
                 }
-                
+
                 response.result.ifSuccess {
                     if let json = response.result.value as? [String: Any] {
                         if ( !(json["success"] as! Bool) ) {
@@ -376,13 +380,13 @@ class TheQManager {
                         }
                     }
                 }
-                
+
             }
         }else{
             completionHandler(false,nil)
         }
     }
-    
+
     func getCurrentLeaderboardAndUserScores(completionHandler: @escaping (_ success: Bool,_ leaderboard: TQKLeaderboard?,_ userScores: TQKScores?) -> Void){
         self.getCurrentLeaderboard { (firstsuccess, lb) in
             if(firstsuccess){
@@ -400,13 +404,12 @@ class TheQManager {
             }
         }
     }
-    
+
     //MARK: Game Functions
-    
-    func CheckForGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
-        
+    func CheckForGames(anonymous: Bool, completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
+
         var params : Parameters
-        if(TheQManager.sharedInstance.getUser() == nil){
+        if(TheQManager.sharedInstance.getUser() == nil || anonymous){
               params  = [
                            "includeSubscriberOnly":false,
                            "gameTypes":"TRIVIA,POPULAR"
@@ -419,38 +422,38 @@ class TheQManager {
                 "uid":(TheQManager.sharedInstance.loggedInUser?.id)!
             ]
         }
-        
+
         let gameHeaders : HTTPHeaders = [
             "Accept": "application/json"
         ]
-        
-        
+
+
         var url:String = TQKConstants.baseUrl + "games"
-        
+
         if(!apiToken!.isEmpty){
             url = url + "?partnerCode=\(apiToken!)"
         }
-        
+
         Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
             print("Request: \(String(describing: response.request))")   // original url request
             print("Response: \(String(describing: response.response))") // http url response
             print("Result: \(response.result)")                         // response serialization result
-            
+
             response.result.ifFailure {
                 //TODO - maybe add in a failure card here
                 completionHandler(false,nil)
             }
             response.result.ifSuccess {
-                
+
                 if var json = response.result.value as? [String: Any] {
-                    
+
                     if ( !(json["success"] as! Bool) ) {
-                        
+
                         //                        return false
                         completionHandler(false,nil)
-                        
+
                     }else{
-                        
+
                         do {6
                             let json = try JSON(data: response.data!)
                             print("JSON: \(json)") // serialized json response
@@ -464,60 +467,60 @@ class TheQManager {
                             print(error)
                             completionHandler(false,nil)
                         }
-                        
+
                     }
                 }
             }
-        }        
+        }
     }
-    
+
     func CheckForTestGames(completionHandler: @escaping (_ active: Bool, _ games: [TQKGame]?) -> Void) -> Void {
-        
+
         let key = "token"
         let preferences = UserDefaults.standard
         let bearerToken = preferences.string(forKey: key)
         var finalBearerToken:String = "Bearer " + (bearerToken as! String)
-       
+
         let gameHeaders: HTTPHeaders = [
             "Authorization": finalBearerToken,
             "Accept": "application/json"
         ]
-        
+
         let params : Parameters = [
             "includeSubscriberOnly":false,
             "gameTypes":"TRIVIA,POPULAR",
             "userId":(TheQManager.sharedInstance.loggedInUser?.id)!,
             "uid":(TheQManager.sharedInstance.loggedInUser?.id)!
         ]
-        
+
         var url:String = TQKConstants.baseUrl + "test-games"
-        
+
         if(!apiToken!.isEmpty){
             url = url + "?partnerCode=\(apiToken!)"
         }
-        
+
         Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
             print("Request: \(String(describing: response.request))")   // original url request
             print("Response: \(String(describing: response.response))") // http url response
             print("Result: \(response.result)")                         // response serialization result
-            
+
             response.result.ifFailure {
                 //TODO - maybe add in a failure card here
                 completionHandler(false,nil)
             }
             response.result.ifSuccess {
-                
+
                 if var json = response.result.value as? [String: Any] {
-                    
+
                     if ( !(json["success"] as! Bool) ) {
-                        
+
 //                        let json = try JSON(data: response.data!)
                         print("JSON: \(json)") // serialized json response
                         //                        return false
                         completionHandler(false,nil)
-                        
+
                     }else{
-                        
+
                         do {
                             let json = try JSON(data: response.data!)
                             print("JSON: \(json)") // serialized json response
@@ -531,22 +534,22 @@ class TheQManager {
                             print(error)
                             completionHandler(false,nil)
                         }
-                        
+
                     }
                 }
             }
         }
     }
-    
+
     func LaunchGame(theGame : TQKGame,
                     gameOptions: TQKGameOptions,
                     completed: @escaping (_ success : Bool) -> Void ) {
-        
+
         if(theGame.active == false){
             print("TheQKit ERROR: GAME IS NOT ACTIVE - CAN NOT LAUNCH GAME")
             return
         }
-        
+
         if(TheQManager.sharedInstance.getUser() == nil){
             print("TheQKit ERROR: NO USER LOGGED IN - CAN NOT LAUNCH GAME")
             return
@@ -576,12 +579,12 @@ class TheQManager {
 //                return
 //            }
         }
-        
+
         let podBundle = Bundle(for: TheQKit.self)
         let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
         let bundle = Bundle(url: bundleURL!)!
         let storyboard = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
-        
+
         let vc = storyboard.instantiateViewController(withIdentifier: "gameViewController") as! GameViewController
         vc.myGameId = theGame.id
         vc.host = theGame.host
@@ -593,7 +596,7 @@ class TheQManager {
         vc.theGame = theGame
         vc.completed = completed
         vc.gameOptions = gameOptions
-        
+
         if let topController = UIApplication.topViewController() {
             DispatchQueue.main.async(execute: {
                 if(gameOptions.fullWebExperience){
@@ -610,12 +613,39 @@ class TheQManager {
             })
         }
     }
-    
-    
+
+    func LaunchGameById(gameId: String,
+                        gameOptions: TQKGameOptions,
+                        completed: @escaping (_ success : Bool) -> Void) {
+
+        if (gameOptions.fullWebExperience) {
+            let podBundle = Bundle(for: TheQKit.self)
+            let bundleURL = podBundle.url(forResource: "TheQKit", withExtension: "bundle")
+            let bundle = Bundle(url: bundleURL!)!
+            let storyboard = UIStoryboard(name: TQKConstants.STORYBOARD_STRING, bundle: bundle)
+
+            let vc = storyboard.instantiateViewController(withIdentifier: "gameViewController") as! GameViewController
+            vc.myGameId = gameId
+            vc.gameOptions = gameOptions
+
+            vc.host = ""
+            vc.sseHost = ""
+            vc.rtmpUrl = ""
+            vc.reward = ""
+            vc.theGame = TQKGame()
+            vc.theGame!.id = gameId
+            vc.completed = completed
+
+            if let topController = UIApplication.topViewController() {
+                DispatchQueue.main.async(execute: {topController.present(vc, animated: true) { }})
+            }
+        }
+    }
+
     func LaunchActiveGame(gameOptions: TQKGameOptions,
                           completed: @escaping (_ success : Bool) -> Void ) {
         if(TheQManager.sharedInstance.loggedInUser != nil){
-            
+
             let gameHeaders : HTTPHeaders = [
                 "Accept": "application/json"
             ]
@@ -625,34 +655,34 @@ class TheQManager {
                 "includeSubscriberOnly":false,
                 "gameTypes":"TRIVIA,POPULAR"
             ]
-            
+
             var url:String = TQKConstants.baseUrl + "games"
-            
+
             if(!apiToken!.isEmpty){
                 url = url + "?partnerCode=\(apiToken!)"
             }
-            
+
             Alamofire.request(url, parameters: params, headers: gameHeaders).responseJSON { response in
                 print("Request: \(String(describing: response.request))")   // original url request
                 print("Response: \(String(describing: response.response))") // http url response
                 print("Result: \(response.result)")                         // response serialization result
-                
+
                 response.result.ifFailure {
                     //TODO - maybe add in a failure card here
                 }
                 response.result.ifSuccess {
-                    
+
                     if var json = response.result.value as? [String: Any] {
-                        
+
                         if ( !(json["success"] as! Bool) ) {
-                            
+
                             //no
-                            
+
                         }else{
-                            
+
                             do{
                                 let json = try JSON(data: response.data!)
-                                
+
                                 if (json["games"][0]["active"] == true) {
                                     if let game = TQKGame(JSON: json["games"][0].dictionaryObject!) {
                                         self.LaunchGame(theGame: game,
@@ -671,26 +701,26 @@ class TheQManager {
             //Login is needed
         }
     }
-    
+
     @discardableResult
     func CashOutNoUI(email:String) -> Bool {
-        
+
         if(TheQManager.sharedInstance.loggedInUser == nil){
             return false
         }
-        
+
         let balance = TheQManager.sharedInstance.loggedInUser?.balance
-        
+
         if(balance! <= 0.0 ){
             return false
         }
-        
+
         if(!self.isValidEmail(testStr: email)){
             return false
         }
-        
+
         let finalUrl:String = TQKConstants.baseUrl + "users/\(TheQManager.sharedInstance.loggedInUser!.id!)/withdrawal-request"
-        
+
         let key = "token"
         let preferences = UserDefaults.standard
         let bearerToken = preferences.string(forKey: key)
@@ -699,57 +729,57 @@ class TheQManager {
         let parameters: Parameters = ["email": email,
                                       "userId":userId,
                                       "uid":userId]
-        
+
         let headers: HTTPHeaders = [
             "Authorization": finalBearerToken,
             "Accept": "application/json"
         ]
-        
+
         let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
-        
+
         Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON
             { response in
                 print("Request: \(String(describing: response.request))")   // original url request
                 print("Response: \(String(describing: response.response))") // http url response
                 print("Result: \(response.result)")                         // response serialization result
-                
+
                 if var json = response.result.value as? [String: Any] {
                     print("JSON: \(json)") // serialized json response
                 }
-                
+
                 if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                     print("Data: \(utf8Text)") // original server data as UTF8 string
                 }
-                
+
                 response.result.ifFailure {
                     let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
                         //add an action if needed
                     }))
-                
+
                     if let topController = UIApplication.topViewController() {
                         topController.present(alert, animated: true) {}
                     }
                 }
-                
+
                 response.result.ifSuccess {
                     Alamofire.request(finalUrl, method: .put, parameters: nil, encoding: JSONEncoding.default, headers: headers).responseJSON
                         { response in
                             print("Request: \(String(describing: response.request))")   // original url request
                             print("Response: \(String(describing: response.response))") // http url response
                             print("Result: \(response.result)")                         // response serialization result
-                            
+
                             response.result.ifFailure {
                                 let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
                                 alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
                                     //add an action if needed
                                 }))
-                            
+
                                 if let topController = UIApplication.topViewController() {
                                     topController.present(alert, animated: true) {}
                                 }
                             }
-                            
+
                             response.result.ifSuccess {
                                 if let json = response.result.value as? [String: Any] {
                                     print("JSON: \(json)") // serialized json response
@@ -760,59 +790,59 @@ class TheQManager {
                                     }else{
                                         //TODO: maybe a good spot to make sure the user can get notifications
                                         self.showPopUp()
-                                        
+
 //                                        let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
 //                                        TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
-                                        
+
                                     }
                                 }
                             }
                     }
                 }
         }
-        
+
         return true
     }
-    
-    
+
+
     @discardableResult
     func CashOut() -> Bool {
-        
+
         if(TheQManager.sharedInstance.loggedInUser == nil){
             return false
         }
-        
+
         let alert = UIAlertController(title: "Cash Out", message: "You currently have $\(TheQManager.sharedInstance.loggedInUser?.balance ?? 0). Enter your PayPal email to request to cash out.", preferredStyle: .alert)
-        
+
         alert.addAction(UIAlertAction(title: "Request", style: .default, handler: { (alertAction) in
             let email = alert.textFields![0].text
             print(email)
-            
+
             let balance = TheQManager.sharedInstance.loggedInUser?.balance
-            
+
             if(balance! <= 0.0 ){
                 self.showInsufficientFundsPopUp()
                 return
             }
-            
+
             if(!self.isValidEmail(testStr: email!)){
-                
+
                 let alert = UIAlertController(title: "Invalid Email", message: "Please enter a valid email address", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
                     //add an action if needed
                 }))
-            
+
                 if let topController = UIApplication.topViewController() {
                     topController.present(alert, animated: true) {}
                 }
-                
+
                 return
             }
-            
+
             let finalUrl:String = TQKConstants.baseUrl + "users/\(TheQManager.sharedInstance.loggedInUser!.id!)/withdrawal-request"
             var code:String = ""
             print(finalUrl + "finalUrl")
-            
+
             let key = "token"
             let preferences = UserDefaults.standard
             let bearerToken = preferences.string(forKey: key)
@@ -821,58 +851,58 @@ class TheQManager {
             let parameters: Parameters = ["email": email,
                                           "userId":userId,
                                           "uid":userId]
-            
+
             let headers: HTTPHeaders = [
                 "Authorization": finalBearerToken,
                 "Accept": "application/json"
             ]
-            
+
             let updateURL:String = TQKConstants.baseUrl + "users/" + (TheQManager.sharedInstance.loggedInUser?.id)!
             print(updateURL + "  is the updateURL")
-            
+
             Alamofire.request(updateURL, method: .put, parameters: parameters, encoding: JSONEncoding.default, headers: headers).responseJSON
                 { response in
                     print("Request: \(String(describing: response.request))")   // original url request
                     print("Response: \(String(describing: response.response))") // http url response
                     print("Result: \(response.result)")                         // response serialization result
-                    
+
                     if var json = response.result.value as? [String: Any] {
                         print("JSON: \(json)") // serialized json response
                     }
-                    
+
                     if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                         print("Data: \(utf8Text)") // original server data as UTF8 string
                     }
-                    
+
                     response.result.ifFailure {
                         let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
                             //add an action if needed
                         }))
-                    
+
                         if let topController = UIApplication.topViewController() {
                             topController.present(alert, animated: true) {}
                         }
                     }
-                    
+
                     response.result.ifSuccess {
                         Alamofire.request(finalUrl, method: .put, parameters: nil, encoding: JSONEncoding.default, headers: headers).responseJSON
                             { response in
                                 print("Request: \(String(describing: response.request))")   // original url request
                                 print("Response: \(String(describing: response.response))") // http url response
                                 print("Result: \(response.result)")                         // response serialization result
-                                
+
                                 response.result.ifFailure {
                                     let alert = UIAlertController(title: "Error", message: "An error has occured; please try again later", preferredStyle: .alert)
                                     alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
                                         //add an action if needed
                                     }))
-                                
+
                                     if let topController = UIApplication.topViewController() {
                                         topController.present(alert, animated: true) {}
                                     }
                                 }
-                                
+
                                 response.result.ifSuccess {
                                     if let json = response.result.value as? [String: Any] {
                                         print("JSON: \(json)") // serialized json response
@@ -883,10 +913,10 @@ class TheQManager {
                                         }else{
                                             //TODO: maybe a good spot to make sure the user can get notifications
                                             self.showPopUp()
-                                            
+
 //                                            let props = ["Amount":TheQManager.sharedInstance.loggedInUser?.balance] as! Properties
 //                                            TheQManager.sharedInstance.mixpanelInstance?.track(event: "Cashout Requested", properties: props)
-                                            
+
                                         }
                                     }
                                 }
@@ -899,14 +929,14 @@ class TheQManager {
             textField.placeholder = "email"
             textField.isSecureTextEntry = false // for password input
         })
-        
+
         UIApplication.topViewController()!.present(alert, animated: true) {
-            
+
         }
-        
+
         return true
     }
-    
+
     func isValidEmail(testStr:String) -> Bool {
         let emailRegEx = "(?:[\\p{L}0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[\\p{L}0-9!#$%\\&'*+/=?\\^_`{|}" +
             "~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\" +
@@ -916,38 +946,38 @@ class TheQManager {
             "9][0-9]?|[\\p{L}0-9-]*[\\p{L}0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21" +
         "-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
         //"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        
+
         let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailTest.evaluate(with: testStr)
     }
-    
+
     func showInsufficientFundsPopUp(){
         print("showing dialog")
         // Prepare the popup assets
         var title = "Insufficient Funds"
         let message = "You must have at least $25 in your account to cashout"
-       
+
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Okay!", style: .default, handler: { (alertAction) in
             //add an action if needed
         }))
-    
+
         if let topController = UIApplication.topViewController() {
             topController.present(alert, animated: true) {}
         }
     }
-    
+
     func showPopUp() {
         let alert = UIAlertController(title: "Congratulations!", message: "We payout on a monthly basis.  You will be notified once your prize payout has been processed via PayPal.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (alertAction) in
             //add an action if needed
         }))
-    
+
         if let topController = UIApplication.topViewController() {
             topController.present(alert, animated: true) {}
         }
     }
-    
+
     func playTest() {
         //        let urls = ["https://streamvideo.akamaized.net/5a353e10-f2c5-4c63-a7c0-3d6bb0a2df22.mp4"]
         //
@@ -970,7 +1000,7 @@ class TheQManager {
         //
         //        player?.prepareToPlay()
         //        player?.play()
-        
+
         //TEST - FullScreen Questions
 
                 if let path = TheQKit.bundle.path(forResource: "testQuestion", ofType: "json") {
@@ -978,7 +1008,7 @@ class TheQManager {
                         let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .alwaysMapped)
                         let jsonObj = try JSON(data: data)
                         print("jsonData:\(jsonObj)")
-        
+
                         let qu = TQKQuestion(JSON: jsonObj.dictionaryObject!)
 
                         let sb = UIStoryboard(name: "Games", bundle: TheQKit.bundle)
@@ -1030,9 +1060,9 @@ class TheQManager {
 //                } else {
 //                    print("Invalid filename/path.")
 //                }
-        
-        
+
+
     }
-    
-    
+
+
 }

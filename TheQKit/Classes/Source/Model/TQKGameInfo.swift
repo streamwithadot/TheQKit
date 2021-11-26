@@ -146,6 +146,8 @@ public struct TQKGame : Mappable {
     public var active : Bool = false
     public var scheduled : Double = 0
     public var streamUrl : String?
+    public var label : String?
+    public var description : String?
     public var host : String?
     public var sseHost : String?
     public var title : String = "\(TQKConstants.appName) Game Title"
@@ -162,6 +164,7 @@ public struct TQKGame : Mappable {
     public var testMode : Bool = false
     public var videoDisabled : Bool = false
     public var backgroundImageUrl : String?
+    public var previewImageUrl : String?
     public var winCondition : TQKWinCondition = .ELIMINATION
     public var hlsUrl : String?
     public var llhlsUrl : String?
@@ -169,7 +172,7 @@ public struct TQKGame : Mappable {
     public init?(map: Map) {
         
     }
-    
+
     public init () {
         
     }
@@ -180,6 +183,8 @@ public struct TQKGame : Mappable {
         active <- map["active"]
         scheduled <- map["scheduled"]
         streamUrl <- map["streamUrl"]
+        label <- map["label"]
+        description <- map["description"]
         host <- map["host"]
         sseHost <- map["sseHost"]
         theme <- map["theme"]
@@ -194,6 +199,7 @@ public struct TQKGame : Mappable {
         testMode <- map["testMode"]
         videoDisabled <- map["videoDisabled"]
         backgroundImageUrl <- map["backgroundImageUrl"]
+        previewImageUrl <- map["previewImageUrl"]
         winCondition <- map["winCondition"]
         hlsUrl <- map["hlsUrl"]
         llhlsUrl <- map["llhlsUrl"]
