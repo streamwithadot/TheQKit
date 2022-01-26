@@ -89,6 +89,7 @@ class GameViewController: UIViewController, HeartDelegate, GameDelegate, StatsDe
     }
     
     var completed : ((Bool) -> Void)?
+    var gameResultHandler: ((TQKGameResult) -> Void)?
         
     @IBOutlet weak var previewView: UIView!
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -2146,7 +2147,8 @@ extension GameViewController : WKScriptMessageHandler {
                         NotificationCenter.default.post(name: .gameWon, object: nil)
                     }
                     self.dismiss(animated: true){
-                        self.completed!(true)
+                        self.gameResultHandler?(endGameMsg.toGameResult())
+                        self.completed?(true)
                     }
                 }
                 
@@ -2155,4 +2157,3 @@ extension GameViewController : WKScriptMessageHandler {
     }
     
 }
-

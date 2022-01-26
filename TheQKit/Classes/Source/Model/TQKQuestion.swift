@@ -22,14 +22,17 @@ import ObjectMapper
 struct TQKWebEndGameData: Mappable{
     
     var won : Bool = false
+    var winnersCount: Int = 0
+    var reward: Double = 0.0
 
     init?(map: Map) {
         
     }
         
     mutating func mapping(map: Map) {
-        
         won <- map["won"]
+        winnersCount <- map["winnersCount"]
+        reward <- map["reward"]
     }
     
 }
@@ -49,7 +52,22 @@ struct TQKWebEndGame: Mappable{
         success <- map["success"]
         data <- map["data"]
     }
-    
+
+    func toGameResult() -> TQKGameResult {
+        TQKGameResult(
+          ended: true,
+          won: data?.won ?? false,
+          winnersCount: data?.winnersCount ?? 0,
+          reward: data?.reward ?? 0.0
+        )
+    }
+}
+
+public struct TQKGameResult {
+    public var ended = false
+    public var won = false
+    public var winnersCount = 0
+    public var reward = 0.0
 }
 
 public enum TQKQuestionType : String {

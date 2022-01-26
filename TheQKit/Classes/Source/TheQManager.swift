@@ -616,7 +616,7 @@ class TheQManager {
 
     func LaunchGameById(gameId: String,
                         gameOptions: TQKGameOptions,
-                        completed: @escaping (_ success : Bool) -> Void) {
+                        resultHandler: @escaping (_ result : TQKGameResult) -> Void) {
 
         if (gameOptions.fullWebExperience) {
             let podBundle = Bundle(for: TheQKit.self)
@@ -634,7 +634,7 @@ class TheQManager {
             vc.reward = ""
             vc.theGame = TQKGame()
             vc.theGame!.id = gameId
-            vc.completed = completed
+            vc.gameResultHandler = resultHandler
 
             if let topController = UIApplication.topViewController() {
                 DispatchQueue.main.async(execute: {topController.present(vc, animated: true) { }})
