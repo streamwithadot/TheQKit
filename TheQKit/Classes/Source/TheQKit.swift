@@ -201,10 +201,10 @@ public class TheQKit {
     ///     - gameOptions: TQKGameOptions object for custom UI elements
     public class func LaunchGameById(gameId : String,
                                      gameOptions : TQKGameOptions? = TQKGameOptions(),
-                                     completed: @escaping (_ success : Bool) -> Void ){
+                                     resultHandler: @escaping (_ result : TQKGameResult) -> Void ){
         TheQManager.sharedInstance.LaunchGameById(gameId: gameId,
                                                   gameOptions : gameOptions!,
-                                                  completed: completed)
+                                                  resultHandler: resultHandler)
     }
     
     /// Launches the most recent active game
